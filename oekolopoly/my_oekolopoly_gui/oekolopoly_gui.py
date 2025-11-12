@@ -1,16 +1,16 @@
-import random
-import uuid
+# import random
+# import uuid
 import gymnasium as gym
 import copy
 from pygame.math import Vector2
 import numpy as np
 from stable_baselines3 import PPO
-import smtplib
-import datetime
+# import smtplib
+# import datetime
 import os
-from email.mime.text import MIMEText
+# from email.mime.text import MIMEText
 
-from oekolopoly import oekolopoly
+from oekolopoly import oekolopoly       # needed for gym.make
 import pygame
 
 color_red = (255, 0, 0)
@@ -25,9 +25,9 @@ color_brown = (185, 156, 107)
 color_orange = (255, 185, 0)
 
 
-# need to be outside main for real randomness
-#random_number = random.randint(0, 2)
-#user_id = uuid.uuid4()
+# --- need to be outside main for real randomness ---
+# random_number = random.randint(0, 2)
+# user_id = uuid.uuid4()
 
 
 # def setup_game(number, id_):
@@ -298,7 +298,7 @@ class Game:
         self.help_button = Button(Vector2(270, 455), Vector2(130, 70), color_yellow, camera, "Hilfe?", 40)
         self.game_instructions_button = Button(Vector2(20, 90), Vector2(190, 40), color_yellow, camera,
                                                "Spielanleitung")
-        #self.feedback_button = Button(Vector2(20, 145), Vector2(145, 40), color_yellow, camera, "Feedback?")
+        # self.feedback_button = Button(Vector2(20, 145), Vector2(145, 40), color_yellow, camera, "Feedback?")
         self.game_history_button = Button(Vector2(20, 145), Vector2(170, 40), color_yellow, camera, "Spielhistorie")
 
         # diagrams
@@ -470,7 +470,7 @@ class Game:
         # always working
         if self.close_game.button_pressed():
             self.game_loop = False
-        #if self.feedback_button.button_pressed():
+        # if self.feedback_button.button_pressed():
         #    os.startfile("feedback.txt")
         if self.game_instructions_button.button_pressed():
             os.startfile("Spielanleitung.pdf")
@@ -478,16 +478,14 @@ class Game:
             os.startfile("current_game_history.txt")
 
     def change_current_action(self, action_index, change):
-        if change > 0 and self.current_action[action_index] + 1 + self.env.unwrapped.V[action_index] <= self.env.unwrapped.Vmax[
-            action_index]:
+        if change > 0 and self.current_action[action_index] + 1 + self.env.unwrapped.V[action_index] <= self.env.unwrapped.Vmax[action_index]:
             if self.current_action[action_index] < 0:
                 self.available_actionpoints += 1
                 self.current_action[action_index] += 1
             elif self.available_actionpoints > 0:
                 self.current_action[action_index] += 1
                 self.available_actionpoints -= 1
-        elif change < 0 and self.current_action[action_index] - 1 + self.env.unwrapped.V[action_index] >= self.env.unwrapped.Vmin[
-            action_index]:
+        elif change < 0 and self.current_action[action_index] - 1 + self.env.unwrapped.V[action_index] >= self.env.unwrapped.Vmin[action_index]:
             if self.current_action[action_index] > 0:
                 self.available_actionpoints += 1
                 self.current_action[action_index] -= 1
@@ -534,7 +532,7 @@ class Game:
             self.diagrams[diagram_index].current_value = self.env.unwrapped.V[env_position]
 
     def update_labels(self):
-        self.round_label.variable_text = self.env.unwrapped.V[self.env.ROUND]
+        self.round_label.variable_text = self.env.unwrapped.V[self.env.unwrapped.ROUND]
         self.available_actionpoints_label.variable_text = self.available_actionpoints
         if self.available_actionpoints == 0:
             self.available_actionpoints_label.background_color = color_red
@@ -590,9 +588,9 @@ class Game:
         temp_env = copy.deepcopy(self.env)
         action = list(self.current_action)
 
-        action[temp_env.PRODUCTION] -= temp_env.Amin[temp_env.PRODUCTION]
-        action[5] -= temp_env.Amin[5]
-        _, _, done, info = temp_env.step_w_o_clip(action)
+        action[temp_env.unwrapped.PRODUCTION] -= temp_env.unwrapped.Amin[temp_env.unwrapped.PRODUCTION]
+        action[5] -= temp_env.unwrapped.Amin[5]
+        _, _, done, info = temp_env.unwrapped.step_w_o_clip(action)
         for diagram_index in range(len(self.diagrams)):
             env_index = diagram_index
             if env_index == 8:
@@ -655,38 +653,39 @@ class Game:
             action = list(self.current_action)
 
             # umwandlung zu zahlen > 0
-            action[self.env.PRODUCTION] -= self.env.Amin[self.env.PRODUCTION]
-            action[5] -= self.env.Amin[5]
-            self.agent_obs, reward, done, info = self.env.step(action)
+            action[self.env.unwrapped.PRODUCTION] -= self.env.unwrapped.Amin[self.env.unwrapped.PRODUCTION]
+            action[5] -= self.env.unwrapped.Amin[5]
+            self.agent_obs, reward, terminated, truncated, info = self.env.step(action)
+            done = terminated or truncated
 
             if info['valid_move']:
-                #if self.predict_used:
+                # if self.predict_used:
                 #    self.all_actions.append(["ai"])
-                #else:
+                # else:
                 #    self.all_actions.append(["hu"])
-                #if self.preview_mode:
+                # if self.preview_mode:
                 #    self.all_actions.append(["pm"])
                 self.all_actions.append(self.current_action)
                 self.reset_current_action()
                 self.predict_used = False
                 self.available_actionpoints = self.env.unwrapped.V[self.env.unwrapped.POINTS]
-                self.special_action = self.env.unwrapped.V[self.env.EDUCATION] >= 20
+                self.special_action = self.env.unwrapped.V[self.env.unwrapped.EDUCATION] >= 20
                 if done:
                     self.done = True
-                    #games_played = get_number_value_by_name("bin/played_games.txt", "games_played")
-                    #games_played += 1
-                    #with open("bin/played_games.txt", "w") as file:
-                    #   file.write(f"games_played: {games_played}")
+                    # games_played = get_number_value_by_name("bin/played_games.txt", "games_played")
+                    # games_played += 1
+                    # with open("bin/played_games.txt", "w") as file:
+                    #    file.write(f"games_played: {games_played}")
                     self.console_label.text = f"{info['done_reason']}    Endergebnis: {round(reward)} Punkte"
 
-                    #print(self.all_actions)
+                    # print(self.all_actions)
                     sani = ""
                     prod = ""
                     educ = ""
                     lifeq = ""
                     pgrow = ""
                     pgrowspec = ""
-                    acts = [sani,prod,educ,lifeq,pgrow,pgrowspec]
+                    acts = [sani, prod, educ, lifeq, pgrow, pgrowspec]
                     roun = ""
                     round_counter = 0
                     for act in self.all_actions:
@@ -709,14 +708,14 @@ class Game:
                                          f"Lebensqualität:               {acts[3]} Lebensqualität\n"
                                          f"Vermehrungsrate:              {acts[4]} Vermehrungsrate\n"
                                          f"Vermehrungsratespezialfall:   {acts[5]} Vermehrungsratespezialfall\n\n\n")
-                    #print(current_game_text)
+                    # print(current_game_text)
                     with open("current_game_history.txt", "a") as history:
                         history.write(current_game_text)
 
-                    #date_now = datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
-                    #text = f"Runde: {self.env.unwrapped.V[8]}, Punkte: {round(reward)}, Spiele beendet: {games_played}, Zustaende: {self.env.unwrapped.V}, Abbruchgrund: {info['done_reason']}, Datum: {date_now}, Zuege: {self.all_actions}\n"
-                    #with open("bin/game_history.txt", "a") as history:
-                    #    history.write(text)
+                    # date_now = datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
+                    # text = f"Runde: {self.env.unwrapped.V[8]}, Punkte: {round(reward)}, Spiele beendet: {games_played}, Zustaende: {self.env.unwrapped.V}, Abbruchgrund: {info['done_reason']}, Datum: {date_now}, Zuege: {self.all_actions}\n"
+                    # with open("bin/game_history.txt", "a") as history:
+                    #     history.write(text)
             else:
                 self.console_label.text = info['invalid_move_info']
 
@@ -726,11 +725,11 @@ class Game:
         self.special_action_points = 5
 
     def reset_game(self):
-        #if not self.done and self.all_actions != []:
-        #date_now = datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
-        #text = f"Vorzeitiger Abbruch des Spiels, Runde: {self.env.unwrapped.V[8]}, Zustaende {self.env.unwrapped.V}, Datum: {date_now}, Zuege: {self.all_actions}\n"
-        #with open("bin/game_history.txt", "a") as history:
-        #    history.write(text)
+        # if not self.done and self.all_actions != []:
+        # date_now = datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
+        # text = f"Vorzeitiger Abbruch des Spiels, Runde: {self.env.unwrapped.V[8]}, Zustaende {self.env.unwrapped.V}, Datum: {date_now}, Zuege: {self.all_actions}\n"
+        # with open("bin/game_history.txt", "a") as history:
+        #     history.write(text)
 
         self.env = gym.make('Oekolopoly-v2')
         self.agent_obs = self.env.reset()
@@ -741,7 +740,7 @@ class Game:
         self.done = False
         self.special_action = False
         self.special_action_points = 5
-        #self.preview_mode = False
+        # self.preview_mode = False
         self.predict_usages = self.max_predict_usages
         self.predict_used = False
         self.toggle_game_features()
@@ -1088,12 +1087,12 @@ class HelpScreen(pygame.sprite.Sprite):
         y = self.scale_y
         small_font_size = int(25 * x)
         big_font_size = int(30 * x)
-        #extra_large_font_size = int(50 * x)
+        # extra_large_font_size = int(50 * x)
         if self.active:
             # grey background
             pygame.draw.rect(self.image, (0, 0, 0, 200), pygame.Rect(0, 0, 1920 * x, 1080 * y))
             pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(1670 * x, 15 * y, 245 * x, 55 * y))
-            #played_games = get_number_value_by_name("bin/played_games.txt", "games_played")
+            # played_games = get_number_value_by_name("bin/played_games.txt", "games_played")
 
             if self.help_step == 1:
                 draw_text(Vector2(400 * x, 200 * y), self.image, big_font_size,
@@ -1105,14 +1104,14 @@ class HelpScreen(pygame.sprite.Sprite):
                           "Ziel des Spiels ist es erstmal so viele Runden\n"
                           "wie möglich zu überleben, da man erst nach 10 Runden\n"
                           "Punkte verdienen kann. Dann gilt die Punktzahl!\n\n"
-                          #"Zuerst werden 3 Spiele ohne neue Features gespielt.\n"
-                          #"Verdeckte Features werden nach 3 zu Ende gespielten\n"
-                          #"('Game over') Spielen je nach Gruppe freigeschaltet.\n\n"
-                          #"Es wäre schön wenn mindestens 5 Spiele beendet werden.\n"
-                          #f"Bereits beendete Spiele: {played_games}\n\n"
-                          #"Bitte zum Beenden des Spiels den 'Spiel beenden'-Knopf\n"
-                          #"verwenden, damit die Daten anonymisiert übermittelt\n"
-                          #"werden können!\n\n"
+                          # "Zuerst werden 3 Spiele ohne neue Features gespielt.\n"
+                          # "Verdeckte Features werden nach 3 zu Ende gespielten\n"
+                          # "('Game over') Spielen je nach Gruppe freigeschaltet.\n\n"
+                          # "Es wäre schön wenn mindestens 5 Spiele beendet werden.\n"
+                          # f"Bereits beendete Spiele: {played_games}\n\n"
+                          # "Bitte zum Beenden des Spiels den 'Spiel beenden'-Knopf\n"
+                          # "verwenden, damit die Daten anonymisiert übermittelt\n"
+                          # "werden können!\n\n"
                           "Viel Erfolg!")
             elif self.help_step == 2:
                 pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(805 * x, 15 * y, 280 * x, 330 * y))
@@ -1184,9 +1183,9 @@ class HelpScreen(pygame.sprite.Sprite):
                           "Mit dem Knopf Spielanleitung öffnet sich die originale\n"
                           "Spielanleitung des Spiels Ökolopoly.\n\n"
                           "Mit dem Knopf Spielhistorie kann man sich die bereits gespielten Spiele anschauen.\n\n\n\n"
-                          #"Mit dem Knopf Feedback öffnet sich ein Textdokument in\n"
-                          #"das man eine kurze Rückmeldung zum Spiel schreiben kann.\n"
-                          #"Bitte die Textdatei speichern!\n\n\n\n"
+                          # "Mit dem Knopf Feedback öffnet sich ein Textdokument in\n"
+                          # "das man eine kurze Rückmeldung zum Spiel schreiben kann.\n"
+                          # "Bitte die Textdatei speichern!\n\n\n\n"
                           "Mit den Tasten WASD oder den Pfeiltasten auf der Tastatur\n"
                           "kann man sich frei auf dem Spielbrett bewegen und mit dem\n"
                           "Mausrad hinein- und herauszoomen.\n"
@@ -1203,17 +1202,17 @@ class HelpScreen(pygame.sprite.Sprite):
                           "Die Farbe vom momentanen Wert wird\n"
                           "zur Mitte Grün und zu den beiden\n"
                           "Grenzwerten Rot.")
-                #s = ""
-                #s2 = "s"
-                #if self.max_help_steps == 10:
+                # s = ""
+                # s2 = "s"
+                # if self.max_help_steps == 10:
                 #    features = "Balken Feature, Vorschaumodus und Bester Zug."
-                #elif self.max_help_steps == 9:
+                # elif self.max_help_steps == 9:
                 #    features = "Balken Feature und Vorschaumodus."
-                #else:
+                # else:
                 #    features = "Balken Feature."
                 #    s = "s"
                 #    s2 = ""
-                #if played_games == 3:
+                # if played_games == 3:
                 #    draw_text(Vector2(500 * x, 500 * y), self.image, extra_large_font_size,
                 #              f"Hurra du hast folgende{s} neue{s} Feature{s2} freigeschaltet!\n"
                 #              f"{features}\n\n"
@@ -1254,12 +1253,12 @@ class HelpScreen(pygame.sprite.Sprite):
 
 
 def main():
-    #setup_game(random_number, user_id)
+    # setup_game(random_number, user_id)
 
     fps = 60
     pygame.init()
     pygame.display.set_mode()
-    #pygame.display.set_mode((1920, 1080))
+    # pygame.display.set_mode((1920, 1080))
     pygame.display.set_caption("Ökolopoly")
     clock = pygame.time.Clock()
 
@@ -1285,7 +1284,7 @@ def main():
         if not game.game_loop:
             game_loop = False
 
-        #print(pygame.mouse.get_pos())
+        # print(pygame.mouse.get_pos())
 
         camera.keyboard_movement()
 
