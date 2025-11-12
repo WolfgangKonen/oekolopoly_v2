@@ -22,6 +22,8 @@ gymnasium==1.2.2
 matplotlib==3.10.7
 numpy==2.3.4
 pandas==2.3.3
+pygame==2.6.1
+rich==14.2.0
 sb3-contrib==2.7.0
 scipy==1.16.3
 seaborn==0.13.2
