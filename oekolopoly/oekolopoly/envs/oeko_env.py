@@ -1,6 +1,6 @@
 import oekolopoly.oekolopoly.envs.get_boxes as gb
-import gym
-from gym import spaces
+import gymnasium as gym
+from gymnasium import spaces
 import numpy as np
 import pygame
 
@@ -94,6 +94,7 @@ class OekoEnv(gym.Env):
 
         self.done = False
         self.done_info = ''
+        self.info = dict()
 
 
     def seed(self, seed):
@@ -396,6 +397,7 @@ class OekoEnv(gym.Env):
 
         # Init
         self.done = False
+        truncated = False
         used_points = 0
 
         # Sum points from action
@@ -412,7 +414,7 @@ class OekoEnv(gym.Env):
             elif used_points > self.V[self.POINTS]:
                 done_reason = "Tried to exceed available amount of actionpoints. "
             done_reason += f"Tried to use {used_points} action points, but only between 0 and {self.V[self.POINTS]} are available"
-            return self.obs, 0, self.done, {'balance (always)': self.balance_always,
+            return self.obs, 0, self.done, truncated, {'balance (always)': self.balance_always,
                                             'balance_numerator (always)': self.balance_numerator_always,
                                             'balance': self.balance,
                                             'balance_numerator': self.balance_numerator,
@@ -430,7 +432,7 @@ class OekoEnv(gym.Env):
                 elif self.V[i] + action[i] > self.Vmax[i]:
                     done_reason = f"Distribution of actionpoints pushes {self.V_NAMES[i]} above limit. "
                 done_reason += f"Tried to use {self.V[i] + action[i]} action points for {self.V_NAMES[i]}, but only between {self.Vmin[i]} and {self.Vmax[i]} are available"
-                return self.obs, 0, self.done, {'balance (always)': self.balance_always,
+                return self.obs, 0, self.done, truncated, {'balance (always)': self.balance_always,
                                                 'balance_numerator (always)': self.balance_numerator_always,
                                                 'balance': self.balance,
                                                 'balance_numerator': self.balance_numerator,
@@ -519,7 +521,7 @@ class OekoEnv(gym.Env):
         if self.render_mode == "human":
             self.render()
 
-        return self.obs, reward, self.done, {'balance (always)': self.balance_always,
+        return self.obs, reward, self.done, truncated, {'balance (always)': self.balance_always,
                                             'balance_numerator (always)': self.balance_numerator_always,
                                             'balance': self.balance,
                                             'balance_numerator': self.balance_numerator,
@@ -534,7 +536,7 @@ class OekoEnv(gym.Env):
     def set_v(self, init_v):
         self.init_v = init_v
 
-    def reset(self, options=None):
+    def reset(self, options=None, seed=None):
         if options is not None and "v" in options:
             self.V = np.array(options["v"])  # non-default initial values v
         else:
@@ -557,4 +559,4 @@ class OekoEnv(gym.Env):
         self.obs = self.V - self.Vmin
         assert self.observation_space.contains(self.obs), "obs not in observation_space"
 
-        return self.obs
+        return self.obs, self.info

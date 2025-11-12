@@ -1,6 +1,6 @@
 import random
 import uuid
-import gym
+import gymnasium as gym
 import copy
 from pygame.math import Vector2
 import numpy as np
@@ -248,7 +248,7 @@ class Camera(pygame.sprite.Group):
 class Game:
     def __init__(self, camera):
         self.camera = camera
-        self.env = gym.make('Oekolopoly-v1')
+        self.env = gym.make('Oekolopoly-v2')
         self.agent_obs = self.env.reset()
         self.agent = PPO.load("trained_agents/obs_box_action_box_reward_perround_0.5_ppo_17.zip")
         self.current_action = [0, 0, 0, 0, 0, 0]
@@ -732,7 +732,7 @@ class Game:
         #with open("bin/game_history.txt", "a") as history:
         #    history.write(text)
 
-        self.env = gym.make('Oekolopoly-v1')
+        self.env = gym.make('Oekolopoly-v2')
         self.agent_obs = self.env.reset()
         self.all_actions = []
         self.current_action = [0, 0, 0, 0, 0, 0]

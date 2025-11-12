@@ -6,7 +6,7 @@ among algorithms
 
 import time
 from pathlib import Path
-import gym
+import gymnasium as gym
 import numpy as np
 from stable_baselines3 import PPO, SAC, TD3
 from stable_baselines3.common.noise import NormalActionNoise
@@ -23,7 +23,7 @@ times = np.zeros(len(SEEDS))
 
 for i, seed in enumerate(SEEDS):
 
-    env = gym.make("Oekolopoly-v1")
+    env = gym.make("Oekolopoly-v2")
     env = OekoBoxActionWrapper(env)
     env = OekoPerRoundRewardWrapper(env, per_round_reward=0.5)
     env = Monitor(env, f"timing/{ALGO}_{seed}")

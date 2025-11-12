@@ -2,7 +2,7 @@ import json
 import argparse
 from pathlib import Path
 import numpy as np
-import gym
+import gymnasium as gym
 from stable_baselines3 import PPO, SAC, TD3
 from stable_baselines3.common.noise import NormalActionNoise
 from stable_baselines3.common.monitor import Monitor
@@ -96,12 +96,12 @@ if __name__ == "__main__":
         outfile.write(json_object)
 
     # Prepare evaluation environment
-    eval_env = gym.make("Oekolopoly-v1")
+    eval_env = gym.make("Oekolopoly-v2")
     eval_env = wrap_env(eval_env, args, savedir+"/eval", monitor=True)
     eval_env.reset()
 
     # Prepare training environment and wrap in EvalMonitor
-    env = gym.make("Oekolopoly-v1")
+    env = gym.make("Oekolopoly-v2")
     env = wrap_env(env, args, savedir+"/train", monitor=False)
     env = EvalMonitor(env, eval_env, savedir+"/train", info_keywords=("balance (always)", "balance_numerator (always)", "balance", "balance_numerator", "round", "done_reason", "valid_move", "invalid_move_info"))
     env.reset()

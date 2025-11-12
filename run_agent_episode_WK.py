@@ -6,7 +6,7 @@
 import argparse
 from pathlib import Path
 import numpy as np
-import gym
+import gymnasium as gym
 from stable_baselines3 import PPO, SAC, TD3
 from stable_baselines3.common.monitor import Monitor
 
@@ -200,14 +200,14 @@ if __name__ == "__main__":
     savedir = f"./trained agents/{agent_str}"
 
     # Prepare environment
-    env = gym.make("Oekolopoly-v1")
+    env = gym.make("Oekolopoly-v2")
     env = wrap_env(env, args, savedir+"/train", monitor=False)
 
     # Load model
     model = load_model(env, savedir, args)
 
     # Run episode
-    s = env.reset()
+    s, _ = env.reset()
     m_return = 0
     done = False
     while not done:
@@ -220,8 +220,9 @@ if __name__ == "__main__":
             print(s, points, action)
         else:
             print(s, action)
-        s, r, done, info = env.step(action)
+        s, r, terminated, truncated, info = env.step(action)
         m_return += r
+        done = terminated or truncated
 
     print(s)
     print(f"Episode finished with return={m_return},\n info={info}")

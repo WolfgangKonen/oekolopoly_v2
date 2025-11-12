@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon, QFont
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QSlider, QLabel, QTableWidget, QTableWidgetItem, QHBoxLayout, QVBoxLayout, QGridLayout
 
-import gym
+import gymnasium as gym
 from oekolopoly import oekolopoly
 
 absolute_path = os.path.dirname(__file__)
@@ -156,7 +156,7 @@ def reset(step_button, env, action_sliders, obs_table, obs_status, points_label)
 
 
 def main():
-    env = gym.make('Oekolopoly-v1')
+    env = gym.make('Oekolopoly-v2')
 
     qapp = QApplication(sys.argv)
 

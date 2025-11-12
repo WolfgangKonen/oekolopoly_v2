@@ -1,5 +1,5 @@
 import math
-import gym
+import gymnasium as gym
 import numpy as np
 
 
@@ -238,9 +238,9 @@ class OekoPerRoundRewardWrapper(gym.Wrapper):
         return reward
 
     def step(self, action):
-        obs, _, done, d = self.env.step(action)
+        obs, _, terminated, truncated, d = self.env.step(action)
         reward = self.mod_reward()
-        return obs, reward, done, d
+        return obs, reward, terminated, truncated, d
 
 
 class OekoAuxRewardWrapper(gym.Wrapper):
@@ -257,9 +257,9 @@ class OekoAuxRewardWrapper(gym.Wrapper):
             return self.scaling * (production_reward + population_reward)
 
     def step(self, action):
-        obs, _, done, d = self.env.step(action)
+        obs, _, terminated, truncated, d = self.env.step(action)
         reward = self.mod_reward()
-        return obs, reward, done, d
+        return obs, reward, terminated, truncated, d
 
 
 class OekoBoxUnclippedActionWrapper(gym.ActionWrapper):

@@ -24,12 +24,12 @@ class EvalMonitor(Monitor):
         self.model = model
 
     def step(self, action):
-        s, r, done, info = super().step(action)
-        if done:
-            eval_s = self.eval_env.reset()
+        s, r, terminated, truncated, info = super().step(action)
+        if terminated:
+            eval_s, _ = self.eval_env.reset()
             eval_done = False
             while not eval_done:
                 eval_a, _ = self.model.predict(eval_s, deterministic=True)
-                eval_s, _, eval_done, _ = self.eval_env.step(eval_a)
+                eval_s, _, eval_done, _, _ = self.eval_env.step(eval_a)
 
-        return s, r, done, info
+        return s, r, terminated, truncated, info
