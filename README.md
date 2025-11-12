@@ -30,16 +30,16 @@ tqdm==4.67.1
 ```
 in a file `requirements.txt`. Then run the command
 ```
-   python -m pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
-in the directory where the folder Lib/site-packages of your Python environment resides.
+in the directory where the folder `Lib/site-packages` of your Python environment resides.
 
 ## ...train an agent?
 To train a PPO agent without observation wrapper, using Simple action wrapper and PerRound reward wrapper with a constant per-round reward of $R_c=0.5$, and seed 17 one would issue the command:
 
-	python3 train.py --observation "none" --action "simple" --reward "perround" --shaping 0.5 --algo "ppo" --seed 17
+	python train.py --observation "none" --action "simple" --reward "perround" --shaping 0.5 --algo "ppo" --seed 17
 ## ...play using the GUI?
-	python3 -m oekolopoly.oekolopoly_gui.oeko_gui
+	python -m oekolopoly.oekolopoly_gui.oeko_gui
 ## ...use the environment in my own scripts?
 Once you import via
 
