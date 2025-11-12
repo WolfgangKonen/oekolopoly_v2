@@ -28,7 +28,7 @@ seaborn==0.13.2
 stable-baselines3==2.7.0
 tqdm==4.67.1
 ```
-in a file requirements.txt. Then run the command
+in a file `requirements.txt`. Then run the command
 ```
    python -m pip install -r requirements.txt
 ```
