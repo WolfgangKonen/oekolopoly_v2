@@ -15,7 +15,7 @@ def get_avaiable_points(env, sliders):
         used_points = 0
         for i in range(len(sliders) - 1):
             used_points += abs(sliders[i].value)
-        available_points = env.V[env.POINTS] - used_points
+        available_points = env.unwrapped.V[env.unwrapped.POINTS] - used_points
     else:
         available_points = 0
 
@@ -128,12 +128,12 @@ def step(step_button, env, action_sliders, obs_table, obs_status, points_label):
                                f"Reward: {round(reward)}")
             for action_slider in action_sliders: action_slider.reset()
         else:
-            obs_status.setText(f"Round: {env.V[env.ROUND]} \n"
+            obs_status.setText(f"Round: {env.unwrapped.V[env.ROUND]} \n"
                                f"Balance: {round(env.balance)}\n"
                                f"Reward: {round(reward)}")
             for action_slider in action_sliders: action_slider.reset()
 
-        update_obs_table(obs_table, list(env.V) + [info['balance'], reward])
+        update_obs_table(obs_table, list(env.unwrapped.V) + [info['balance'], reward])
         update_points_label(points_label, env, action_sliders)
     else:
         obs_status.setText(f"{info['invalid_move_info']}\n"
@@ -150,7 +150,7 @@ def reset(step_button, env, action_sliders, obs_table, obs_status, points_label)
                        "Reward: 0")
 
     obs_table.setColumnCount(0)
-    update_obs_table(obs_table, list(env.V) + [0, 0])
+    update_obs_table(obs_table, list(env.unwrapped.V) + [0, 0])
 
     update_points_label(points_label, env, action_sliders)
 

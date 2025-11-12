@@ -125,7 +125,7 @@ def transf_act_box(env, act):
     :param act: the box action points
     :return: the points properly transformed and clipped for the Oekolopoly wheels
     """
-    act = np.clip(act, env.action_min, env.action_max, dtype=np.float32)
+    act = np.clip(act, env.get_wrapper_attr('action_min'), env.get_wrapper_attr('action_max'), dtype=np.float32)
     assert env.action_space.contains(act), "Action not in action_space"
 
     if act[1] < 0:
@@ -136,13 +136,13 @@ def transf_act_box(env, act):
 
     regions_act = act[0:5]
     special_act = round(act[5] * 5)
-    regions_act = env.distribute1(regions_act, env.V[env.POINTS])
+    regions_act = env.get_wrapper_attr('distribute1')(regions_act, env.unwrapped.V[env.unwrapped.POINTS])
     if reduce_production: regions_act[1] = -regions_act[1]
 
     for i in range(len(regions_act)):
-        region_result = env.V[i] + regions_act[i]
-        if   region_result < env.Vmin[i]: regions_act[i] = env.Vmin[i] - env.V[i]
-        elif region_result > env.Vmax[i]: regions_act[i] = env.Vmax[i] - env.V[i]
+        region_result = env.unwrapped.V[i] + regions_act[i]
+        if   region_result < env.unwrapped.Vmin[i]: regions_act[i] = env.unwrapped.Vmin[i] - env.unwrapped.V[i]
+        elif region_result > env.unwrapped.Vmax[i]: regions_act[i] = env.unwrapped.Vmax[i] - env.unwrapped.V[i]
 
     act = np.append(regions_act, special_act)
 
@@ -160,7 +160,7 @@ def transf_act_simple(env, act):
     action_index = act[0]
     extra_points = act[1]
 
-    points = env.V[env.POINTS]
+    points = env.unwrapped.V[env.unwrapped.POINTS]
     act_string = env.ACTIONS[action_index]
     regions = [0, 0, 0, 0, 0]
 
@@ -184,9 +184,9 @@ def transf_act_simple(env, act):
         regions[1] = -regions[1]
 
     for i in range(5):
-        region_result = env.V[i] + regions[i]
-        if   region_result < env.Vmin[i]:  regions[i] = env.Vmin[i] - env.V[i]
-        elif region_result > env.Vmax[i]:  regions[i] = env.Vmax[i] - env.V[i]
+        region_result = env.unwrapped.V[i] + regions[i]
+        if   region_result < env.unwrapped.Vmin[i]:  regions[i] = env.unwrapped.Vmin[i] - env.unwrapped.V[i]
+        elif region_result > env.unwrapped.Vmax[i]:  regions[i] = env.unwrapped.Vmax[i] - env.unwrapped.V[i]
 
     act = np.int32(np.append(regions, extra_points))
 

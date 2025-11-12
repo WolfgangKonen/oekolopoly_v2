@@ -44,16 +44,16 @@ class OekoBoxActionWrapper(gym.ActionWrapper):
 
         regions_act = act[0:5]
         special_act = round(act[5] * 5)
-        regions_act = self.distribute1(regions_act, self.V[self.POINTS])
+        regions_act = self.get_wrapper_attr('distribute1')(regions_act, self.unwrapped.V[self.unwrapped.POINTS])
         if reduce_production: regions_act[1] = -regions_act[1]
 
         for i in range(len(regions_act)):
-            region_result = self.V[i] + regions_act[i]
-            if   region_result < self.Vmin[i]: regions_act[i] = self.Vmin[i] - self.V[i]
-            elif region_result > self.Vmax[i]: regions_act[i] = self.Vmax[i] - self.V[i]
+            region_result = self.unwrapped.V[i] + regions_act[i]
+            if   region_result < self.unwrapped.Vmin[i]: regions_act[i] = self.unwrapped.Vmin[i] - self.unwrapped.V[i]
+            elif region_result > self.unwrapped.Vmax[i]: regions_act[i] = self.unwrapped.Vmax[i] - self.unwrapped.V[i]
 
         act = np.append(regions_act, special_act)
-        act -= self.Amin
+        act -= self.unwrapped.Amin
 
         return act
 
@@ -127,7 +127,7 @@ class OekoSimpleActionWrapper(gym.ActionWrapper):
         action_index = act[0]
         extra_points = act[1]
 
-        points = self.V[self.POINTS]
+        points = self.unwrapped.V[self.unwrapped.POINTS]
         act_string = self.ACTIONS[action_index]
         regions = [0, 0, 0, 0, 0]
 
@@ -151,9 +151,9 @@ class OekoSimpleActionWrapper(gym.ActionWrapper):
             regions[1] = -regions[1]
 
         for i in range(5):
-            region_result = self.V[i] + regions[i]
-            if   region_result < self.Vmin[i]: regions[i] = self.Vmin[i] - self.V[i]
-            elif region_result > self.Vmax[i]: regions[i] = self.Vmax[i] - self.V[i]
+            region_result = self.unwrapped.V[i] + regions[i]
+            if   region_result < self.unwrapped.Vmin[i]: regions[i] = self.unwrapped.Vmin[i] - self.unwrapped.V[i]
+            elif region_result > self.unwrapped.Vmax[i]: regions[i] = self.unwrapped.Vmax[i] - self.unwrapped.V[i]
 
         used_points = 0
         for i in range(5):
@@ -216,10 +216,9 @@ class OekoBoxObservationWrapper(gym.ObservationWrapper):
         ])
         self.observation_space = gym.spaces.Box(self.low, self.high)
 
-
     def observation(self, obs):
 
-        new_obs = obs + self.env.Vmin
+        new_obs = obs + self.env.unwrapped.Vmin
 
         return new_obs
 
@@ -231,8 +230,8 @@ class OekoPerRoundRewardWrapper(gym.Wrapper):
         self.per_round_reward = per_round_reward
 
     def mod_reward(self):
-        if self.done and self.V[self.ROUND] in range(10, 31):
-            reward = self.balance
+        if self.unwrapped.done and self.unwrapped.V[self.unwrapped.ROUND] in range(10, 31):
+            reward = self.unwrapped.balance
         else:
             reward = self.per_round_reward
         return reward
@@ -249,11 +248,11 @@ class OekoAuxRewardWrapper(gym.Wrapper):
         self.scaling = scaling
 
     def mod_reward(self):
-        if self.done and self.V[self.ROUND] in range(10, 31):
-            return self.balance
+        if self.done and self.unwrapped.V[self.ROUND] in range(10, 31):
+            return self.unwrapped.balance
         else:
-            production_reward = 14 - abs(15 - self.V[self.PRODUCTION])
-            population_reward = 23 - abs(24 - self.V[self.POPULATION])
+            production_reward = 14 - abs(15 - self.unwrapped.V[self.PRODUCTION])
+            population_reward = 23 - abs(24 - self.unwrapped.V[self.POPULATION])
             return self.scaling * (production_reward + population_reward)
 
     def step(self, action):
@@ -292,7 +291,7 @@ class OekoBoxUnclippedActionWrapper(gym.ActionWrapper):
 
         regions_act = act[0:5]
         special_act = round(act[5] * 5)
-        regions_act = self.distribute1(regions_act, self.V[self.POINTS])
+        regions_act = self.distribute1(regions_act, self.unwrapped.V[self.unwrapped.POINTS])
         if reduce_production: regions_act[1] = -regions_act[1]
 
         act = np.append(regions_act, special_act)

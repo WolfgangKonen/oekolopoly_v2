@@ -150,16 +150,16 @@ def transf_act_box(env, act):
 
     regions_act = act[0:5]
     special_act = round(act[5] * 5)
-    regions_act = distribute1(regions_act, env.V[env.POINTS])
+    regions_act = distribute1(regions_act, env.unwrapped.V[env.unwrapped.POINTS])
     if reduce_production:
         regions_act[1] = -regions_act[1]
 
     for i in range(len(regions_act)):
-        region_result = env.V[i] + regions_act[i]
-        if region_result < env.Vmin[i]:
-            regions_act[i] = env.Vmin[i] - env.V[i]
-        elif region_result > env.Vmax[i]:
-            regions_act[i] = env.Vmax[i] - env.V[i]
+        region_result = env.unwrapped.V[i] + regions_act[i]
+        if region_result < env.unwrapped.Vmin[i]:
+            regions_act[i] = env.unwrapped.Vmin[i] - env.unwrapped.V[i]
+        elif region_result > env.unwrapped.Vmax[i]:
+            regions_act[i] = env.unwrapped.Vmax[i] - env.unwrapped.V[i]
 
     act = np.append(regions_act, special_act)
 
@@ -256,7 +256,7 @@ class Game:
         self.action_font = pygame.font.SysFont('Times New Roman', 30)
         self.game_loop = True
         self.done = False
-        self.available_actionpoints = self.env.V[self.env.POINTS]
+        self.available_actionpoints = self.env.unwrapped.V[self.env.unwrapped.POINTS]
         self.special_action = False
         self.special_action_points = 5
         self.preview_mode = False
@@ -302,15 +302,15 @@ class Game:
         self.game_history_button = Button(Vector2(20, 145), Vector2(170, 40), color_yellow, camera, "Spielhistorie")
 
         # diagrams
-        sanitation_d = Diagram(Vector2(940, 30), camera, self.env.Vmin[0], self.env.Vmax[0])
-        production_d = Diagram(Vector2(1390, 30), camera, self.env.Vmin[1], self.env.Vmax[1])
-        education_d = Diagram(Vector2(1745, 580), camera, self.env.Vmin[2], self.env.Vmax[2])
-        quality_of_life_d = Diagram(Vector2(980, 730), camera, self.env.Vmin[3], self.env.Vmax[3])
-        population_growth_d = Diagram(Vector2(570, 730), camera, self.env.Vmin[4], self.env.Vmax[4])
-        environment_d = Diagram(Vector2(1680, 130), camera, self.env.Vmin[5], self.env.Vmax[5])
-        population_d = Diagram(Vector2(170, 720), camera, self.env.Vmin[6], self.env.Vmax[6])
-        politics_d = Diagram(Vector2(100, 320), camera, self.env.Vmin[7], self.env.Vmax[7])
-        action_points_d = Diagram(Vector2(330, 70), camera, self.env.Vmin[9], self.env.Vmax[9])
+        sanitation_d = Diagram(Vector2(940, 30), camera, self.env.unwrapped.Vmin[0], self.env.unwrapped.Vmax[0])
+        production_d = Diagram(Vector2(1390, 30), camera, self.env.unwrapped.Vmin[1], self.env.unwrapped.Vmax[1])
+        education_d = Diagram(Vector2(1745, 580), camera, self.env.unwrapped.Vmin[2], self.env.unwrapped.Vmax[2])
+        quality_of_life_d = Diagram(Vector2(980, 730), camera, self.env.unwrapped.Vmin[3], self.env.unwrapped.Vmax[3])
+        population_growth_d = Diagram(Vector2(570, 730), camera, self.env.unwrapped.Vmin[4], self.env.unwrapped.Vmax[4])
+        environment_d = Diagram(Vector2(1680, 130), camera, self.env.unwrapped.Vmin[5], self.env.unwrapped.Vmax[5])
+        population_d = Diagram(Vector2(170, 720), camera, self.env.unwrapped.Vmin[6], self.env.unwrapped.Vmax[6])
+        politics_d = Diagram(Vector2(100, 320), camera, self.env.unwrapped.Vmin[7], self.env.unwrapped.Vmax[7])
+        action_points_d = Diagram(Vector2(330, 70), camera, self.env.unwrapped.Vmin[9], self.env.unwrapped.Vmax[9])
         self.diagrams = (
             sanitation_d, production_d, education_d, quality_of_life_d, population_growth_d, environment_d,
             population_d,
@@ -478,7 +478,7 @@ class Game:
             os.startfile("current_game_history.txt")
 
     def change_current_action(self, action_index, change):
-        if change > 0 and self.current_action[action_index] + 1 + self.env.V[action_index] <= self.env.Vmax[
+        if change > 0 and self.current_action[action_index] + 1 + self.env.unwrapped.V[action_index] <= self.env.unwrapped.Vmax[
             action_index]:
             if self.current_action[action_index] < 0:
                 self.available_actionpoints += 1
@@ -486,7 +486,7 @@ class Game:
             elif self.available_actionpoints > 0:
                 self.current_action[action_index] += 1
                 self.available_actionpoints -= 1
-        elif change < 0 and self.current_action[action_index] - 1 + self.env.V[action_index] >= self.env.Vmin[
+        elif change < 0 and self.current_action[action_index] - 1 + self.env.unwrapped.V[action_index] >= self.env.unwrapped.Vmin[
             action_index]:
             if self.current_action[action_index] > 0:
                 self.available_actionpoints += 1
@@ -531,10 +531,10 @@ class Game:
             env_position = diagram_index
             if env_position == 8:
                 env_position += 1
-            self.diagrams[diagram_index].current_value = self.env.V[env_position]
+            self.diagrams[diagram_index].current_value = self.env.unwrapped.V[env_position]
 
     def update_labels(self):
-        self.round_label.variable_text = self.env.V[self.env.ROUND]
+        self.round_label.variable_text = self.env.unwrapped.V[self.env.ROUND]
         self.available_actionpoints_label.variable_text = self.available_actionpoints
         if self.available_actionpoints == 0:
             self.available_actionpoints_label.background_color = color_red
@@ -579,7 +579,7 @@ class Game:
             self.preview_action()
 
     def predict_next_move(self):
-        obs_for_agent = self.agent_obs + self.env.Vmin
+        obs_for_agent = self.agent_obs + self.env.unwrapped.Vmin
         agent_action, _ = self.agent.predict(obs_for_agent, deterministic=True)
         a_for_env = transf_act_box(self.env, agent_action)
         self.current_action = a_for_env
@@ -669,8 +669,8 @@ class Game:
                 self.all_actions.append(self.current_action)
                 self.reset_current_action()
                 self.predict_used = False
-                self.available_actionpoints = self.env.V[self.env.POINTS]
-                self.special_action = self.env.V[self.env.EDUCATION] >= 20
+                self.available_actionpoints = self.env.unwrapped.V[self.env.unwrapped.POINTS]
+                self.special_action = self.env.unwrapped.V[self.env.EDUCATION] >= 20
                 if done:
                     self.done = True
                     #games_played = get_number_value_by_name("bin/played_games.txt", "games_played")
@@ -701,7 +701,7 @@ class Game:
                         else:
                             roun += f"{round_counter + 1}  "
                         round_counter += 1
-                    current_game_text = (f"{self.env.V[8]} Runden ueberlebt, {round(reward)} Punkte erzielt\n"
+                    current_game_text = (f"{self.env.unwrapped.V[8]} Runden ueberlebt, {round(reward)} Punkte erzielt\n"
                                          f"Ausgeführte Züge in Runde:    {roun}\n"
                                          f"Sanierung:                    {acts[0]} Sanierung\n"
                                          f"Produktion:                   {acts[1]} Produktion\n"
@@ -714,7 +714,7 @@ class Game:
                         history.write(current_game_text)
 
                     #date_now = datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
-                    #text = f"Runde: {self.env.V[8]}, Punkte: {round(reward)}, Spiele beendet: {games_played}, Zustaende: {self.env.V}, Abbruchgrund: {info['done_reason']}, Datum: {date_now}, Zuege: {self.all_actions}\n"
+                    #text = f"Runde: {self.env.unwrapped.V[8]}, Punkte: {round(reward)}, Spiele beendet: {games_played}, Zustaende: {self.env.unwrapped.V}, Abbruchgrund: {info['done_reason']}, Datum: {date_now}, Zuege: {self.all_actions}\n"
                     #with open("bin/game_history.txt", "a") as history:
                     #    history.write(text)
             else:
@@ -722,13 +722,13 @@ class Game:
 
     def reset_current_action(self):
         self.current_action = [0, 0, 0, 0, 0, 0]
-        self.available_actionpoints = self.env.V[self.env.POINTS]
+        self.available_actionpoints = self.env.unwrapped.V[self.env.unwrapped.POINTS]
         self.special_action_points = 5
 
     def reset_game(self):
         #if not self.done and self.all_actions != []:
         #date_now = datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
-        #text = f"Vorzeitiger Abbruch des Spiels, Runde: {self.env.V[8]}, Zustaende {self.env.V}, Datum: {date_now}, Zuege: {self.all_actions}\n"
+        #text = f"Vorzeitiger Abbruch des Spiels, Runde: {self.env.unwrapped.V[8]}, Zustaende {self.env.unwrapped.V}, Datum: {date_now}, Zuege: {self.all_actions}\n"
         #with open("bin/game_history.txt", "a") as history:
         #    history.write(text)
 
@@ -737,7 +737,7 @@ class Game:
         self.all_actions = []
         self.current_action = [0, 0, 0, 0, 0, 0]
         self.console_label.text = ""
-        self.available_actionpoints = self.env.V[self.env.POINTS]
+        self.available_actionpoints = self.env.unwrapped.V[self.env.unwrapped.POINTS]
         self.done = False
         self.special_action = False
         self.special_action_points = 5
