@@ -6,7 +6,25 @@ import pygame
 
 
 class OekoEnv(gym.Env):
+    """
+        This class realizes the environment for the game Ökolopoly.
 
+        The environment is based on package `gymnasium==1.2.2` as `gym`.
+
+        Method `step` returns the five elements `obs, reward, terminated, truncated, info` where
+        always `truncated=False` and thus `terminated` is equivalent to `done`.
+        `info` is a dict with the following key-value pairs:
+
+        - 'balance (always)': the game balance according to the Ökolopoly balance formula, irrespective of round
+        - 'balance_numerator (always)': the numerator of this formula
+        - 'balance': `info['balance (always)']` if round \in [10,30], 0 else
+        - 'balance_numerator': `info['balance_numerator (always)']` if round \in [10,30], 0 else
+        - 'round': the number of rounds played
+        - 'done_reason': string with the reason for termination (`None` if not yet terminated)
+        - 'valid_move': `False` if the action points were distributed in an unallowed way, `True` else
+        - 'invalid_move_info': string describing the reason for invalid move
+
+    """
     SANITATION        = 0
     PRODUCTION        = 1
     EDUCATION         = 2
@@ -89,18 +107,18 @@ class OekoEnv(gym.Env):
             48,  # 6 Population
             48,  # 7 Politics
             31,  # 8 Round
-            37,  # 9 Actionpoints for next round
+            37,  # 9 Action points for next round
         ])
 
         self.done = False
         self.done_info = ''
         self.info = dict()
 
-
-    def seed(self, seed):
-        """Dummy method needed by stable baselines3 when passing seed to model.
-        The Oekolopoly environment is entirely deterministic"""
-        pass
+    # --- should be obsolete after migrating to gymnasium ---
+    # def seed(self, seed):
+    #     """Dummy method needed by stable baselines3 when passing seed to model.
+    #     The Oekolopoly environment is entirely deterministic"""
+    #     pass
 
     def close(self):
         if self.window is not None:
@@ -410,9 +428,9 @@ class OekoEnv(gym.Env):
         if used_points < 0 or used_points > self.V[self.POINTS]:
             self.done = True
             if used_points < 0:
-                done_reason = "Tried to use negative amount of actionpoints. "
+                done_reason = "Tried to use negative amount of action points. "
             elif used_points > self.V[self.POINTS]:
-                done_reason = "Tried to exceed available amount of actionpoints. "
+                done_reason = "Tried to exceed available amount of action points. "
             done_reason += f"Tried to use {used_points} action points, but only between 0 and {self.V[self.POINTS]} are available"
             return self.obs, 0, self.done, truncated, {'balance (always)': self.balance_always,
                                             'balance_numerator (always)': self.balance_numerator_always,
@@ -421,16 +439,16 @@ class OekoEnv(gym.Env):
                                             'round': self.V[self.ROUND],
                                             'done_reason': done_reason,
                                             'valid_move': False,
-                                            'invalid_move_info': "Unavailable number of actionpoints were used in this round."}
+                                            'invalid_move_info': "Unavailable number of action points were used in this round."}
         assert 0 <= used_points <= self.V[self.POINTS], f"Action takes too many points: action={action} POINTS={self.V[self.POINTS]})"
 
         for i in range(5):
             if self.V[i] + action[i] not in range(self.Vmin[i], self.Vmax[i] + 1):
                 self.done = True
                 if self.V[i] + action[i] < self.Vmin[i]:
-                    done_reason = f"Distribution of actionpoints pushes {self.V_NAMES[i]} below limit. "
+                    done_reason = f"Distribution of action points pushes {self.V_NAMES[i]} below limit. "
                 elif self.V[i] + action[i] > self.Vmax[i]:
-                    done_reason = f"Distribution of actionpoints pushes {self.V_NAMES[i]} above limit. "
+                    done_reason = f"Distribution of actio npoints pushes {self.V_NAMES[i]} above limit. "
                 done_reason += f"Tried to use {self.V[i] + action[i]} action points for {self.V_NAMES[i]}, but only between {self.Vmin[i]} and {self.Vmax[i]} are available"
                 return self.obs, 0, self.done, truncated, {'balance (always)': self.balance_always,
                                                 'balance_numerator (always)': self.balance_numerator_always,
@@ -439,7 +457,7 @@ class OekoEnv(gym.Env):
                                                 'round': self.V[self.ROUND],
                                                 'done_reason': done_reason,
                                                 'valid_move': False,
-                                                'invalid_move_info': f"Unavailable number of actionpoints assigned to {self.V_NAMES[i]}."}
+                                                'invalid_move_info': f"Unavailable number of action points assigned to {self.V_NAMES[i]}."}
             assert (self.V[i] + action[i]) in range(self.Vmin[i], self.Vmax[i] + 1), f"Action puts region out of action[{i}]: action={action} V={self.V}"
 
         # The turn is valid
@@ -482,12 +500,12 @@ class OekoEnv(gym.Env):
         if self.V[self.POINTS] < 0:
             self.V[self.POINTS] = 0
             self.done = True
-            self.done_info = 'Minimum amount of actionpoints reached.'
+            self.done_info = 'Minimum amount of action points reached.'
 
         if self.V[self.POINTS] > 36:
             self.V[self.POINTS] = 36
             self.done = True
-            self.done_info = 'Maximum number of actionpoints reached.'
+            self.done_info = 'Maximum number of action points reached.'
 
         boxD = gb.get_boxD(self.V[self.QUALITY_OF_LIFE])
         a = float((boxD * 3 + self.V[self.POLITICS]) * 10)

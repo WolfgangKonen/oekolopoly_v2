@@ -118,7 +118,8 @@ def step(step_button, env, action_sliders, obs_table, obs_status, points_label):
 
     action[env.PRODUCTION] -= env.Amin[env.PRODUCTION]
     action[5] -= env.Amin[5]
-    _, reward, done, info = env.step(action)
+    _, reward, terminated, truncated, info = env.step(action)
+    done = terminated or truncated
 
     if info['valid_move']:
         if done:
