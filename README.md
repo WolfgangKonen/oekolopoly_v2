@@ -15,7 +15,7 @@ It is an update of the former GitHub repo oekolopoly_v1 with respect to two new 
 - `train.py` trains an agent with the parameters passed to the script (wrappers, DRL algorithm, parameters for reward-shaping etc.)
 - `utils.py` a few functions for comodity
 - `oekolopoly_gui.py` contains the GUI 2.0 for human play.
-- ´assets/`: some assets needed for GUI 2.0
+- `assets/`: some assets needed for GUI 2.0
 - `bin/`: some files needed for GUI 2.0
 - `Spielanleitung.pdf`: the original game instructions (in German only) of the game Ökolopoly (invented by F. Vester).
 
