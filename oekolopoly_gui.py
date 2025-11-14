@@ -1,9 +1,13 @@
 # --------------------------------------------------------------------------------------------------------
 #    Ökolopoly GUI created by Alexander Albers, Wolfgang Konen
-#        German version only
+#        German or English version depending on command line argument
+#               python -m oekol_lang_gui --language "de"        (default) - or -
+#               python -m oekol_lang_gui --language "en"
 # --------------------------------------------------------------------------------------------------------
 # import random
 # import uuid
+import argparse
+
 import gymnasium as gym
 import copy
 from pygame.math import Vector2
@@ -13,8 +17,10 @@ from stable_baselines3 import PPO
 # import datetime
 import os
 # from email.mime.text import MIMEText
+from translator import dict_translate, dict_help_screens
 
-from oekolopoly import oekolopoly       # needed for gym.make
+# from oekolopoly import oekolopoly       # needed for gym.make
+import oekolopoly.oekolopoly              # needed for gym.make
 import pygame
 
 color_red = (255, 0, 0)
@@ -250,7 +256,9 @@ class Camera(pygame.sprite.Group):
 
 
 class Game:
-    def __init__(self, camera):
+    def __init__(self, camera, args):
+        htl = dict_help_screens(args)
+        self.dtl = dtl = dict_translate(args)
         self.camera = camera
         self.env = gym.make('Oekolopoly-v2')
         self.agent_obs, _ = self.env.reset()
@@ -290,20 +298,20 @@ class Game:
 
         # buttons
         self.clear_action_button = Button(Vector2(1180, 470), Vector2(230, 40), color_orange, camera,
-                                          "Entferne verteilte Punkte", 20)
-        self.step_button = Button(Vector2(600, 470), Vector2(175, 40), color_orange, camera, "Zug beenden")
-        self.close_game = Button(Vector2(1670, 15), Vector2(245, 55), color_red, camera, "Spiel beenden", 40)
-        self.reset_button = Button(Vector2(400, 350), Vector2(170, 40), color_red, camera, "Neues Spiel")
-        self.predict_button = Button(Vector2(600, 410), Vector2(195, 40), color_turky, camera,
-                                     f"Bester Zug ({self.predict_usages})")
+                                          dtl["ClearActions"], 20)
+        self.step_button = Button(Vector2(600, 470), Vector2(175, 40), color_orange, camera, dtl["ExecuteStep"])
+        self.close_game = Button(Vector2(1670, 15), Vector2(245, 55), color_red, camera, dtl["CloseGame"], 40)
+        self.reset_button = Button(Vector2(400, 350), Vector2(170, 40), color_red, camera, dtl["Reset"])
+        self.predict_button = Button(Vector2(600, 410), Vector2(190, 40), color_turky, camera,
+                                     f"{dtl["BestMoveAI"]} ({self.predict_usages})")
         if self.max_predict_usages > 5:
-            self.predict_button.text = "Bester Zug"
-        self.preview_button = Button(Vector2(600, 350), Vector2(210, 40), color_green, camera, "Vorschaumodus")
-        self.help_button = Button(Vector2(270, 455), Vector2(130, 70), color_yellow, camera, "Hilfe?", 40)
-        self.game_instructions_button = Button(Vector2(20, 90), Vector2(190, 40), color_yellow, camera,
-                                               "Spielanleitung")
+            self.predict_button.text = dtl["BestMoveAI"]
+        self.preview_button = Button(Vector2(600, 350), Vector2(210, 40), color_green, camera, dtl["PreviewMode"])
+        self.help_button = Button(Vector2(270, 455), Vector2(130, 70), color_yellow, camera, dtl["Help"], 40)
+        self.game_instructions_button = Button(Vector2(20, 90), Vector2(240, 40), color_yellow, camera,
+                                               dtl["GameInstructions"])
         # self.feedback_button = Button(Vector2(20, 145), Vector2(145, 40), color_yellow, camera, "Feedback?")
-        self.game_history_button = Button(Vector2(20, 145), Vector2(170, 40), color_yellow, camera, "Spielhistorie")
+        self.game_history_button = Button(Vector2(20, 145), Vector2(190, 40), color_yellow, camera, dtl["GameHistory"])
 
         # diagrams
         sanitation_d = Diagram(Vector2(940, 30), camera, self.env.unwrapped.Vmin[0], self.env.unwrapped.Vmax[0])
@@ -335,79 +343,55 @@ class Game:
         self.locked_preview_label.visible = False
         self.locked_predict_label.visible = False
 
-        self.available_actionpoints_label = Label(Vector2(810, 410), Vector2(320, 40), camera, "Aktionspunkte übrig: ",
+        self.available_actionpoints_label = Label(Vector2(810, 410), Vector2(320, 40), camera, dtl["ActionPointsLeft"],
                                                   30, color_green, self.available_actionpoints)
-        self.current_action_label = Label(Vector2(810, 470), Vector2(360, 40), camera, "Verteilte Punkte: ", 22,
+        self.current_action_label = Label(Vector2(810, 470), Vector2(360, 40), camera, dtl["DistributedPoints"], 22,
                                           color_green)
         self.console_label = Label(Vector2(600, 530), Vector2(850, 30), camera, "", 20, color_yellow)
         self.preview_console_label = Label(Vector2(600, 580), Vector2(850, 30), camera, "", 20, color_yellow)
-        self.round_label = Label(Vector2(420, 470), Vector2(140, 40), camera, "Runde: ", 30, color_green)
-        self.game_over_label = Label(Vector2(860, 580), Vector2(250, 70), camera, "Game Over", 50, color_red)
+        self.round_label = Label(Vector2(420, 470), Vector2(140, 40), camera, dtl["Round"], 30, color_green)
+        self.balance_label = Label(Vector2(1470, 470), Vector2(190, 40), camera, dtl["Balance"], 30, color_green)
+        self.game_over_label = Label(Vector2(860, 580), Vector2(250, 70), camera, dtl["GameOver"], 50, color_red)
 
         # region labels with more info labels #
-        action_points_label = Label(Vector2(390, 48), Vector2(155, 40), camera, "Aktionspunkte", 23, color_white)
+        action_points_label = Label(Vector2(390, 48), Vector2(155, 40), camera, dtl["Points"], 23, color_white)
         more_info_action_points = MoreInfo(Vector2(390, 90), Vector2(170, 50),
-                                           "Einfluss, Geld, Arbeit,\n"
-                                           "Energie, Güter, Nahrung", camera)
+                                           dtl["MoreInfoPoints"], camera)
 
-        sanitation_label = Label(Vector2(815, 40), Vector2(115, 40), camera, "Sanierung", 23, color_white)
+        sanitation_label = Label(Vector2(815, 40), Vector2(115, 40), camera, dtl["Redevelop"], 23, color_white)
+        #                                                                        "Sanierung"
         more_info_sanitation = MoreInfo(Vector2(750, 82), Vector2(180, 105),
-                                        "Umweltschutz, Recycling,\n"
-                                        "Biotechnik, sanfte Energie,\n"
-                                        "Landschaftserhaltung,\n"
-                                        "Humanisierung der\n"
-                                        "Arbeitswelt",
+                                        dtl["MoreInfoRedevelop"],
                                         camera)
 
-        production_label = Label(Vector2(1250, 30), Vector2(122, 40), camera, "Produktion", 23, color_white)
+        production_label = Label(Vector2(1250, 30), Vector2(122, 40), camera, dtl["Production"], 23, color_white)
         more_info_production = MoreInfo(Vector2(1227, 72), Vector2(145, 70),
-                                        "Industrie, Handwerk,\n"
-                                        "Landwirtschaft,\n"
-                                        "Dienstleistungen", camera)
+                                        dtl["MoreInfoProduction"], camera)
 
-        environment_label = Label(Vector2(1725, 380), Vector2(180, 40), camera, "Umweltbelastung", 23, color_white)
+        environment_label = Label(Vector2(1725, 380), Vector2(180, 40), camera, dtl["EnvirDamage"], 23, color_white)
+        #                                                                           "Umweltbelastung"
         more_info_environment = MoreInfo(Vector2(1685, 422), Vector2(220, 105),
-                                         "Abgase, Abwässer,\n"
-                                         "Abwärme, Lärm, Raubbau,\n"
-                                         "Landschaftszerstörung,\n"
-                                         "Trennung natürlicher Kreisläufe,\n"
-                                         "Verkehrschaos, Städtezerfall", camera)
+                                         dtl["MoreInfoEnvirDamage"], camera)
 
-        education_label = Label(Vector2(1790, 830), Vector2(125, 40), camera, "Aufklärung", 23, color_white)
+        education_label = Label(Vector2(1790, 830), Vector2(125, 40), camera, dtl["Enlightenment"], 23, color_white)
         more_info_education = MoreInfo(Vector2(1675, 872), Vector2(240, 105),
-                                       "Gesunde Lebensweise,\n"
-                                       "Selbstverwirklichung, Schulen,\n"
-                                       "Erwachsenenbildung, Umwelt-\n"
-                                       "bewußtsein, sinnvolle Freizeit,\n"
-                                       "Bürgerinitiativen, Geburtenkontrolle", camera)
+                                       dtl["MoreInfoEnlighten"], camera)
 
-        quality_of_life_label = Label(Vector2(1025, 980), Vector2(155, 40), camera, "Lebensqualität", 23, color_white)
+        quality_of_life_label = Label(Vector2(1025, 980), Vector2(155, 40), camera, dtl["QualityOfLife"], 23, color_white)
         more_info_quality_of_life = MoreInfo(Vector2(1025, 908), Vector2(210, 70),
-                                             "Gesundheit, Sicherheit,\n"
-                                             "Sinnvolle Arbeit, Wohnqualität,\n"
-                                             "Naherholung, Freizeitangebot", camera)
+                                             dtl["MoreInfoQuality"], camera)
 
-        population_growth_label = Label(Vector2(615, 980), Vector2(180, 40), camera, "Vermehrungsrate", 23, color_white)
+        population_growth_label = Label(Vector2(615, 980), Vector2(185, 40), camera, dtl["ReproRate"], 23, color_white)
         more_info_population_growth = MoreInfo(Vector2(615, 928), Vector2(210, 50),
-                                               "Geburten, Sterbefälle,\n"
-                                               "Unfälle, Zu- und Abwanderung", camera)
+                                               dtl["MoreInfoReproRate"], camera)
 
-        population_label = Label(Vector2(215, 980), Vector2(140, 40), camera, "Bevölkerung", 23, color_white)
+        population_label = Label(Vector2(215, 980), Vector2(140, 40), camera, dtl["Population"], 23, color_white)
         more_info_population = MoreInfo(Vector2(215, 908), Vector2(240, 70),
-                                        "Bevölkerungszahl, Menschendichte,\n"
-                                        "Altersaufbau, Arbeitskräfte,\n"
-                                        "Sozialstruktur", camera)
+                                        dtl["MoreInfoPopulation"], camera)
 
-        politic_label = Label(Vector2(15, 435), Vector2(78, 40), camera, "Politik", 23, color_white)
+        politic_label = Label(Vector2(15, 435), Vector2(84, 40), camera, dtl["Politics"], 23, color_white)
         more_info_politic = MoreInfo(Vector2(15, 477), Vector2(90, 160),
-                                     "Weitsicht,\n"
-                                     "Autorität,\n"
-                                     "Beliebtheit,\n"
-                                     "einsichtige\n"
-                                     "Programme,\n"
-                                     "Ent-\n"
-                                     "scheidungs-\n"
-                                     "gewalt", camera)
+                                     dtl["MoreInfoPolitics"], camera)
 
         self.region_labels = (
             action_points_label, sanitation_label, production_label, environment_label, education_label,
@@ -418,7 +402,7 @@ class Game:
             more_info_quality_of_life, more_info_population_growth, more_info_population, more_info_politic)
 
         # special case labels and buttons
-        self.special_population_growth_label = Label(Vector2(510, 640), Vector2(155, 35), camera, "Spezialfall", 30,
+        self.special_population_growth_label = Label(Vector2(510, 640), Vector2(165, 35), camera, dtl["SpecialCase"], 30,
                                                      color_yellow)
         self.special_population_growth_decrease_button = Button(Vector2(510, 690), Vector2(35, 35), color_red, camera,
                                                                 "-", 35)
@@ -427,7 +411,7 @@ class Game:
         self.special_population_growth_increase_button = Button(Vector2(630, 690), Vector2(35, 35), color_green, camera,
                                                                 "+", 35)
         # help screen
-        self.help_screen = HelpScreen(camera)
+        self.help_screen = HelpScreen(camera, dtl, htl)
         self.help_screen.active = get_number_value_by_name("bin/played_games.txt", "games_played") == 0
         self.help_screen.active = True
 
@@ -450,14 +434,18 @@ class Game:
                     self.use_special_action_button()
 
                 if self.max_predict_usages > 5:
+                    # the use of button 'AI move' is allowed as often as desired:
                     if self.predict_button.button_pressed():
                         self.predict_next_move()
                 else:
                     if self.predict_button.button_pressed():
+                        # self.predict_usages is initialized above with self.max_predict_usages and decremented here
+                        # for every valid predict_next_move. If self.predict_usages==0, then predict_next_move is
+                        # inhibited.
                         if not self.predict_used and self.predict_usages > 0:
                             self.predict_usages -= 1
                             self.predict_used = True
-                            self.predict_button.text = f"Bester Zug ({self.predict_usages})"
+                            self.predict_button.text = f"{self.dtl['BestMoveAI']} ({self.predict_usages})"
                         if self.predict_used:
                             self.predict_next_move()
                     if self.predict_used:
@@ -602,7 +590,7 @@ class Game:
                 env_index += 1
             self.diagrams[diagram_index].done = done
             if done:
-                self.preview_console_label.variable_text = f"Vorsicht! Game Over mit aktuellem Zug: {info['done_reason']}"
+                self.preview_console_label.variable_text = f"Vorsicht! `Game over` mit aktuellem Zug: {info['done_reason']}"
             else:
                 self.preview_console_label.variable_text = ""
             self.diagrams[diagram_index].next_value = temp_env.unwrapped.V[env_index]
@@ -662,6 +650,7 @@ class Game:
             action[5] -= self.env.unwrapped.Amin[5]
             self.agent_obs, reward, terminated, truncated, info = self.env.step(action)
             done = terminated or truncated
+            self.balance_label.variable_text = f"{info['balance']:.1f}"
 
             if info['valid_move']:
                 # if self.predict_used:
@@ -705,7 +694,7 @@ class Game:
                         else:
                             roun += f"{round_counter + 1}  "
                         round_counter += 1
-                    current_game_text = (f"{self.env.unwrapped.V[8]} Runden ueberlebt, {round(reward)} Punkte erzielt\n"
+                    current_game_text = (f"{self.env.unwrapped.V[8]} Runden überlebt, {round(reward)} Punkte erzielt\n"
                                          f"Ausgeführte Züge in Runde:    {roun}\n"
                                          f"Sanierung:                    {acts[0]} Sanierung\n"
                                          f"Produktion:                   {acts[1]} Produktion\n"
@@ -986,8 +975,10 @@ class MoreInfo(pygame.sprite.Sprite):
 
 
 class HelpScreen(pygame.sprite.Sprite):
-    def __init__(self, camera):
+    def __init__(self, camera, dtl: dict, htl: dict):
         super().__init__(camera)
+        self.dtl = dtl
+        self.htl = htl
         self.image = pygame.Surface(pygame.display.get_window_size()).convert_alpha()
         self.image.fill((0, 0, 0, 0))
         self.rect = self.image.get_rect()
@@ -996,14 +987,14 @@ class HelpScreen(pygame.sprite.Sprite):
         self.camera = camera
         self.scale_x = pygame.display.get_window_size()[0] / 1920
         self.scale_y = pygame.display.get_window_size()[1] / 1080
-        self.exit_help_button = Button(Vector2(910, 850), Vector2(135, 40), color_red, camera, "Verlassen")
-        self.help_mode = Label(Vector2(860, 900), Vector2(260, 80), camera, "Hilfemodus", 50, color_yellow)
-        self.step_back_button = Button(Vector2(760, 1000), Vector2(140, 40), color_green, camera, "<- Zurück")
-        self.page_label = Label(Vector2(910, 1000), Vector2(160, 40), camera, "Seite: ", 30, color_turky)
-        self.step_forward_button = Button(Vector2(1080, 1000), Vector2(140, 40), color_green, camera, "Weiter ->")
+        self.exit_help_button = Button(Vector2(910, 850), Vector2(135, 40), color_red, camera, text=dtl["ExitHelp"])
+        self.help_mode = Label(Vector2(860, 900), Vector2(260, 80), camera, dtl["HelpMode"], 50, color_yellow)
+        self.step_back_button = Button(Vector2(760, 1000), Vector2(150, 40), color_green, camera, text=dtl["Back"])
+        self.page_label = Label(Vector2(910, 1000), Vector2(160, 40), camera, dtl["Page"], 30, color_turky)
+        self.step_forward_button = Button(Vector2(1070, 1000), Vector2(160, 40), color_green, camera, dtl["Forward"])
 
         # special case labels and buttons as preview if not unlocked yet
-        self.special_label = Label(Vector2(510, 640), Vector2(155, 35), camera, "Spezialfall", 30, color_yellow)
+        self.special_label = Label(Vector2(510, 640), Vector2(165, 35), camera, dtl["SpecialCase"], 30, color_yellow)
         self.special_negative_label = Label(Vector2(510, 690), Vector2(35, 35), camera, "-", 35, color_red)
         self.special_number_label = Label(Vector2(570, 690), Vector2(35, 35), camera, "", 25, color_yellow, "0")
         self.special_positive_label = Label(Vector2(630, 690), Vector2(35, 35), camera, "+", 35, color_green)
@@ -1042,10 +1033,10 @@ class HelpScreen(pygame.sprite.Sprite):
     def update_buttons_and_labels(self):
         self.page_label.variable_text = f"{self.help_step}/{self.max_help_steps}"
         if self.help_step == self.max_help_steps:
-            self.step_forward_button.text = "Verlassen"
+            self.step_forward_button.text = self.dtl["ExitHelp"]
             self.step_forward_button.color = color_red
         else:
-            self.step_forward_button.text = "Weiter ->"
+            self.step_forward_button.text = self.dtl["Forward"]
             self.step_forward_button.color = color_green
         if self.help_step == 1:
             self.step_back_button.rect.topleft = Vector2(3000, 0)
@@ -1100,113 +1091,40 @@ class HelpScreen(pygame.sprite.Sprite):
             # played_games = get_number_value_by_name("bin/played_games.txt", "games_played")
 
             if self.help_step == 1:
-                draw_text(Vector2(400 * x, 200 * y), self.image, big_font_size,
-                          "Willkommen bei Ökolopoly!\n"
-                          "Deine Aufgabe ist es ein Land zu führen!\n\n"
-                          "Du befindest dich gerade im Hilfemodus.\n"
-                          "Hier wird das Wichtigste zum Spielen von\n"
-                          "Ökolopoly und den Features kurz erklärt.\n\n"
-                          "Ziel des Spiels ist es erstmal so viele Runden\n"
-                          "wie möglich zu überleben, da man erst nach 10 Runden\n"
-                          "Punkte verdienen kann. Dann gilt die Punktzahl!\n\n"
-                          # "Zuerst werden 3 Spiele ohne neue Features gespielt.\n"
-                          # "Verdeckte Features werden nach 3 zu Ende gespielten\n"
-                          # "('Game over') Spielen je nach Gruppe freigeschaltet.\n\n"
-                          # "Es wäre schön wenn mindestens 5 Spiele beendet werden.\n"
-                          # f"Bereits beendete Spiele: {played_games}\n\n"
-                          # "Bitte zum Beenden des Spiels den 'Spiel beenden'-Knopf\n"
-                          # "verwenden, damit die Daten anonymisiert übermittelt\n"
-                          # "werden können!\n\n"
-                          "Viel Erfolg!")
+                draw_text(Vector2(400 * x, 200 * y), self.image, big_font_size, self.htl["hs1.0"])
             elif self.help_step == 2:
                 pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(805 * x, 15 * y, 280 * x, 330 * y))
                 pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(805 * x, 405 * y, 610 * x, 110 * y))
-                draw_text(Vector2(470 * x, 15 * y), self.image, small_font_size,
-                          "Es gibt 9 Bereiche auf die man\n"
-                          "achten sollte, dass diese nicht zu\n"
-                          "niedrig oder zu hoch werden")
-                draw_text(Vector2(470 * x, 110 * y), self.image, small_font_size,
-                          "Davon lassen sich 5 Bereiche\n"
-                          "steuern. Die Zahl zwischen dem\n"
-                          "+ und - kann man mit den\n"
-                          "Knöpfen anpassen. Dieser Wert\n"
-                          "bestimmt am Ende einer Runde\n"
-                          "wie der Bereich verändert\n"
-                          "werden soll\n\n"
-                          "Hinweis:\n"
-                          "Produktion akzeptiert als\n"
-                          "einziger Bereich auch negative\n"
-                          "Werte als Veränderung!")
-                draw_text(Vector2(1100 * x, 20 * y), self.image, small_font_size,
-                          "Der Bereich gibt mehr Infos,\n"
-                          "wenn man mit der Maus darüber fährt.")
-                draw_text(Vector2(1100 * x, 140 * y), self.image, small_font_size,
-                          "Immer rechts neben dem Balken steht\n"
-                          "der aktuelle Wert des Bereiches.")
-                draw_text(Vector2(805 * x, 520 * y), self.image, small_font_size,
-                          "Zu Beginn jeder Runde wird eine bestimme Anzahl an\n"
-                          "Aktionspunkten bereitgestellt. Diese kann man beliebig auf\n"
-                          "die 5 Bereiche verteilen.\n"
-                          "Mit dem Knopf entferne verteilte Punkte werden alle in\n"
-                          "dieser Runde verteilten Aktionspunkte zurückgesetzt.")
+                draw_text(Vector2(450 * x, 15 * y), self.image, small_font_size, self.htl["hs2.0"])
+                draw_text(Vector2(1100 * x, 20 * y), self.image, small_font_size, self.htl["hs2.1"])
+                draw_text(Vector2(1100 * x, 155 * y), self.image, small_font_size, self.htl["hs2.2"])
+                draw_text(Vector2(805 * x, 520 * y), self.image, small_font_size, self.htl["hs2.3"])
             elif self.help_step == 3:
                 pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(415 * x, 465 * y, 150 * x, 50 * y))
                 pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(395 * x, 345 * y, 180 * x, 50 * y))
-                draw_text(Vector2(585 * x, 455 * y), self.image, big_font_size,
-                          "Die Runde zeigt an in welchem Jahr\n"
-                          "man sich befindet. Es beginnt bei 0")
-                draw_text(Vector2(585 * x, 300 * y), self.image, small_font_size,
-                          "Mit dem Knopf Neues Spiel kann\n"
-                          "ein neues Spiel gestartet werden.\n"
-                          "Der bisherige Fortschritt geht dabei\n"
-                          "aber verloren!")
+                draw_text(Vector2(585 * x, 340 * y), self.image, small_font_size,
+                          self.htl["hs3.0"])
             elif self.help_step == 4:
                 pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(595 * x, 465 * y, 580 * x, 50 * y))
                 draw_text(Vector2(595 * x, 520 * y), self.image, small_font_size,
-                          "Mit dem Knopf Zug beenden schließt man das aktuelle\n"
-                          "Jahr mit den verteilten Aktionspunkten ab.\n"
-                          "Einige der Bereiche haben Auswirkungen auf andere und diese\n"
-                          "Auswirkungen werden mit Abschluss des Jahres eintreten!")
+                          self.htl["hs4.0"])
             elif self.help_step == 5:
-                pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(505 * x, 635 * y, 165 * x, 95 * y))
+                pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(505 * x, 635 * y, 175 * x, 95 * y))
                 self.image.blit(self.special_case_picture, (790 * x, 200 * y))
-                draw_text(Vector2(680 * x, 635 * y), self.image, small_font_size,
-                          "Der Spezialfall tritt ein wenn die Aufklärung einen Wert von 20 oder höher erreicht hat.\n"
-                          "Nun kann man die Vermehrungsrate an einem weiteren Ort anpassen.\n"
-                          "Der Vorteil hierbei:\n"
-                          "Es werden keine Aktionspunkte benötigt! Dafür lässt es sich nur von -5 bis +5 verändern.\n"
-                          "Achtung! Bei einer Aufklärung von 20 haben nur Werte von -3 bis 3 eine Auswirkung!\n"
-                          "Für niedrigere/höhere Werte muss die Aufklärung höher sein! Siehe Grafik.")
+                draw_text(Vector2(690 * x, 625 * y), self.image, small_font_size,
+                          self.htl["hs5.0"])
             elif self.help_step == 6:
                 pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(595 * x, 525 * y, 860 * x, 40 * y))
                 draw_text(Vector2(595 * x, 570 * y), self.image, small_font_size,
-                          "Das ist die Konsole. Hier wird nach dem Ende eines Spiels Feedback gegeben:\n"
-                          "Warum das Spiel zu Ende ist und wie viele Punkte man erzielt hat.")
+                          self.htl["hs6.0"])
             elif self.help_step == 7:
-                pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(15 * x, 85 * y, 200 * x, 105 * y))
-                draw_text(Vector2(225 * x, 60 * y), self.image, small_font_size,
-                          "Mit dem Knopf Spielanleitung öffnet sich die originale\n"
-                          "Spielanleitung des Spiels Ökolopoly.\n\n"
-                          "Mit dem Knopf Spielhistorie kann man sich die bereits gespielten Spiele anschauen.\n\n\n\n"
-                          # "Mit dem Knopf Feedback öffnet sich ein Textdokument in\n"
-                          # "das man eine kurze Rückmeldung zum Spiel schreiben kann.\n"
-                          # "Bitte die Textdatei speichern!\n\n\n\n"
-                          "Mit den Tasten WASD oder den Pfeiltasten auf der Tastatur\n"
-                          "kann man sich frei auf dem Spielbrett bewegen und mit dem\n"
-                          "Mausrad hinein- und herauszoomen.\n"
-                          "Beim maximalen Herauszoomen zentriert sich das Spielbrett automatisch.\n"
-                          "Mit der Tabulatortaste lassen sich die Spielelemente ein- und ausblenden.\n\n"
-                          "Achtung:\n"
-                          "Spielelemente lassen sich nur beim maximalen herausgezoomten Zustand bedienen.")
+                pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(15 * x, 85 * y, 250 * x, 105 * y))
+                draw_text(Vector2(275 * x, 80 * y), self.image, small_font_size,
+                          self.htl["hs7.0"])
             elif self.help_step == 8:
                 pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(805 * x, 15 * y, 280 * x, 330 * y))
                 draw_text(Vector2(1100 * x, 70 * y), self.image, small_font_size,
-                          "Das Balken Feature gibt Auskunft über die\n"
-                          "minimalen und maximalen Werte die jeder Bereich\n"
-                          "annehmen darf.\n\n"
-                          "Die Farbe vom momentanen Wert wird\n"
-                          "zur Mitte Grün und zu den beiden\n"
-                          "Grenzwerten Rot.")
+                          self.htl["hs8.0"])
                 # s = ""
                 # s2 = "s"
                 # if self.max_help_steps == 10:
@@ -1224,40 +1142,39 @@ class HelpScreen(pygame.sprite.Sprite):
                 #              f"Dazu gibt es neue Hilfeseiten!", color_green)
             elif self.help_step == 9:
                 pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(595 * x, 345 * y, 220 * x, 50 * y))
-                draw_text(Vector2(370 * x, 280 * y), self.image, small_font_size,
-                          "Das ist der Vorschaumodusknopf\n"
-                          "Damit schaltet man den Vorschaumodus\n"
-                          "an und aus.")
+                draw_text(Vector2(370 * x, 280 * y), self.image, small_font_size, self.htl["hs9.0"])
                 pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(805 * x, 15 * y, 280 * x, 330 * y))
                 pygame.draw.rect(self.image, color_black, pygame.Rect(941 * x, 280 * y, 34 * x, 3 * y))
-                draw_text(Vector2(1095 * x, 50 * y), self.image, small_font_size,
-                          "Der Vorschaumodus zeigt an wie sich die Zustände mit den\n"
-                          "aktuell verteilten Aktionspunkten im nächsten Jahr verändern\n"
-                          "würden.\n"
-                          "Eine schwarze Markierung zeigt die Veränderung des Balken an.\n"
-                          "Außerdem wird mithilfe einer Zahl über beziehungsweise\n"
-                          "bei negativen Zahlen unter dem aktuellen Wert die Abnahme/Zunahme\n"
-                          "des Bereiches angezeigt!\n\n"
-                          "Hinweis:"
-                          "Sind diese Grün überlebt man das Jahr. Sind diese jedoch\n"
-                          "Orange verliert man wenn man den Zug beendet.\n"
-                          "Die Konsole gibt Auskunft dazu!")
+                draw_text(Vector2(1095 * x, 50 * y), self.image, small_font_size, self.htl["hs9.1"])
                 pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(595 * x, 575 * y, 860 * x, 40 * y))
-                draw_text(Vector2(595 * x, 620 * y), self.image, small_font_size,
-                          "Das ist die Konsole vom Vorschaumodus. Diese gibt Auskunft über den Grund\n"
-                          "des Spielendes, sollte man den aktuellen Zug durchführen wollen.")
+                draw_text(Vector2(595 * x, 620 * y), self.image, small_font_size, self.htl["hs9.2"])
             elif self.help_step == 10:
+                text = (self.htl["hs10.0"])
                 max_predict_uses = get_number_value_by_name("bin/config.txt", "predict")
-                text = ("Der Knopf Bester Zug verteilt die verfügbaren Aktionspunkte so gut\n"
-                        "es geht sinnvoll auf die Bereiche.\n"
-                        "Dahinter steckt ein Agent(KI), der darauf trainiert wurde.\n\n")
                 if max_predict_uses <= 5:
-                    text += f"Achtung!\nDie Nutzung ist auf {max_predict_uses} mal pro Spiel begrenzt!"
-                pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(595 * x, 405 * y, 205 * x, 50 * y))
+                    text += f"{self.htl['hs10.1']} {max_predict_uses}{self.htl['hs10.2']}"
+                    # this prints (e.g.): "Attention: Use of AI is limited to 4 times per game!"
+                pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(595 * x, 405 * y, 200 * x, 50 * y))
                 draw_text(Vector2(595 * x, 460 * y), self.image, small_font_size, text)
 
 
+def parse_args():
+    """
+    Parse arguments
+    :return: parsed arguments
+    """
+    parser = argparse.ArgumentParser(description='Parameters for Oekolopoly GUI')
+    parser.add_argument('--language', type=str, default="en",
+                        help='Language of GUI')
+
+    args = parser.parse_args()
+
+    return args
+
+
 def main():
+    args = parse_args()
+
     # setup_game(random_number, user_id)
 
     fps = 60
@@ -1268,7 +1185,7 @@ def main():
     clock = pygame.time.Clock()
 
     camera = Camera()
-    game = Game(camera)
+    game = Game(camera, args)
 
     game_loop = True
     while game_loop:

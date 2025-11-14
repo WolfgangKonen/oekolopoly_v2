@@ -75,7 +75,7 @@ def dict_translate(args):
     if args.language == "en":
         dtl = {"HelpMode": "Help Mode",
                "ExitHelp": "Exit help",
-               "Exit": "Exit",
+               "Exit": "Exit game",
                "Forward": "Forward \u2192",
                "Back": "\u2190 Back",
                "Page": "Page: ",
