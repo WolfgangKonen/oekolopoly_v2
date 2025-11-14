@@ -1,17 +1,23 @@
 This repository contains code for the paper ["Ökolopoly: Case Study on Large Action Spaces in Reinforcement Learning"](https://doi.org/10.1007/978-3-031-53966-4_9) presented in 2023 at the conference "Machine Learning, Optimization, and Data Science" (LOD 2023).
 
+It is an update of the former GitHub repo oekolopoly_v1 with respect to two new developments
+- the environment OekoEnv is migrated from gym to **gymnasium**
+- a new GUI 2.0 for human play (developed by A. Albers, W. Konen) is included, now with **support for two languages "de" and "en"**.
+
 # Description of Directories and Files
 - `oekolopoly` directory:
   - `wrappers.py` contains the wrappers to modify observation- and actionspace as well as reward functions
   - `oekolopoly` contains the RL environment
   - `oekolopoly_gui` the necessary files to run the GUI for human-play
-  - `my_oekolopoly_gui` contains the files to run the GUI 2.0 for human-play
 - `agent_list.py` lists of agents used for different investigations
-- `trained agents` contains a few trained PPO agents with high performance
+- `trained agents/` contains a few trained PPO agents with high performance
 - `evaluate.py` evaluates the given list of agents by computing mean and standard deviation of the last evaluation episodes during training. The results are saved in a csv-file specified in the last line of code
 - `train.py` trains an agent with the parameters passed to the script (wrappers, DRL algorithm, parameters for reward-shaping etc.)
 - `utils.py` a few functions for comodity
-- `additional material` contains plots which due to the page limit could not be part of the paper. These include all pie chrts for episodes' termination (see Fig. 6 in [the publication](#Publication)) and fluctuations in the training curves for PPO, SAC, and TD3 algorithms (see Fig. 2 in [the publication](#Publication)).
+- `oekolopoly_gui.py` contains the GUI 2.0 for human play.
+- ´assets/`: some assets needed for GUI 2.0
+- `bin/`: some files needed for GUI 2.0
+- `Spielanleitung.pdf`: the original game instructions (in German only) of the game Ökolopoly (invented by F. Vester).
 
 # How to...
 ## ...install?
@@ -31,9 +37,9 @@ stable-baselines3==2.7.0
 tqdm==4.67.1
 ```
 in a file `requirements.txt`. Then run the command
-```
-python -m pip install -r requirements.txt
-```
+
+	python -m pip install -r requirements.txt
+
 in the directory where the folder `Lib/site-packages` of your Python environment resides.
 
 ## ...train an agent?
@@ -50,6 +56,10 @@ Use either one of the following commands:
     python oekolopoly_gui.py --language "de"
 	python oekolopoly_gui.py --language "en"
 	python -m oekolopoly.oekolopoly_gui.oeko_gui
+
+See the help within the GUI `oekolopoly_gui` and a few remarks in `bin\README.txt` on how to configure the GUI.
+
+Note that `oeko_gui` is now deprecated.
 ## ...use the environment in my own scripts?
 Once you import via
 
