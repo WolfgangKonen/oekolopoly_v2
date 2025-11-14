@@ -40,7 +40,15 @@ in the directory where the folder `Lib/site-packages` of your Python environment
 To train a PPO agent without observation wrapper, using Simple action wrapper and PerRound reward wrapper with a constant per-round reward of $R_c=0.5$, and seed 17 one would issue the command:
 
 	python train.py --observation "none" --action "simple" --reward "perround" --shaping 0.5 --algo "ppo" --seed 17
+## ...play an episode on the console?
+To play an episode with a trained agent use 
+
+    python run_agent_episode.py --observation "box" --action "box" --reward "perround" --shaping 0.5 --algo "ppo" --seed 17
 ## ...play using the GUI?
+Use either one of the following commands:
+
+    python oekolopoly_gui.py --language "de"
+	python oekolopoly_gui.py --language "en"
 	python -m oekolopoly.oekolopoly_gui.oeko_gui
 ## ...use the environment in my own scripts?
 Once you import via
