@@ -354,7 +354,7 @@ class Game:
         self.game_over_label = Label(Vector2(860, 580), Vector2(250, 70), camera, dtl["GameOver"], 50, color_red)
 
         # region labels with more info labels #
-        action_points_label = Label(Vector2(390, 48), Vector2(155, 40), camera, dtl["Points"], 23, color_white)
+        action_points_label = Label(Vector2(390, 48), Vector2(155, 40), camera, dtl["APoints"], 23, color_white)
         more_info_action_points = MoreInfo(Vector2(390, 90), Vector2(170, 50),
                                            dtl["MoreInfoPoints"], camera)
 
@@ -463,11 +463,11 @@ class Game:
         if self.close_game.button_pressed():
             self.game_loop = False
         # if self.feedback_button.button_pressed():
-        #    os.startfile("feedback.txt")
+        #    os.startfile("feedback.txt", cwd="bin")
         if self.game_instructions_button.button_pressed():
             os.startfile("Spielanleitung.pdf")
         if self.game_history_button.button_pressed():
-            os.startfile("current_game_history.txt")
+            os.startfile("current_game_history.txt", cwd="bin")
 
     def change_current_action(self, action_index, change):
         if change > 0 and self.current_action[action_index] + 1 + self.env.unwrapped.V[action_index] <= self.env.unwrapped.Vmax[action_index]:
@@ -670,7 +670,8 @@ class Game:
                     # games_played += 1
                     # with open("bin/played_games.txt", "w") as file:
                     #    file.write(f"games_played: {games_played}")
-                    self.console_label.text = f"{info['done_reason']}    Endergebnis: {round(reward)} Punkte"
+                    self.console_label.text = (f"{info['done_reason']}    {self.dtl['FinalResult']}: {round(reward)} "
+                                               f"{self.dtl['Points']}")
 
                     # print(self.all_actions)
                     sani = ""
@@ -684,26 +685,35 @@ class Game:
                     round_counter = 0
                     for act in self.all_actions:
                         for i in range(len(acts)):
-                            acts[i] += f"{act[i]}   "
-                            if act[i] < 0 or act[i] > 9:
-                                acts[i] = acts[i][:-1]
-                            if act[i] < -9:
-                                acts[i] = acts[i][:-1]
-                        if round_counter < 9:
-                            roun += f"{round_counter + 1}   "
-                        else:
-                            roun += f"{round_counter + 1}  "
+                            # Format specifier "{:>4}" for string fields of size 4 with right-aligned printing is
+                            # a simpler alternative than the former, now out-commented code below:
+                            acts[i] += "{:>4}".format(act[i])
+                            # acts[i] += f"{act[i]}   "
+                            # if act[i] < 0 or act[i] > 9:  # if act[i] is a one-digit negative number, then its string rep
+                            #     acts[i] = acts[i][:-1]    # has one char more ('-') --> [:-1] removes one trailing blank
+                            # if act[i] < -9:
+                            #     acts[i] = acts[i][:-1]    # one more character --> remove another trailing blank
+                        offs = 0
+                        roun += "{:>4}".format(round_counter + offs)
+                        # if round_counter < 9:
+                        #     roun += f"{round_counter + offs}   "
+                        # else:
+                        #     roun += f"{round_counter + offs}  "
                         round_counter += 1
-                    current_game_text = (f"{self.env.unwrapped.V[8]} Runden überlebt, {round(reward)} Punkte erzielt\n"
-                                         f"Ausgeführte Züge in Runde:    {roun}\n"
-                                         f"Sanierung:                    {acts[0]} Sanierung\n"
-                                         f"Produktion:                   {acts[1]} Produktion\n"
-                                         f"Aufklärung:                   {acts[2]} Aufklärung\n"
-                                         f"Lebensqualität:               {acts[3]} Lebensqualität\n"
-                                         f"Vermehrungsrate:              {acts[4]} Vermehrungsrate\n"
-                                         f"Vermehrungsratespezialfall:   {acts[5]} Vermehrungsratespezialfall\n\n\n")
+                    # now roun and acts[i] are strings containing all the round numbers played and all the i'th actions
+                    # in each round, resp.
+                    current_game_text = (f"{self.env.unwrapped.V[8]} {self.dtl['RoundsSurvived']}., "
+                          f"{round(reward)} {self.dtl['PointsGained']}\n"
+                          "{:>20}".format(f"{self.dtl['RoundNo']}")   +   f":{roun}\n"
+                          "{:>20}".format(f"{self.dtl['Redevelop']}") +   f":{acts[0]}  {self.dtl['Redevelop']}\n"
+                          "{:>20}".format(f"{self.dtl['Production']}")+   f":{acts[1]}  {self.dtl['Production']}\n"
+                          "{:>20}".format(f"{self.dtl['Enlightenment']}")+f":{acts[2]}  {self.dtl['Enlightenment']}\n"
+                          "{:>20}".format(f"{self.dtl['QualityOfLife']}")+f":{acts[3]}  {self.dtl['QualityOfLife']}\n"
+                          "{:>20}".format(f"{self.dtl['ReproRate']}") +   f":{acts[4]}  {self.dtl['ReproRate']}\n"
+                          "{:>20}".format(f"{self.dtl['SpecialCase']}")  +f":{acts[5]}  {self.dtl['SpecialCase']}\n\n\n")
+                          # "{:>20}".format is for right-aligned printing in a string field of size 20
                     # print(current_game_text)
-                    with open("current_game_history.txt", "a") as history:
+                    with open("bin/current_game_history.txt", "a") as history:
                         history.write(current_game_text)
 
                     # date_now = datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
@@ -987,7 +997,7 @@ class HelpScreen(pygame.sprite.Sprite):
         self.camera = camera
         self.scale_x = pygame.display.get_window_size()[0] / 1920
         self.scale_y = pygame.display.get_window_size()[1] / 1080
-        self.exit_help_button = Button(Vector2(910, 850), Vector2(135, 40), color_red, camera, text=dtl["ExitHelp"])
+        self.exit_help_button = Button(Vector2(890, 850), Vector2(200, 40), color_red, camera, text=dtl["ExitHelp"])
         self.help_mode = Label(Vector2(860, 900), Vector2(260, 80), camera, dtl["HelpMode"], 50, color_yellow)
         self.step_back_button = Button(Vector2(760, 1000), Vector2(150, 40), color_green, camera, text=dtl["Back"])
         self.page_label = Label(Vector2(910, 1000), Vector2(160, 40), camera, dtl["Page"], 30, color_turky)
@@ -1225,10 +1235,10 @@ def main():
         email += history_text
         with open("bin/game_history.txt", "w") as file:
             file.write("")
-    feedback_text = get_text_from_file("feedback.txt")
+    feedback_text = get_text_from_file("bin/feedback.txt")
     if len(feedback_text) > 0:
         email += f"\nFeedback\n {feedback_text}"
-        with open("feedback.txt", "w") as file:
+        with open("bin/feedback.txt", "w") as file:
             file.write("")
 
     # if len(email) > 12:
@@ -1248,7 +1258,7 @@ def main():
     #     sender.close()
 
     # delete current game history
-    with open("current_game_history.txt", "w") as file:
+    with open("bin/current_game_history.txt", "w") as file:
         file.write("")
 
 

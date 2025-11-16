@@ -7,23 +7,25 @@ def dict_translate(args):
         dtl = {"HelpMode": "Hilfemodus",
                "ExitHelp": "Hilfe verlassen",
                "Exit": "Verlassen",
+               "CloseGame": "Spiel beenden",
                "Forward": "Weiter \u2192",      # \u2192 is an arrow to the right
                "Back": "\u2190 Zurück",         # \u2190 is an arrow to the left
                "Page": "Seite: ",
                "SpecialCase": "Spezialfall",
-               "Points": "Aktionspunkte",
+               "APoints": "Aktionspunkte",
+               "Points": "Punkte",
                "MoreInfoPoints": "Einfluss, Geld, Arbeit,\n"
                                  "Energie, Güter, Nahrung",
-               "Production": "Produktion",
-               "MoreInfoProduction": "Industrie, Handwerk,\n"
-                                     "Landwirtschaft,\n"
-                                     "Dienstleistungen",
                "Redevelop": "Sanierung",
                "MoreInfoRedevelop": "Umweltschutz, Recycling,\n"
                                     "Biotechnik, sanfte Energie,\n"
                                     "Landschaftserhaltung,\n"
                                     "Humanisierung der\n"
                                     "Arbeitswelt",
+               "Production": "Produktion",
+               "MoreInfoProduction": "Industrie, Handwerk,\n"
+                                     "Landwirtschaft,\n"
+                                     "Dienstleistungen",
                "EnvirDamage": "Umweltbelastung",
                "MoreInfoEnvirDamage": "Abgase, Abwässer,\n"
                                       "Abwärme, Lärm, Raubbau,\n"
@@ -58,7 +60,6 @@ def dict_translate(args):
                                    "gewalt",
                "ClearActions": "Entferne verteilte Punkte",
                "ExecuteStep": "Zug ausführen",
-               "CloseGame": "Spiel beenden",
                "Reset": "Neues Spiel",
                "BestMoveAI": "KI-Zug",
                "PreviewMode": "Vorschaumodus",
@@ -70,29 +71,35 @@ def dict_translate(args):
                "Round": "Runde: ",
                "Balance": "Bilanz: ",
                "GameOver": "Game over",
+               "FinalResult": "Endergebnis",
+               "PointsGained": "Punkte erzielt",
+               "RoundsSurvived": "Runden überlebt",
+               "RoundNo": "Runde Nr.",
                }
         return dtl
     if args.language == "en":
         dtl = {"HelpMode": "Help Mode",
-               "ExitHelp": "Exit help",
+               "ExitHelp": "    Exit help",
                "Exit": "Exit game",
+               "CloseGame": "Exit game",
                "Forward": "Forward \u2192",
                "Back": "\u2190 Back",
                "Page": "Page: ",
                "SpecialCase": "SpecialCase",
-               "Points": "Action Points",
+               "APoints": "Action points",
+               "Points": "points",
                "MoreInfoPoints": "Influence, money, work,\n"
                                  "energy, goods, food",
-               "Production": "Production",
-               "MoreInfoProduction": "Industry, crafts,\n"
-                                     "agriculture,\n"
-                                     "services",
-               "Redevelop": "Redevelop",
+               "Redevelop": "Redevelop",            # "Sanierung"
                "MoreInfoRedevelop": "Environmental protection,\n"
                                     "recycling, biotechnology,\n"
                                     "landscape conservation,\n"
                                     "humane working\n"
                                     "environment",
+               "Production": "Production",
+               "MoreInfoProduction": "Industry, crafts,\n"
+                                     "agriculture,\n"
+                                     "services",
                "EnvirDamage": "Environ. Damage",
                "MoreInfoEnvirDamage": "Waste gases, wastewater,\n"
                                       "waste heat, noise, exploitation,\n"
@@ -127,7 +134,6 @@ def dict_translate(args):
                                    "power",
                "ClearActions": "Remove distributed points",
                "ExecuteStep": "Execute step",
-               "CloseGame": "Exit",
                "Reset": "New game",
                "BestMoveAI": "AI move",
                "PreviewMode": "Preview mode",
@@ -139,6 +145,10 @@ def dict_translate(args):
                "Round": "Round: ",
                "Balance": "Balance: ",
                "GameOver": "Game over",
+               "FinalResult": "Final result",
+               "PointsGained": "points gained",
+               "RoundsSurvived": "rounds survived",
+               "RoundNo": "Round #",
                }
         return dtl
     raise RuntimeError(f"[dict_translate] args.language = {args.language} is not supported!")
