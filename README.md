@@ -1,4 +1,4 @@
-This repository contains code for the paper ["Ökolopoly: Case Study on Large Action Spaces in Reinforcement Learning"](https://doi.org/10.1007/978-3-031-53966-4_9) presented in 2023 at the conference "Machine Learning, Optimization, and Data Science" (LOD 2023).
+This repository contains code for the paper ["Ökolopoly: Case Study on Large Action Spaces in Reinforcement Learning"](https://doi.org/10.1007/978-3-031-53966-4_9) presented in 2023 at the conference "Machine Learning, Optimization, and Data Science" (LOD 2023) and was developed by R. Engelhardt, R. Raycheva, W. Konen.
 
 It is an update of the former GitHub repo oekolopoly_v1 and it contains two new developments:
 - the environment OekoEnv is migrated from gym to **gymnasium**
