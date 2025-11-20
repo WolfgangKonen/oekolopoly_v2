@@ -374,6 +374,7 @@ class Game:
                                          dtl["MoreInfoEnvirDamage"], camera)
 
         education_label = Label(Vector2(1790, 830), Vector2(125, 40), camera, dtl["Enlightenment"], 23, color_white)
+        #                                                                         "Aufklärung"
         more_info_education = MoreInfo(Vector2(1675, 872), Vector2(240, 105),
                                        dtl["MoreInfoEnlighten"], camera)
 

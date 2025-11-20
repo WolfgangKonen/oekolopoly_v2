@@ -1,3 +1,10 @@
+"""
+    Translation dictionaries for Ökolopoly GUI 2.0.
+
+    Languages supported: "de" | "en"
+"""
+
+
 def dict_translate(args):
     """
     :param args: contains attribute ``language = "de"|"en"``
@@ -152,6 +159,7 @@ def dict_translate(args):
                }
         return dtl
     raise RuntimeError(f"[dict_translate] args.language = {args.language} is not supported!")
+
 
 def dict_help_screens(args):
     """

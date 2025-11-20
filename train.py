@@ -48,7 +48,7 @@ def wrap_env(env, args, savedir, monitor=False):
     elif args.observation == "none":
         pass
     else:
-        raise ValueError("No valid string for observation wrapper passed")
+        raise ValueError(f"Invalid string {args.observation} for observation wrapper passed")
 
     # Wrap actions
     if args.action == "simple":
@@ -60,7 +60,7 @@ def wrap_env(env, args, savedir, monitor=False):
     elif args.action == "none":
         pass
     else:
-        raise ValueError("No valid string for action wrapper passed")
+        raise ValueError(f"Invalid string {args.action} for action wrapper passed")
 
     # Wrap rewards
     if args.reward == "perround":
@@ -70,7 +70,7 @@ def wrap_env(env, args, savedir, monitor=False):
     elif args.reward == "none":
         pass
     else:
-        raise ValueError("No valid string for reward wrapper passed")
+        raise ValueError(f"Invalid string {args.reward} for reward wrapper passed")
 
     if monitor:
         env = Monitor(env, savedir, info_keywords=("balance (always)",
@@ -116,13 +116,14 @@ if __name__ == "__main__":
         action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions))
         model = TD3("MlpPolicy", env, verbose=1, seed=args.seed, action_noise=action_noise)
     else:
-        raise ValueError("Unavailable DRL algoritm")
+        raise ValueError(f"Invalid DRL algoritm {args.algo}")
     env.set_model(model)  # Make model available for prediction during evaluation
 
     cust_logger = configure(f"{savedir}", ["csv", "log"])
     model.set_logger(cust_logger)
     model.learn(total_timesteps=args.timesteps, log_interval=1, progress_bar=True)
-    model.save(f"{savedir}/end_of_training_agent")
+    # model.save(f"{savedir}/end_of_training_agent")
+    model.save(f"{savedir}/{agent_str}.zip")    # we need ending .zip here, because agent_str may contain "." (shaping)
     l = env.get_episode_lengths()
     rews = env.get_episode_rewards()
     total_steps = env.get_total_steps()

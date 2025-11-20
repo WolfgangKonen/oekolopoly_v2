@@ -134,7 +134,7 @@ class OekoSimpleActionWrapper(gym.ActionWrapper):
         remaining = 0
         for i in range(5):
             region_points_float = points / 3 * int(act_string[i])
-            region_points_int   = np.floor(region_points_float)
+            region_points_int   = np.int64(np.floor(region_points_float))  # /WK/2025-11/ bug fix: np.int64
             remaining          += region_points_float - region_points_int
             regions[i]          = region_points_int
         remaining = round(remaining)
@@ -162,7 +162,7 @@ class OekoSimpleActionWrapper(gym.ActionWrapper):
         assert used_points <= points
 
         act = np.append(regions, extra_points)
-        for i in range(5): act[i] -= self.Amin[i]
+        for i in range(5): act[i] -= self.unwrapped.Amin[i]
         return act
 
 
@@ -295,6 +295,6 @@ class OekoBoxUnclippedActionWrapper(gym.ActionWrapper):
         if reduce_production: regions_act[1] = -regions_act[1]
 
         act = np.append(regions_act, special_act)
-        act -= self.Amin
-        act = np.clip(act, np.zeros(len(act)), self.Amax-self.Amin)
+        act -= self.unwrapped.Amin
+        act = np.clip(act, np.zeros(len(act)), self.unwrapped.Amax-self.unwrapped.Amin)
         return act

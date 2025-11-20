@@ -14,6 +14,7 @@ def decode_from_agent_string(agent_str):
 
     return obs, act, rew, shape, drl, seed
 
+
 class EvalMonitor(Monitor):
     """Runs one evaluation episode after completion of training episode"""
     def __init__(self, env, eval_env, filename=None, info_keywords=None):
