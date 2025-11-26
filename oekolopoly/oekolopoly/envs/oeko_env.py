@@ -21,6 +21,7 @@ class OekoEnv(gym.Env):
         - 'balance_numerator': `info['balance_numerator (always)']` if round \in [10,30], 0 else
         - 'round': the number of rounds played
         - 'done_reason': string with the reason for termination (`None` if not yet terminated)
+        - 'done_reason_detail': string with further info
         - 'valid_move': `False` if the action points were distributed in an unallowed way, `True` else
         - 'invalid_move_info': string describing the reason for invalid move
 
@@ -112,6 +113,7 @@ class OekoEnv(gym.Env):
 
         self.done = False
         self.done_info = ''
+        self.done_reason_detail = ''
         self.info = dict()
 
     # --- should be obsolete after migrating to gymnasium ---
@@ -148,7 +150,7 @@ class OekoEnv(gym.Env):
         t_end  = 3.0
 
         print("Action:", self.curr_action)
-        if self.done: print("Done:", self.done_info)
+        if self.done: print(f"Done: {self.done_info}{self.done_reason_detail}")
 
         while t < t_end:
             self.render_rounds(canvas,  5, 485, min(t, 1.0))  # progress bar, shows number of round
@@ -259,6 +261,7 @@ class OekoEnv(gym.Env):
         OOR = " out of allowed range"
         done = False
         done_info = None
+        done_reason_detail = None
         extra_points = action[5]
 
         # Update V and boxes
@@ -267,72 +270,72 @@ class OekoEnv(gym.Env):
             self.V[self.ENVIRONMENT] += box1
             if self.V[self.ENVIRONMENT] not in range(1, 30):
                 done = True
-                if self.V[self.ENVIRONMENT] > 29: l = "high. "
-                else: l = "low. "
-                done_info = "Environment too " + l + str(self.V[self.ENVIRONMENT]) + OOR
+                l = "high. " if self.V[self.ENVIRONMENT] > 29 else "low. "
+                done_info = "Environment too " + l
+                done_reason_detail = f"{self.V[self.ENVIRONMENT]} {OOR} (1, ..., 29)."
 
         if not done:
             box2 = gb.get_box2(self.V[self.SANITATION])
             self.V[self.SANITATION] += box2
             if self.V[self.SANITATION] not in range(1, 30):
                 done = True
-                if self.V[self.SANITATION] > 29: l = "high. "
-                else: l = "low. "
-                done_info = "Sanitation too " + l + str(self.V[self.SANITATION]) + OOR
+                l = "high. " if self.V[self.SANITATION] > 29 else "low. "
+                done_info = "Sanitation too " + l
+                done_reason_detail = f"{self.V[self.SANITATION]} {OOR} (1, ..., 29)."
 
         if not done:
             box3 = gb.get_box3(self.V[self.PRODUCTION])
             self.V[self.PRODUCTION] += box3
             if self.V[self.PRODUCTION] not in range(1, 30):
                 done = True
-                if self.V[self.PRODUCTION] > 29: l = "high. "
-                else: l = "low. "
-                done_info = "Production too " + l + str(self.V[self.PRODUCTION]) + OOR
+                l = "high. " if self.V[self.PRODUCTION] > 29 else "low. "
+                done_info = "Production too " + l
+                done_reason_detail = f"{self.V[self.SANITATION]} {OOR} (1, ..., 29)."
 
         if not done:
             box4 = gb.get_box4(self.V[self.PRODUCTION])
             self.V[self.ENVIRONMENT] += box4
             if self.V[self.ENVIRONMENT] not in range(1, 30):
                 done = True
-                if self.V[self.ENVIRONMENT] > 29: l = "high. "
-                else: l = "low. "
-                done_info = "Environment too " + l + str(self.V[self.ENVIRONMENT]) + OOR
+                l = "high. " if self.V[self.ENVIRONMENT] > 29 else "low. "
+                done_info = "Environment too " + l
+                done_reason_detail = f"{self.V[self.ENVIRONMENT]} {OOR} (1, ..., 29)."
 
         if not done:
             box5 = gb.get_box5(self.V[self.ENVIRONMENT])
             self.V[self.ENVIRONMENT] += box5
             if self.V[self.ENVIRONMENT] not in range(1, 30):
                 done = True
-                if self.V[self.ENVIRONMENT] > 29: l = "high. "
-                else: l = "low. "
-                done_info = "Environment too " + l + str(self.V[self.ENVIRONMENT]) + OOR
+                l = "high. " if self.V[self.ENVIRONMENT] > 29 else "low. "
+                done_info = "Environment too " + l
+                done_reason_detail = f"{self.V[self.ENVIRONMENT]} {OOR} (1, ..., 29)."
 
         if not done:
             box6 = gb.get_box6(self.V[self.ENVIRONMENT])
             self.V[self.QUALITY_OF_LIFE] += box6
             if self.V[self.QUALITY_OF_LIFE] not in range(1, 30):
                 done = True
-                if self.V[self.QUALITY_OF_LIFE] > 29: l = "high. "
-                else: l = "low. "
-                done_info = "Quality of Life too " + l + str(self.V[self.QUALITY_OF_LIFE]) + OOR
+                l = "high. " if self.V[self.QUALITY_OF_LIFE] > 29 else "low. "
+                done_info = "Quality of Life too " + l
+                done_reason_detail = f"{self.V[self.QUALITY_OF_LIFE]} {OOR} (1, ..., 29)."
 
         if not done:
             box7 = gb.get_box7(self.V[self.EDUCATION])
             self.V[self.EDUCATION] += box7
             if self.V[self.EDUCATION] not in range(1, 30):
                 done = True
-                if self.V[self.EDUCATION] > 29: l = "high. "
-                else: l = "low. "
-                done_info = "Education too " + l + str(self.V[self.EDUCATION]) + OOR
+                l = "high. " if self.V[self.EDUCATION] > 29 else "low. "
+                done_info = "Education too " + l
+                done_reason_detail = f"{self.V[self.EDUCATION]} {OOR} (1, ..., 29)."
 
         if not done:
             box8 = gb.get_box8(self.V[self.EDUCATION])
             self.V[self.QUALITY_OF_LIFE] += box8
             if self.V[self.QUALITY_OF_LIFE] not in range(1, 30):
                 done = True
-                if self.V[self.QUALITY_OF_LIFE] > 29: l = "high. "
-                else: l = "low. "
-                done_info = "Quality of Life too " + l + str(self.V[self.QUALITY_OF_LIFE]) + OOR
+                l = "high. " if self.V[self.QUALITY_OF_LIFE] > 29 else "low. "
+                done_info = "Quality of Life too " + l
+                done_reason_detail = f"{self.V[self.QUALITY_OF_LIFE]} {OOR} (1, ..., 29)."
 
         if not done:
             if self.V[self.EDUCATION] in range(21, 24): extra_points = max(-3, min(3, extra_points))
@@ -343,36 +346,36 @@ class OekoEnv(gym.Env):
             self.V[self.POPULATION_GROWTH] += box9
             if self.V[self.POPULATION_GROWTH] not in range(1, 30):
                 done = True
-                if self.V[self.POPULATION_GROWTH] > 29: l = "high. "
-                else: l = "low. "
-                done_info = "Population Growth too " + l + str(self.V[self.POPULATION_GROWTH]) + OOR
+                l = "high. " if self.V[self.POPULATION_GROWTH] > 29 else "low. "
+                done_info = "Population Growth too " + l
+                done_reason_detail = f"{self.V[self.POPULATION_GROWTH]} {OOR} (1, ..., 29)."
 
         if not done:
             box10 = gb.get_box10(self.V[self.QUALITY_OF_LIFE])
             self.V[self.QUALITY_OF_LIFE] += box10
             if self.V[self.QUALITY_OF_LIFE] not in range(1, 30):
                 done = True
-                if self.V[self.QUALITY_OF_LIFE] > 29: l = "high. "
-                else: l = "low. "
-                done_info = "Quality of Life too " + l + str(self.V[self.QUALITY_OF_LIFE]) + OOR
+                l = "high. " if self.V[self.QUALITY_OF_LIFE] > 29 else "low. "
+                done_info = "Quality of Life too " + l
+                done_reason_detail = f"{self.V[self.QUALITY_OF_LIFE]} {OOR} (1, ..., 29)."
 
         if not done:
             box11 = gb.get_box11(self.V[self.QUALITY_OF_LIFE])
             self.V[self.POPULATION_GROWTH] += box11
             if self.V[self.POPULATION_GROWTH] not in range(1, 30):
                 done = True
-                if self.V[self.POPULATION_GROWTH] > 29: l = "high. "
-                else: l = "low. "
-                done_info = "Population Growth too " + l + str(self.V[self.POPULATION_GROWTH]) + OOR
+                l = "high. " if self.V[self.POPULATION_GROWTH] > 29 else "low. "
+                done_info = "Population Growth too " + l
+                done_reason_detail = f"{self.V[self.POPULATION_GROWTH]} {OOR} (1, ..., 29)."
 
         if not done:
             box12 = gb.get_box12(self.V[self.QUALITY_OF_LIFE])
             self.V[self.POLITICS] += box12
             if self.V[self.POLITICS] not in range(-10, 38):
                 done = True
-                if self.V[self.POLITICS] > 37: l = "high. "
-                else: l = "low. "
-                done_info = "Politics too " + l + str(self.V[self.POLITICS]) + OOR
+                l = "high. " if self.V[self.POLITICS] > 37 else "low. "
+                done_info = "Politics too " + l
+                done_reason_detail = f"{self.V[self.POLITICS]} {OOR} (-10, ..., 37)."
 
         if not done:
             box13 = gb.get_box13(self.V[self.POPULATION_GROWTH])
@@ -380,20 +383,20 @@ class OekoEnv(gym.Env):
             self.V[self.POPULATION] += box13 * boxW
             if self.V[self.POPULATION] not in range(1, 49):
                 done = True
-                if self.V[self.POPULATION] > 48: l = "high. "
-                else: l = "low. "
-                done_info = "Population too " + l + str(self.V[self.POPULATION]) + OOR
+                l = "high. " if self.V[self.POPULATION] > 48 else "low. "
+                done_info = "Population Growth too " + l
+                done_reason_detail = f"{self.V[self.POPULATION]} {OOR} (1, ..., 48)."
 
         if not done:
             box14 = gb.get_box14(self.V[self.POPULATION])
             self.V[self.QUALITY_OF_LIFE] += box14
             if self.V[self.QUALITY_OF_LIFE] not in range(1, 30):
                 done = True
-                if self.V[self.QUALITY_OF_LIFE] > 29: l = "high. "
-                else: l = "low. "
-                done_info = "Quality of Life too " + l + str(self.V[self.QUALITY_OF_LIFE]) + OOR
+                l = "high. " if self.V[self.QUALITY_OF_LIFE] > 29 else "low. "
+                done_info = "Quality of Life too " + l
+                done_reason_detail = f"{self.V[self.QUALITY_OF_LIFE]} {OOR} (1, ..., 29)."
 
-        return self.V, done, done_info
+        return self.V, done, done_info, done_reason_detail
 
     def step(self, action):
         clipping = True
@@ -428,17 +431,18 @@ class OekoEnv(gym.Env):
         if used_points < 0 or used_points > self.V[self.POINTS]:
             self.done = True
             if used_points < 0:
-                done_reason = "Tried to use negative amount of action points: "
+                done_reason = "Tried to use negative amount of action points. "
             elif used_points > self.V[self.POINTS]:
-                done_reason = "Tried to exceed available amount of action points: "
+                done_reason = "Tried to exceed available amount of action points. "
             #done_reason += f"Tried to use {used_points} action points, but only between 0 and {self.V[self.POINTS]} are available"
-            done_reason += f"{used_points} not in (0, ..., {self.V[self.POINTS]})"
+            done_reason_detail = f"{used_points} not in (0, ..., {self.V[self.POINTS]})"
             return self.obs, 0, self.done, truncated, {'balance (always)': self.balance_always,
                                             'balance_numerator (always)': self.balance_numerator_always,
                                             'balance': self.balance,
                                             'balance_numerator': self.balance_numerator,
                                             'round': self.V[self.ROUND],
                                             'done_reason': done_reason,
+                                            'done_reason_detail': done_reason_detail,
                                             'valid_move': False,
                                             'invalid_move_info': "Invalid number of action points"}
         assert 0 <= used_points <= self.V[self.POINTS], f"Action takes too many points: action={action} POINTS={self.V[self.POINTS]})"
@@ -447,10 +451,10 @@ class OekoEnv(gym.Env):
             if self.V[i] + action[i] not in range(self.Vmin[i], self.Vmax[i] + 1):
                 self.done = True
                 if self.V[i] + action[i] < self.Vmin[i]:
-                    done_reason = f"Distribution of action points pushes {self.V_NAMES[i]} below limit: "
+                    done_reason = f"Distribution of action points pushes {self.V_NAMES[i]} below limit. "
                 elif self.V[i] + action[i] > self.Vmax[i]:
-                    done_reason = f"Distribution of action points pushes {self.V_NAMES[i]} above limit: "
-                done_reason += f"{self.V[i] + action[i]} action points are not in ({self.Vmin[i]}, ..., {self.Vmax[i]})"
+                    done_reason = f"Distribution of action points pushes {self.V_NAMES[i]} above limit. "
+                done_reason_detail = f"{self.V[i] + action[i]} action points are not in ({self.Vmin[i]}, ..., {self.Vmax[i]})"
                 inval_m_info = f"Invalid number of action points assigned to {self.V_NAMES[i]}."
                 return self.obs, 0, self.done, truncated, {'balance (always)': self.balance_always,
                                                            'balance_numerator (always)': self.balance_numerator_always,
@@ -458,6 +462,7 @@ class OekoEnv(gym.Env):
                                                            'balance_numerator': self.balance_numerator,
                                                            'round': self.V[self.ROUND],
                                                            'done_reason': done_reason,
+                                                           'done_reason_detail': done_reason_detail,
                                                            'valid_move': False,
                                                            'invalid_move_info': inval_m_info,
                                                            }
@@ -468,7 +473,7 @@ class OekoEnv(gym.Env):
         for i in range(5): self.V[i] += action[i]
 
         # Update boxes and V accordingly
-        self.V, self.done, self.done_info = self.update_values(action)
+        self.V, self.done, self.done_info, self.done_reason_detail = self.update_values(action)
 
         # Update points and round
         self.V[self.POINTS] -= used_points
@@ -548,6 +553,7 @@ class OekoEnv(gym.Env):
                                             'balance_numerator': self.balance_numerator,
                                             'round': self.V[self.ROUND],
                                             'done_reason': self.done_info,
+                                            'done_reason_detail': self.done_reason_detail,
                                             'valid_move': True,
                                             'invalid_move_info': ''}
 
@@ -568,6 +574,7 @@ class OekoEnv(gym.Env):
 
         self.done = False
         self.done_info = ''
+        self.done_reason_detail = ''
 
         boxD = gb.get_boxD(self.V[self.QUALITY_OF_LIFE])
         a = float((boxD * 3 + self.V[self.POLITICS]) * 10)

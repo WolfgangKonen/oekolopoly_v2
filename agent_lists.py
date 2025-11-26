@@ -241,6 +241,6 @@ PPO_FLUC = ["obs_box_action_box_reward_perround_0.5_ppo_17",
 
 PPO_WK = ["obs_box_action_box_reward_perround_0.5_ppo_17",
           "obs_none_action_box_reward_perround_0.5_ppo_17",
-          "obs_none_action_none_reward_perround_0.5_ppo_17",
+          "obs_box_action_box_reward_perround_0.5_sac_17",
           "obs_simple_action_simple_reward_perround_0.5_ppo_17",
          ]

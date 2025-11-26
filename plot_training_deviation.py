@@ -8,11 +8,11 @@ from matplotlib.ticker import MaxNLocator
 from matplotlib.lines import Line2D
 from tqdm import tqdm
 from utils import decode_from_agent_string
-from agent_lists import PPO_FLUC
+from agent_lists import PPO_FLUC, PPO_WK
 
 WINDOW = 501
 POST = "_smoothed"
-AGENTS = PPO_FLUC
+AGENTS = PPO_WK  # PPO_FLUC
 PLOT_LIST = ['balance', 'round', 'r']
 PL = sns.color_palette("colorblind")
 
@@ -50,5 +50,5 @@ custom_lines = [Line2D([0], [0], color=PL[i], lw=6) for i in range(len(AGENTS))]
 fig.legend(handles=custom_lines, labels=labels, ncol=5, title="Seed",
            loc="center", bbox_to_anchor=(0.5, -0.1))
 plt.subplots_adjust(wspace=0.25)
-plt.savefig("./training_deviations.pdf", bbox_inches="tight")
+plt.savefig("./plots/training_deviations.pdf", bbox_inches="tight")
 plt.close()

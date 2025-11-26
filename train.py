@@ -78,6 +78,7 @@ def wrap_env(env, args, savedir, monitor=False):
                                                    "balance", "balance_numerator",
                                                    "round",
                                                    "done_reason",
+                                                   "done_reason_detail",
                                                    "valid_move",
                                                    "invalid_move_info"))
 
@@ -103,7 +104,15 @@ if __name__ == "__main__":
     # Prepare training environment and wrap in EvalMonitor
     env = gym.make("Oekolopoly-v2")
     env = wrap_env(env, args, savedir+"/train", monitor=False)
-    env = EvalMonitor(env, eval_env, savedir+"/train", info_keywords=("balance (always)", "balance_numerator (always)", "balance", "balance_numerator", "round", "done_reason", "valid_move", "invalid_move_info"))
+    env = EvalMonitor(env, eval_env, savedir+"/train", info_keywords=("balance (always)",
+                                                                      "balance_numerator (always)",
+                                                                      "balance",
+                                                                      "balance_numerator",
+                                                                      "round",
+                                                                      "done_reason",
+                                                                      "done_reason_detail",
+                                                                      "valid_move",
+                                                                      "invalid_move_info"))
     env.reset()
 
     # Set up model

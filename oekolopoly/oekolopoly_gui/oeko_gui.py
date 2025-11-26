@@ -5,7 +5,7 @@ from PyQt5.QtGui import QPixmap, QIcon, QFont
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QSlider, QLabel, QTableWidget, QTableWidgetItem, QHBoxLayout, QVBoxLayout, QGridLayout
 
 import gymnasium as gym
-from oekolopoly import oekolopoly
+from oekolopoly import oekolopoly           # needed for gym.make
 
 absolute_path = os.path.dirname(__file__)
 
@@ -24,7 +24,7 @@ def get_avaiable_points(env, sliders):
 
 def update_points_label(points_label, env, sliders):
     available_points = get_avaiable_points(env, sliders)
-    points_label.setText(f"Actionpoints: {available_points}")
+    points_label.setText(f"Action points: {available_points}")
 
 
 class ActionSlider:
@@ -115,7 +115,6 @@ def step(step_button, env, action_sliders, obs_table, obs_status, points_label):
     for action_slider in action_sliders:
         action.append(action_slider.value)
 
-
     action[env.PRODUCTION] -= env.Amin[env.PRODUCTION]
     action[5] -= env.Amin[5]
     _, reward, terminated, truncated, info = env.step(action)
@@ -124,7 +123,7 @@ def step(step_button, env, action_sliders, obs_table, obs_status, points_label):
     if info['valid_move']:
         if done:
             step_button.setEnabled(False)
-            obs_status.setText(f"{info['done_reason']}\n"
+            obs_status.setText(f"{info['done_reason']}{info['done_reason_detail']}\n"
                                f"Balance: {round(env.balance)}\n"
                                f"Reward: {round(reward)}")
             for action_slider in action_sliders: action_slider.reset()
@@ -171,12 +170,12 @@ def main():
     window.show()
 
     action_options = [
-        {'name': "Sanitation",        "icon": os.path.join(absolute_path, "res/imgs/s.png"),  "min": env.Amin[env.SANITATION],        "max": env.Amax[env.SANITATION],        "default": 0},
-        {'name': "Production",        "icon": os.path.join(absolute_path, "res/imgs/pr.png"), "min": env.Amin[env.PRODUCTION],        "max": env.Amax[env.PRODUCTION],        "default": 0},
-        {'name': "Education",         "icon": os.path.join(absolute_path, "res/imgs/a.png"),  "min": env.Amin[env.EDUCATION],         "max": env.Amax[env.EDUCATION],         "default": 0},
-        {'name': "Quality of Life",   "icon": os.path.join(absolute_path, "res/imgs/l.png"),  "min": env.Amin[env.QUALITY_OF_LIFE],   "max": env.Amax[env.QUALITY_OF_LIFE],   "default": 0},
-        {'name': "Population Growth", "icon": os.path.join(absolute_path, "res/imgs/v.png"),  "min": env.Amin[env.POPULATION_GROWTH], "max": env.Amax[env.POPULATION_GROWTH], "default": 0},
-        {'name': "Education > Population Growth", "icon": os.path.join(absolute_path, "res/imgs/b.png"), "min": env.Amin[5],          "max": env.Amax[5],                     "default": 0},
+        {'name': "Sanitation",        "icon": os.path.join(absolute_path, "res/imgs/s.png"),  "min": env.unwrapped.Amin[env.unwrapped.SANITATION],        "max": env.unwrapped.Amax[env.unwrapped.SANITATION],        "default": 0},
+        {'name': "Production",        "icon": os.path.join(absolute_path, "res/imgs/pr.png"), "min": env.unwrapped.Amin[env.unwrapped.PRODUCTION],        "max": env.unwrapped.Amax[env.unwrapped.PRODUCTION],        "default": 0},
+        {'name': "Education",         "icon": os.path.join(absolute_path, "res/imgs/a.png"),  "min": env.unwrapped.Amin[env.unwrapped.EDUCATION],         "max": env.unwrapped.Amax[env.unwrapped.EDUCATION],         "default": 0},
+        {'name': "Quality of Life",   "icon": os.path.join(absolute_path, "res/imgs/l.png"),  "min": env.unwrapped.Amin[env.unwrapped.QUALITY_OF_LIFE],   "max": env.unwrapped.Amax[env.unwrapped.QUALITY_OF_LIFE],   "default": 0},
+        {'name': "Population Growth", "icon": os.path.join(absolute_path, "res/imgs/v.png"),  "min": env.unwrapped.Amin[env.unwrapped.POPULATION_GROWTH], "max": env.unwrapped.Amax[env.unwrapped.POPULATION_GROWTH], "default": 0},
+        {'name': "Education > Population Growth", "icon": os.path.join(absolute_path, "res/imgs/b.png"), "min": env.unwrapped.Amin[5],          "max": env.unwrapped.Amax[5],                     "default": 0},
     ]
 
     table_headers = [
@@ -190,7 +189,7 @@ def main():
         "Politics",
 
         "Round",
-        "Actionpoints",
+        "Action points",
         "Balance",
         "Reward",
     ]

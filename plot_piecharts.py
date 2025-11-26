@@ -45,7 +45,7 @@ for i, agent_str in enumerate(pbar := tqdm(AGENTS)):
     plot_piechart(df, ax)
     ax.set_title(f"{agent_str}", fontsize=7)
     plt.tight_layout()
-    plt.savefig(f"{agent_str}.png", bbox_inches="tight")
+    plt.savefig(f"plots/{agent_str}.png", bbox_inches="tight")
     plt.close()
 
 #plt.suptitle("Reasons for episode termination")

@@ -591,7 +591,8 @@ class Game:
                 env_index += 1
             self.diagrams[diagram_index].done = done
             if done:
-                self.preview_console_label.variable_text = f"Vorsicht! `Game over` mit aktuellem Zug: {info['done_reason']}"
+                self.preview_console_label.variable_text = (f"Vorsicht! `Game over` mit aktuellem Zug: "
+                                                            f"{info['done_reason']}{info['done_reason_detail']}")
             else:
                 self.preview_console_label.variable_text = ""
             self.diagrams[diagram_index].next_value = temp_env.unwrapped.V[env_index]
@@ -671,8 +672,8 @@ class Game:
                     # games_played += 1
                     # with open("bin/played_games.txt", "w") as file:
                     #    file.write(f"games_played: {games_played}")
-                    self.console_label.text = (f"{info['done_reason']}    {self.dtl['FinalResult']}: {round(reward)} "
-                                               f"{self.dtl['Points']}")
+                    self.console_label.text = (f"{info['done_reason']}{info['done_reason_detail']}    "
+                                               f"{self.dtl['FinalResult']}: {round(reward)} {self.dtl['Points']}")
 
                     # print(self.all_actions)
                     sani = ""
@@ -718,7 +719,7 @@ class Game:
                         history.write(current_game_text)
 
                     # date_now = datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
-                    # text = f"Runde: {self.env.unwrapped.V[8]}, Punkte: {round(reward)}, Spiele beendet: {games_played}, Zustaende: {self.env.unwrapped.V}, Abbruchgrund: {info['done_reason']}, Datum: {date_now}, Zuege: {self.all_actions}\n"
+                    # text = f"Runde: {self.env.unwrapped.V[8]}, Punkte: {round(reward)}, Spiele beendet: {games_played}, Zustaende: {self.env.unwrapped.V}, Abbruchgrund: {info['done_reason']}{info['done_reason_detail']}, Datum: {date_now}, Zuege: {self.all_actions}\n"
                     # with open("bin/game_history.txt", "a") as history:
                     #     history.write(text)
             else:

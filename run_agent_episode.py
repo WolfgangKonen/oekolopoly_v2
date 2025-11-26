@@ -80,6 +80,7 @@ def wrap_env(env, args, savedir, monitor=False):
                                                    "balance", "balance_numerator",
                                                    "round",
                                                    "done_reason",
+                                                   "done_reason_detail",
                                                    "valid_move",
                                                    "invalid_move_info"))
 
