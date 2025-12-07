@@ -1,6 +1,10 @@
-""" Plots training and eval curves for a set of agents
-    and for features "balance", "round" and "balance_numerator"
 """
+    Plot training and eval curves for a set of agents and for a specific feature out of
+    features "balance", "round" and "balance_numerator".
+
+    The ``main`` code below plots three PDF diagrams, namely ``plots/train_eval_FEAT.pdf``, for all three features FEAT.
+"""
+from pathlib import Path
 
 import seaborn as sns
 import pandas as pd
@@ -16,7 +20,7 @@ from agent_lists import PPO_WK as AGENTS
 def agent_code(obs, act, rew, drl):
     """
         Translate agent with features ``obs, act, rew, drl`` into a shorter agent code, where each letter codes
-        the first letter of the specific feature.
+        the first letter of the specific element.
 
         E.g. code ``"BBA_P"`` for  an agent with
 
@@ -39,6 +43,8 @@ def agent_code(obs, act, rew, drl):
 
 
 def read_monitor(filepath):
+    if not Path(filepath).is_file():
+        return None
     df = pd.read_csv(filepath, header=1)
     if 'round' not in df.columns:
         # if df was written by .to_csv command, it has no header line --> re-read with header=0
@@ -53,7 +59,7 @@ def plot_curves(feat='balance'):
     """
     WINDOW = 750
     POST = "_smoothed"
-    PLOT_LIST = [feat, feat]  #
+    PLOT_LIST = [feat, feat]    # feature to plot from {train,eval}.monitor.csv
     PL = sns.color_palette("colorblind")
 
     fig, axs = plt.subplots(1, len(PLOT_LIST), figsize=(10, 3.33), sharex=True)
@@ -62,14 +68,17 @@ def plot_curves(feat='balance'):
         pbar.set_description(f"Plotting {agent}")
         obs, act, rew, shape, drl, seed = decode_from_agent_string(agent)
         agt_code = agent_code(obs, act, rew, drl)
-        df = read_monitor(f"./agents/{agent}/train.monitor.csv")
+        dt = read_monitor(f"./agents/{agent}/train.monitor.csv")
+        if dt is None: continue     # with next agent
         de = read_monitor(f"./agents/{agent}/eval.monitor.csv")
+        if de is None: continue     # with next agent
 
-        df["timestep"] = df["l"].cumsum()
+        dt["timestep"] = dt["l"].cumsum()
         de["timestep"] = de["l"].cumsum()
 
         for i, col in enumerate(PLOT_LIST):
-            dfrm = df if i == 0 else de
+            dfrm = dt if i == 0 else de
+            assert col in dfrm.columns, f"No column {col} in data frame dfrm!"
             win = signal.windows.hann(WINDOW)       # smooth data with Hanning window
             dfrm[col + POST] = signal.convolve(dfrm[col], win, mode='same') / sum(win)
             sns.lineplot(x=dfrm["timestep"],

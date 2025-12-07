@@ -1,7 +1,18 @@
-"""Computes average and standard deviation of last WINDOW evaluation
-episodes and compiles dataset "results_eot_mean{WINDOW}"
-This should be fed into `plot_last_training_episodes.py`
 """
+    Evaluate a list of stored agents.
+
+    'Evaluate' means that a file ``*.monitor.csv`` is read that was written during training, where ``*`` is either
+    ``train`` or ``evaluate``, depending on parsed argument ``monitor``.
+
+    Argument ``window`` provides variable ``WINDOW``.
+    For the variables ``round`` and ``balance`` of the monitor file, the last ``WINDOW`` lines are analyzed w.r.t.
+    mean and standard deviation which are both written to a line in the result data frame.
+
+    This evaluation process is repeated for each file in the list of agents ``AGENTS``, which  is an
+    appropriate variable in the source code below. Once all files are processed,
+    the resulting data frame is finally written to ``results/results_WINDOW_monitor.csv``.
+"""
+#    This should be fed into `plot_last_training_episodes.py`
 import argparse
 from pathlib import Path
 import pandas as pd
@@ -17,14 +28,13 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(description='Training parameters for Oekolopoly')
     parser.add_argument('--window', type=int, default=1000,
-                        help='Average over the last `window` episodes')
+                        help='average over the last `window` episodes')
     parser.add_argument('--monitor', type=str, default="train", choices=['eval', 'train'],
                         help='whether to read eval.monitor.csv or train.monitor.csv')
 
-    args = parser.parse_args()
+    args_p = parser.parse_args()
 
-    return args
-
+    return args_p
 
 
 if __name__ == "__main__":
@@ -47,11 +57,13 @@ if __name__ == "__main__":
     balance_mean_list = []
     balance_std_list = []
 
+    fnf = 0         # counter for 'file not found'
     for agent_str in AGENTS:
         print(agent_str)
         obs, action, rew, shape, drl, seed = decode_from_agent_string(agent_str)
 
-        if Path(f"./agents/{agent_str}/{args.monitor}.monitor.csv").is_file():
+        pathfile = f"./agents/{agent_str}/{args.monitor}.monitor.csv"
+        if Path(pathfile).is_file():
 
             df = pd.read_csv(f"./agents/{agent_str}/{args.monitor}.monitor.csv", header=1)
 
@@ -76,9 +88,12 @@ if __name__ == "__main__":
             drl_list.append(drl)
             seed_list.append(seed)
 
-            total_steps = df["round"].sum()
-            total_epis = df.shape[0]
-            print(f"steps = {total_steps} in {total_epis}, WINDOW={WINDOW}, monitor={args.monitor}")
+            step_list.append(df["round"].sum())
+            epis_list.append(df.shape[0])
+            print(f"steps = {df["round"].sum()} in {df.shape[0]}, WINDOW={WINDOW}, monitor={args.monitor}")
+        else:
+            print(f"Warning: {pathfile} not found!")
+            fnf += 1
 
     results = pd.DataFrame({"DRL": drl_list,
                             "obs_wrapper": obs_list,
@@ -86,13 +101,16 @@ if __name__ == "__main__":
                             "reward_wrapper": rew_list,
                             "shape": shape_list,
                             "seed": seed_list,
-                            "steps": total_steps,           # total number of steps performed in CSV
-                            "epis": total_epis,             # total number of episodes in CSV
+                            "monitor": args.monitor,
+                            "steps": step_list,           # total number of steps performed in CSV
+                            "epis": epis_list,             # total number of episodes in CSV
                             "rounds": rounds_mean_list,
                             "rounds std": rounds_std_list,
                             "balance": balance_mean_list,
                             "balance std": balance_std_list})
 
     print(results)
-    assert len(AGENTS) == len(results)
+    assert len(AGENTS) == len(results) + fnf
+    plot_res = f"results/results_{WINDOW}_{args.monitor}.csv"
     results.to_csv(f"results/results_{WINDOW}_{args.monitor}.csv")
+    print(f"Results saved to {plot_res}")

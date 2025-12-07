@@ -24,13 +24,11 @@ class OekoBoxActionWrapper(gym.ActionWrapper):
 
         return r
 
-
     def __init__(self, env):
         super().__init__(env)
         self.action_min = np.float32(np.array([0, -1,  0,  0,  0, -1]))
         self.action_max = np.float32(np.array([1,  1,  1,  1,  1,  1]))
         self.action_space = gym.spaces.Box(low=self.action_min, high=self.action_max)
-
 
     def action(self, act):
         act = np.clip(act, self.action_min, self.action_max, dtype=np.float32)
@@ -45,7 +43,8 @@ class OekoBoxActionWrapper(gym.ActionWrapper):
         regions_act = act[0:5]
         special_act = round(act[5] * 5)
         regions_act = self.get_wrapper_attr('distribute1')(regions_act, self.unwrapped.V[self.unwrapped.POINTS])
-        if reduce_production: regions_act[1] = -regions_act[1]
+        if reduce_production:
+            regions_act[1] = -regions_act[1]
 
         for i in range(len(regions_act)):
             region_result = self.unwrapped.V[i] + regions_act[i]
@@ -122,7 +121,6 @@ class OekoSimpleActionWrapper(gym.ActionWrapper):
         super().__init__(env)
         self.action_space = gym.spaces.MultiDiscrete([77, 11])
 
-
     def action(self, act):
         action_index = act[0]
         extra_points = act[1]
@@ -176,9 +174,7 @@ class OekoSimpleObservationWrapper(gym.ObservationWrapper):
         self.original_observation_space = self.observation_space
         self.observation_space = gym.spaces.MultiDiscrete([3] * self.obs_count)
 
-
     def observation(self, obs):
-
         new_obs = [0] * self.obs_count
         for i in range(self.obs_count):
             new_obs[i] = math.floor(obs[i] / self.original_observation_space.nvec[i] * self.obs_split)
@@ -200,7 +196,7 @@ class OekoBoxObservationWrapper(gym.ObservationWrapper):
               1,  # 6 Population
             -10,  # 7 Politics
               0,  # 8 Round
-              0,  # 9 Actionpoints for next round
+              0,  # 9 Action points for next round
         ])
         self.high = np.array([
             29,  # 0 Sanitation
@@ -212,7 +208,7 @@ class OekoBoxObservationWrapper(gym.ObservationWrapper):
             48,  # 6 Population
             37,  # 7 Politics
             30,  # 8 Round
-            36,  # 9 Actionpoints for next round
+            36,  # 9 Action points for next round
         ])
         self.observation_space = gym.spaces.Box(self.low, self.high)
 
@@ -221,7 +217,6 @@ class OekoBoxObservationWrapper(gym.ObservationWrapper):
         new_obs = obs + self.env.unwrapped.Vmin
 
         return new_obs
-
 
 
 class OekoPerRoundRewardWrapper(gym.Wrapper):
@@ -271,13 +266,11 @@ class OekoBoxUnclippedActionWrapper(gym.ActionWrapper):
 
         return r
 
-
     def __init__(self, env):
         super().__init__(env)
         self.action_min = np.float32(np.array([0, -1,  0,  0,  0, -1]))
         self.action_max = np.float32(np.array([1,  1,  1,  1,  1,  1]))
         self.action_space = gym.spaces.Box(low=self.action_min, high=self.action_max)
-
 
     def action(self, act):
         act = np.clip(act, self.action_min, self.action_max, dtype=np.float32)
@@ -292,7 +285,8 @@ class OekoBoxUnclippedActionWrapper(gym.ActionWrapper):
         regions_act = act[0:5]
         special_act = round(act[5] * 5)
         regions_act = self.distribute1(regions_act, self.unwrapped.V[self.unwrapped.POINTS])
-        if reduce_production: regions_act[1] = -regions_act[1]
+        if reduce_production:
+            regions_act[1] = -regions_act[1]
 
         act = np.append(regions_act, special_act)
         act -= self.unwrapped.Amin

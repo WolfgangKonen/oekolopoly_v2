@@ -66,6 +66,8 @@ class OekoEnv(gym.Env):
         self.render_mode = render_mode
         self.window = None
         self.clock = None
+        self.viewer_w = None
+        self.viewer_h = None
 
         self.last_v = None
         self.init_v = np.array([
@@ -379,7 +381,7 @@ class OekoEnv(gym.Env):
 
         if not done:
             box13 = gb.get_box13(self.V[self.POPULATION_GROWTH])
-            boxW  = gb.get_boxW (self.V[self.POPULATION])
+            boxW  = gb.get_boxW(self.V[self.POPULATION])
             self.V[self.POPULATION] += box13 * boxW
             if self.V[self.POPULATION] not in range(1, 49):
                 done = True
@@ -432,27 +434,28 @@ class OekoEnv(gym.Env):
             self.done = True
             if used_points < 0:
                 done_reason = "Tried to use negative amount of action points. "
-            elif used_points > self.V[self.POINTS]:
+            else:   # i.e. if used_points > self.V[self.POINTS]:
                 done_reason = "Tried to exceed available amount of action points. "
-            #done_reason += f"Tried to use {used_points} action points, but only between 0 and {self.V[self.POINTS]} are available"
+            # done_reason += f"Tried to use {used_points} action points, but only between 0 and {self.V[self.POINTS]} are available"
             done_reason_detail = f"{used_points} not in (0, ..., {self.V[self.POINTS]})"
             return self.obs, 0, self.done, truncated, {'balance (always)': self.balance_always,
-                                            'balance_numerator (always)': self.balance_numerator_always,
-                                            'balance': self.balance,
-                                            'balance_numerator': self.balance_numerator,
-                                            'round': self.V[self.ROUND],
-                                            'done_reason': done_reason,
-                                            'done_reason_detail': done_reason_detail,
-                                            'valid_move': False,
-                                            'invalid_move_info': "Invalid number of action points"}
-        assert 0 <= used_points <= self.V[self.POINTS], f"Action takes too many points: action={action} POINTS={self.V[self.POINTS]})"
+                                                       'balance_numerator (always)': self.balance_numerator_always,
+                                                       'balance': self.balance,
+                                                       'balance_numerator': self.balance_numerator,
+                                                       'round': self.V[self.ROUND],
+                                                       'done_reason': done_reason,
+                                                       'done_reason_detail': done_reason_detail,
+                                                       'valid_move': False,
+                                                       'invalid_move_info': "Invalid number of action points"}
+        assert 0 <= used_points <= self.V[self.POINTS], \
+            f"Action takes too many points: action={action} POINTS={self.V[self.POINTS]})"
 
         for i in range(5):
             if self.V[i] + action[i] not in range(self.Vmin[i], self.Vmax[i] + 1):
                 self.done = True
                 if self.V[i] + action[i] < self.Vmin[i]:
                     done_reason = f"Distribution of action points pushes {self.V_NAMES[i]} below limit. "
-                elif self.V[i] + action[i] > self.Vmax[i]:
+                else:   # i.e. if self.V[i] + action[i] > self.Vmax[i]:
                     done_reason = f"Distribution of action points pushes {self.V_NAMES[i]} above limit. "
                 done_reason_detail = f"{self.V[i] + action[i]} action points are not in ({self.Vmin[i]}, ..., {self.Vmax[i]})"
                 inval_m_info = f"Invalid number of action points assigned to {self.V_NAMES[i]}."
@@ -466,7 +469,8 @@ class OekoEnv(gym.Env):
                                                            'valid_move': False,
                                                            'invalid_move_info': inval_m_info,
                                                            }
-            assert (self.V[i] + action[i]) in range(self.Vmin[i], self.Vmax[i] + 1), f"Action puts region out of action[{i}]: action={action} V={self.V}"
+            assert (self.V[i] + action[i]) in range(self.Vmin[i], self.Vmax[i] + 1), \
+                    f"Action puts region out of action[{i}]: action={action} V={self.V}"
 
         # The turn is valid
 
@@ -521,7 +525,6 @@ class OekoEnv(gym.Env):
         self.balance_numerator_always = int(a)
         self.balance_always = a / b
 
-
         # Transform V in obs
         self.obs = self.V - self.Vmin
         if clipping:
@@ -542,20 +545,20 @@ class OekoEnv(gym.Env):
         self.prev_result = self.curr_result
         self.curr_result = self.V.copy()
 
-        self.last_v    = self.V.copy()
+        self.last_v = self.V.copy()
 
         if self.render_mode == "human":
             self.render()
 
         return self.obs, reward, self.done, truncated, {'balance (always)': self.balance_always,
-                                            'balance_numerator (always)': self.balance_numerator_always,
-                                            'balance': self.balance,
-                                            'balance_numerator': self.balance_numerator,
-                                            'round': self.V[self.ROUND],
-                                            'done_reason': self.done_info,
-                                            'done_reason_detail': self.done_reason_detail,
-                                            'valid_move': True,
-                                            'invalid_move_info': ''}
+                                                        'balance_numerator (always)': self.balance_numerator_always,
+                                                        'balance': self.balance,
+                                                        'balance_numerator': self.balance_numerator,
+                                                        'round': self.V[self.ROUND],
+                                                        'done_reason': self.done_info,
+                                                        'done_reason_detail': self.done_reason_detail,
+                                                        'valid_move': True,
+                                                        'invalid_move_info': ''}
 
     def get_initial_v(self):
         return self.init_v.copy()

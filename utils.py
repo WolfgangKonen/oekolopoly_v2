@@ -2,6 +2,7 @@
 
 from stable_baselines3.common.monitor import Monitor
 
+
 def decode_from_agent_string(agent_str):
     """Gets parameters from directory name in /agents """
     t = agent_str.split("_")
@@ -20,6 +21,7 @@ class EvalMonitor(Monitor):
     def __init__(self, env, eval_env, filename=None, info_keywords=None):
         super().__init__(env, filename, info_keywords=info_keywords)
         self.eval_env = eval_env
+        self.model = None
 
     def set_model(self, model):
         self.model = model

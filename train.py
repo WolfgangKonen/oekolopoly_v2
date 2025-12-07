@@ -10,7 +10,9 @@ from stable_baselines3.common.logger import configure
 
 from utils import EvalMonitor
 import oekolopoly.oekolopoly
-from oekolopoly.wrappers import OekoSimpleObservationWrapper, OekoBoxObservationWrapper, OekoSimpleActionWrapper, OekoBoxActionWrapper, OekoPerRoundRewardWrapper, OekoAuxRewardWrapper, OekoBoxUnclippedActionWrapper
+from oekolopoly.wrappers import (OekoSimpleObservationWrapper, OekoBoxObservationWrapper, OekoSimpleActionWrapper,
+                                 OekoBoxActionWrapper, OekoPerRoundRewardWrapper, OekoAuxRewardWrapper,
+                                 OekoBoxUnclippedActionWrapper)
 
 
 def parse_args():
@@ -37,6 +39,7 @@ def parse_args():
     args = parser.parse_args()
 
     return args
+
 
 def wrap_env(env, args, savedir, monitor=False):
 
@@ -84,12 +87,14 @@ def wrap_env(env, args, savedir, monitor=False):
 
     return env
 
+
 if __name__ == "__main__":
     args = parse_args()
 
     json_object = json.dumps(args.__dict__, indent=4)
 
-    agent_str = "obs_" + args.observation + "_action_" + args.action + "_reward_" + args.reward + "_" + str(args.shaping) + "_" + args.algo + "_" + str(args.seed)
+    agent_str = ("obs_" + args.observation + "_action_" + args.action + "_reward_" + args.reward + "_" +
+                 str(args.shaping) + "_" + args.algo + "_" + str(args.seed))
     savedir = f"./agents/{agent_str}"
 
     Path(savedir).mkdir(parents=True)
@@ -125,7 +130,7 @@ if __name__ == "__main__":
         action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions))
         model = TD3("MlpPolicy", env, verbose=1, seed=args.seed, action_noise=action_noise)
     else:
-        raise ValueError(f"Invalid DRL algoritm {args.algo}")
+        raise ValueError(f"Invalid DRL algorithm {args.algo}")
     env.set_model(model)  # Make model available for prediction during evaluation
 
     cust_logger = configure(f"{savedir}", ["csv", "log"])

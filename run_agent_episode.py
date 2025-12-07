@@ -11,7 +11,9 @@ from stable_baselines3 import PPO, SAC, TD3
 from stable_baselines3.common.monitor import Monitor
 
 import oekolopoly.oekolopoly        # this import is needed, otherwise gym.make will not succeed
-from oekolopoly.wrappers import OekoSimpleObservationWrapper, OekoBoxObservationWrapper, OekoSimpleActionWrapper, OekoBoxActionWrapper, OekoPerRoundRewardWrapper, OekoAuxRewardWrapper, OekoBoxUnclippedActionWrapper
+from oekolopoly.wrappers import (OekoSimpleObservationWrapper, OekoBoxObservationWrapper, OekoSimpleActionWrapper,
+                                 OekoBoxActionWrapper, OekoPerRoundRewardWrapper, OekoAuxRewardWrapper,
+                                 OekoBoxUnclippedActionWrapper)
 
 
 def parse_args():
@@ -138,7 +140,8 @@ def transf_act_box(env, act):
     regions_act = act[0:5]
     special_act = round(act[5] * 5)
     regions_act = env.get_wrapper_attr('distribute1')(regions_act, env.unwrapped.V[env.unwrapped.POINTS])
-    if reduce_production: regions_act[1] = -regions_act[1]
+    if reduce_production:
+        regions_act[1] = -regions_act[1]
 
     for i in range(len(regions_act)):
         region_result = env.unwrapped.V[i] + regions_act[i]
@@ -197,7 +200,8 @@ def transf_act_simple(env, act):
 if __name__ == "__main__":
     args = parse_args()
 
-    agent_str = "obs_" + args.observation + "_action_" + args.action + "_reward_" + args.reward + "_" + str(args.shaping) + "_" + args.algo + "_" + str(args.seed)
+    agent_str = ("obs_" + args.observation + "_action_" + args.action + "_reward_" + args.reward + "_" +
+                 str(args.shaping) + "_" + args.algo + "_" + str(args.seed))
     savedir = f"./trained_agents/{agent_str}"
 
     # Prepare environment
