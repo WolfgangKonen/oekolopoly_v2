@@ -1,8 +1,13 @@
 """
-    Plot training and eval curves for a set of agents and for a specific feature out of
-    features "balance", "round" and "balance_numerator".
+    Plot training and eval curves for a specific feature ``FEAT`` out of the available
+    features "balance", "round" and "balance_numerator". This is done for a set of agents ``AGENTS``.
 
-    The ``main`` code below plots three PDF diagrams, namely ``plots/train_eval_FEAT.pdf``, for all three features FEAT.
+    The data for plotting are read from files ``*.monitor.csv`` that were written during training, where ``*`` is either
+    ``train`` or ``evaluate``. These files are found in the agent subdirectories, and the list of agents to consider
+    is specified in variable ``AGENTS`` in the source code below.
+
+    The ``main`` code below plots three PDF diagrams, namely ``plots/train_eval_FEAT.pdf``, for all three available
+    features ``FEAT``.
 """
 from pathlib import Path
 
@@ -14,7 +19,7 @@ from matplotlib.ticker import MaxNLocator
 from matplotlib.lines import Line2D
 from tqdm import tqdm
 from utils import decode_from_agent_string
-from agent_lists import PPO_WK as AGENTS
+import agent_lists
 
 
 def agent_code(obs, act, rew, drl):
@@ -58,6 +63,7 @@ def plot_curves(feat='balance'):
         Smooth all curves by a Hanning window of size ``WINDOW``.
     """
     WINDOW = 750
+    AGENTS = agent_lists.PPO_WK
     POST = "_smoothed"
     PLOT_LIST = [feat, feat]    # feature to plot from {train,eval}.monitor.csv
     PL = sns.color_palette("colorblind")
