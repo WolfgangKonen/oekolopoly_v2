@@ -60,7 +60,7 @@ Use either one of the following commands:
 
 See the help within the GUI `oekolopoly_gui` and a few remarks in `bin\README.txt` on how to configure and play the GUI.
 
-Note that `oeko_gui` is now deprecated and needs the additional package `PyQt5`.
+Note that the other (older) `oeko_gui` is now deprecated and needs the additional package `PyQt5`.
 ## ...use the environment in my own scripts?
 Once you import via
 
