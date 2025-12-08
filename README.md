@@ -4,7 +4,9 @@ It is an update of the former GitHub repo oekolopoly_v1 and it contains two new 
 - the environment OekoEnv is migrated from gym to **gymnasium**
 - a new GUI 2.0 for human play (developed by A. Albers, W. Konen) is included, now with **support for two languages "de" and "en"**.
 
-<img src="assets/oekolopoly_gui_2.0_en.jpg" alt="Oekolopoly GUI 2.0" title="SACOBRA_Py Logo" width=400 />
+<p align="center">
+	<img src="assets/oekolopoly_gui_2.0_en.jpg" alt="Oekolopoly GUI 2.0" title="SACOBRA_Py Logo" width=800 />
+</p>
 
 # Description of Directories and Files
 - `oekolopoly` directory:
@@ -57,6 +59,11 @@ To train a PPO agent without observation wrapper, using Simple action wrapper an
 	python train.py --observation "none" --action "simple" --reward "perround" --shaping 0.5 --algo "ppo" --seed 17
 
 The results are stored in a suitable subdirectory of `agents/` and contain the training logs `*.monitor.csv` that are used by `evaluate.py` and by the plot routines.
+## ...evaluate trained agents?
+To evaluate trained agents (e.g. measure its final mean and standard deviation in rounds alive and balance achieved) use:
+
+	python evaluate.py --window 800 --monitor "train" 
+
 ## ...play an episode on the console?
 To play an episode with a trained agent use 
 
