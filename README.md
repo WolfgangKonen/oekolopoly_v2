@@ -5,7 +5,7 @@ It is an update of the former GitHub repo oekolopoly_v1 and it contains two new 
 - a new GUI 2.0 for human play (developed by A. Albers, W. Konen) is included, now with **support for two languages "de" and "en"**.
 
 <p align="center">
-	<img src="assets/oekolopoly_gui_2.0_en.jpg" alt="Oekolopoly GUI 2.0" title="SACOBRA_Py Logo" width=800 />
+	<img src="assets/oekolopoly_gui_2.0_en.jpg" alt="Oekolopoly GUI 2.0" title="Oekolopoly GUI 2.0" width=800 />
 </p>
 
 # Description of Directories and Files
