@@ -4,6 +4,8 @@ It is an update of the former GitHub repo oekolopoly_v1 and it contains two new 
 - the environment OekoEnv is migrated from gym to **gymnasium**
 - a new GUI 2.0 for human play (developed by A. Albers, W. Konen) is included, now with **support for two languages "de" and "en"**.
 
+<img src="assets/oekolopoly_gui_2.0_en.jpg" alt="Oekolopoly GUI 2.0" title="SACOBRA_Py Logo" width=400 />
+
 # Description of Directories and Files
 - `oekolopoly` directory:
   - `wrappers.py` contains the wrappers to modify observation- and actionspace as well as reward functions
@@ -46,6 +48,8 @@ in a file `requirements.txt`. Then run the command
 	python -m pip install -r requirements.txt
 
 in the directory where the folder `Lib/site-packages` of your Python environment resides.
+
+[You might wonder why `gym` is in the requirements if the new `gymnasium` is used. Right, `gym` is no longer needed for the `oekolopoly` environment. But due to a tiny bug in SB3, the saving of SB3 agents will not work if `gym` is not there. Please ignore also the related warning `Gym has been unmaintained ...` that appears when starting any of the programs below. It is irrelevant.]
 
 ## ...train an agent?
 To train a PPO agent without observation wrapper, using Simple action wrapper and PerRound reward wrapper with a constant per-round reward of $R_c=0.5$, and seed 17 one would issue the command:
