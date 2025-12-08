@@ -19,7 +19,11 @@ It is an update of the former GitHub repo oekolopoly_v1 and it contains two new 
 - `assets/` contains some assets needed for GUI 2.0
 - `bin/` contains some files needed for GUI 2.0
 - `Spielanleitung.pdf`: the original game instructions (in German only) of the game Ökolopoly (invented by F. Vester).
-
+- `plot_feature.py` plots train and eval curves for specific features
+- `plot_piechart.py` plots piecharts of done reasons
+- `plot_training_deviations.py` similar to `plot_feature.py`
+- `plots/` contains the resulting plot diagrams as PDFs
+  
 # How to...
 ## ...install?
 It is recommended to use Python 3.12 and to store the following package list
@@ -47,6 +51,8 @@ in the directory where the folder `Lib/site-packages` of your Python environment
 To train a PPO agent without observation wrapper, using Simple action wrapper and PerRound reward wrapper with a constant per-round reward of $R_c=0.5$, and seed 17 one would issue the command:
 
 	python train.py --observation "none" --action "simple" --reward "perround" --shaping 0.5 --algo "ppo" --seed 17
+
+The results are stored in a suitable subdirectory of `agents/` and contain the training logs `*.monitor.csv` that are used by `evaluate.py` and by the plot routines.
 ## ...play an episode on the console?
 To play an episode with a trained agent use 
 
@@ -58,9 +64,9 @@ Use either one of the following commands:
 	python oekolopoly_gui.py --language "en"
 	python -m oekolopoly.oekolopoly_gui.oeko_gui
 
-See the help within the GUI `oekolopoly_gui` and a few remarks in `bin\README.txt` on how to configure and play the GUI.
+See the help within the GUI 2.0 `oekolopoly_gui` and a few remarks in `bin/README.txt` on how to configure and play the GUI 2.0.
 
-Note that the other (older) `oeko_gui` is now deprecated and needs the additional package `PyQt5`.
+Note that the other (older) GUI 1.0 `oeko_gui` is now deprecated and needs the additional package `PyQt5`.
 ## ...use the environment in my own scripts?
 Once you import via
 
