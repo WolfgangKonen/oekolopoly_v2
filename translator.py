@@ -240,10 +240,10 @@ def dict_help_screens(args):
                         "Beim maximalen Herauszoomen zentriert sich das Spielbrett automatisch.\n"
                         "Mit der Tabulatortaste lassen sich alle Spielelemente ein- und ausblenden.\n\n"
                         "Achtung:\n"
-                        "Die Spielelemente lassen sich nur im maximalen herausgezoomten Zustand bedienen.\n\n"
+                        "Die Spielelemente lassen sich nur im maximal herausgezoomten Zustand bedienen.\n\n"
                         "Wichtige Anmerkung:\n"
                         "Um das Spiel Ökolopoly zu meistern, lohnt es sich, alle Diagramme auf den letzten Seiten\n"
-                        "der Spielanleitung zu studieren.)",
+                        "der Spielanleitung zu studieren.",
                "hs8.0": "Die Feature-Balken geben Auskunft über die\n"
                         "minimalen und maximalen Werte, die jeder Bereich\n"
                         "annehmen kann.\n\n"

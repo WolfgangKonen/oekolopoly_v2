@@ -9,12 +9,11 @@
     The ``main`` code below plots three PDF diagrams, namely ``plots/train_eval_FEAT.pdf``, for all three available
     features ``FEAT``.
 """
-from pathlib import Path
-
 import seaborn as sns
 import pandas as pd
-from scipy import signal
 import matplotlib.pyplot as plt
+from pathlib import Path
+from scipy import signal
 from matplotlib.ticker import MaxNLocator
 from matplotlib.lines import Line2D
 from tqdm import tqdm
@@ -108,7 +107,8 @@ def plot_curves(feat='balance'):
     custom_lines = [Line2D([0], [0], color=PL[i], lw=6) for i in range(len(AGENTS))]
     fig.legend(handles=custom_lines, labels=labels, ncol=5, title="Agent Type",
                loc="center", bbox_to_anchor=(0.5, -0.1))
-    plt.subplots_adjust(wspace=0.25)
+    plt.subplots_adjust(wspace=0.25)    # the amount of width reserved for blank space between subplots,
+                                        # expressed as a fraction of the average axis width
     feat2 = "bal_numer" if feat == "balance_numerator" else feat
     plot_pdf = f"./plots/train_eval_{feat2}.pdf"
     plt.savefig(plot_pdf, bbox_inches="tight")

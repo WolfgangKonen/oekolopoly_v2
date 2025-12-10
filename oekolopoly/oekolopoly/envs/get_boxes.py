@@ -1,6 +1,14 @@
+"""
+    Old (deprecated) version to get the value for each box.
+
+    A box is an element on the Ökolopoly game board that carries a number depending on the value of one specific
+    observation wheel (the argument of ``get_box*``).
+"""
+
+
 def get_box1(sanitation):
 
-    # Box 1 Sanitation-Environment 0-5
+    # Box 1 Sanitation-Environment 0-5 (0 = SANITATION, 5 = Environment, see oeko_env.py:29)
     if   sanitation  <  2: box1 =  0
     elif sanitation  <  8: box1 = -1
     elif sanitation  < 13: box1 = -2
@@ -32,10 +40,13 @@ def get_box2(sanitation):
 def get_box3(production):
     
     # Box 3 Production-Production 4-4
-    if   production <  7:                     box3 = 0
-    elif production < 22 or production >= 29: box3 = 1
-    elif production < 29:                     box3 = 2
-            
+    # if   production <  7:                     box3 = 0    # wrongly coded values from beginning up to 2025-12-09
+    # elif production < 22 or production >= 29: box3 = 1
+    # elif production < 29:                     box3 = 2
+    if   production <  7 or production >= 27: box3 = 0      # correct coding from 2025-12-10 on
+    elif production < 22:                     box3 = 1
+    elif production < 27:                     box3 = 2
+
     return box3
 
 
@@ -61,51 +72,19 @@ def get_box4(production):
     return box4
 
 
-def get_boxC (production):
-
-    # Box C Production-Actionpoints 4-A
-    if   production <=  1: boxC = -4
-    elif production ==  2: boxC = -3
-    elif production ==  3: boxC = -2
-    elif production ==  4: boxC = -1
-    elif production ==  5: boxC =  0
-    elif production  <  8: boxC =  2
-    elif production  < 11: boxC =  3
-    elif production  < 14: boxC =  4
-    elif production  < 17: boxC =  5
-    elif production  < 20: boxC =  6
-    elif production  < 22: boxC =  7
-    elif production  < 24: boxC =  8
-    elif production  < 26: boxC =  9
-    elif production == 26: boxC = 10
-    elif production == 27: boxC = 11
-    elif production == 28: boxC = 12
-    elif production >= 29: boxC =  0
-            
-    return boxC
-
-
-def get_boxV(production):
-
-    # Box V Multiplier Production-Actionpoints 4-A
-    if   production <=  1: boxV = -4
-    elif production ==  2: boxV = -3
-    elif production  <  5: boxV = -2
-    elif production  <  7: boxV = -1
-    elif production  <  9: boxV =  0
-    elif production >=  9: boxV =  1
-            
-    return boxV
-
-
 def get_box5(environment):
     
     # Box 5 Environment-Environment 5-5
-    if   environment  <  4 or environment == 28 or environment >= 29: box5 =  0
-    elif environment  < 14 or environment == 27:                      box5 = -1
-    elif environment  < 20 or environment == 26:                      box5 = -2
-    elif environment == 24:                                           box5 = -4
-    elif environment  < 24 or environment == 25:                      box5 = -3
+    # if   environment  <  4 or environment == 28 or environment >= 29: box5 =  0   # wrongly coded values from beginning up to 2025-12-09
+    # elif environment  < 14 or environment == 27:                      box5 = -1
+    # elif environment  < 20 or environment == 26:                      box5 = -2
+    # elif environment == 24:                                           box5 = -4
+    # elif environment  < 24 or environment == 25:                      box5 = -3
+    if   environment <  4 or environment >= 29:                      box5 =  0      # correct coding from 2025-12-10 on
+    elif environment < 14 or environment == 28:                      box5 = -1
+    elif environment < 20 or environment == 27:                      box5 = -2
+    elif environment < 24 or environment == 26:                      box5 = -3
+    elif environment < 26:                                           box5 = -4
 
     return box5
 
@@ -223,25 +202,9 @@ def get_box12(quality_of_life):
     return box12
 
 
-def get_boxD(quality_of_life):
-    
-    # Box D Quality of Life-Actionpoints 2-A
-    if   quality_of_life <=  1: boxD = -6
-    elif quality_of_life ==  2: boxD = -4
-    elif quality_of_life ==  3: boxD = -2
-    elif quality_of_life  <  6: boxD =  0
-    elif quality_of_life  <  9: boxD =  1
-    elif quality_of_life  < 18: boxD =  2
-    elif quality_of_life  < 23: boxD =  3
-    elif quality_of_life  < 27: boxD =  4
-    elif quality_of_life >= 27: boxD =  5
-
-    return boxD
-
-
 def get_box13(population_growth):
     
-    # Box 13 Population Growth-Population 3-6
+    # Box 13 Population Growth-Population 4-6
     if   population_growth  <  3: box13 = -4
     elif population_growth  <  6: box13 = -3
     elif population_growth  < 10: box13 = -2
@@ -256,7 +219,7 @@ def get_box13(population_growth):
 
 def get_box14(population):
     
-    # Box 14 Population-Quality of Life 6-2
+    # Box 14 Population-Quality of Life 6-3
     if   population  < 16: box14 =   0
     elif population  < 26: box14 =  -1
     elif population  < 31: box14 =  -2
@@ -273,7 +236,7 @@ def get_box14(population):
 
 def get_boxA(population):
 
-    # Box A Population-Actionpoints 6
+    # Box A Population-Actionpoints 6-9
     if   population  < 10: boxA = 0
     elif population  < 17: boxA = 1
     elif population  < 22: boxA = 2
@@ -287,21 +250,9 @@ def get_boxA(population):
 
     return boxA
 
-
-def get_boxW(population):
-            
-    # Box W Multiplier Population-Population 6-6
-    if   population <=  1: boxW = 0
-    elif population  < 15: boxW = 1
-    elif population  < 36: boxW = 2
-    elif population >= 36: boxW = 3
-
-    return boxW
-       
-
 def get_boxB(politics):
 
-    # Box B Politics-Actionpoints 7-A
+    # Box B Politics-Actionpoints 7-9
     if   politics <= -10: boxB = -5
     elif politics ==  -9: boxB = -2
     elif politics  <  -2: boxB = -1
@@ -311,3 +262,104 @@ def get_boxB(politics):
     elif politics >=  31: boxB =  3
     
     return boxB
+
+def get_boxC(production):
+    # Box C Production-Actionpoints 1-9
+    if production <= 1:
+        boxC = -4
+    elif production == 2:
+        boxC = -3
+    elif production == 3:
+        boxC = -2
+    elif production == 4:
+        boxC = -1
+    elif production == 5:
+        boxC = 0
+    elif production < 8:
+        boxC = 2
+    elif production < 11:
+        boxC = 3
+    elif production < 14:
+        boxC = 4
+    elif production < 17:
+        boxC = 5
+    elif production < 20:
+        boxC = 6
+    elif production < 22:
+        boxC = 7
+    elif production < 24:
+        boxC = 8
+    elif production < 26:
+        boxC = 9
+    elif production == 26:
+        boxC = 10
+    # elif production == 27:    # wrongly coded values from beginning up to 2025-12-09
+    #     boxC = 11
+    # elif production == 28:
+    #     boxC = 12
+    # elif production >= 29:
+    #     boxC = 0
+    elif production == 27:      # correct coding from 2025-12-10 on
+        boxC = 10
+    elif production == 28:
+        boxC = 11
+    elif production >= 29:
+        boxC = 11
+
+    return boxC
+
+
+def get_boxD(quality_of_life):
+    # Box D Quality of Life-Actionpoints 3-9
+    if quality_of_life <= 1:
+        boxD = -6
+    elif quality_of_life == 2:
+        boxD = -4
+    elif quality_of_life == 3:
+        boxD = -2
+    elif quality_of_life < 6:
+        boxD = 0
+    elif quality_of_life < 9:
+        boxD = 1
+    elif quality_of_life < 18:
+        boxD = 2
+    elif quality_of_life < 23:
+        boxD = 3
+    elif quality_of_life < 27:
+        boxD = 4
+    elif quality_of_life >= 27:
+        boxD = 5
+
+    return boxD
+
+
+def get_boxV(production):
+    # Box V Multiplier Production-Actionpoints 1-9
+    if production <= 1:
+        boxV = -4
+    elif production == 2:
+        boxV = -3
+    elif production < 5:
+        boxV = -2
+    elif production < 7:
+        boxV = -1
+    elif production < 9:
+        boxV = 0
+    elif production >= 9:
+        boxV = 1
+
+    return boxV
+
+
+def get_boxW(population):
+    # Box W Multiplier Population-Population 6-6
+    if population <= 1:
+        boxW = 0
+    elif population < 15:
+        boxW = 1
+    elif population < 36:
+        boxW = 2
+    elif population >= 36:
+        boxW = 3
+
+    return boxW
