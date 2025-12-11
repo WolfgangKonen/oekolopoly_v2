@@ -257,10 +257,10 @@ class Camera(pygame.sprite.Group):
 
 class Game:
     def __init__(self, camera, args):
-        htl = dict_help_screens(args)
-        self.dtl = dtl = dict_translate(args)
+        htl = dict_help_screens(args.language)
+        self.dtl = dtl = dict_translate(args.language)
         self.camera = camera
-        self.env = gym.make('Oekolopoly-v2')
+        self.env = gym.make('Oekolopoly-v2', language=args.language)
         self.agent_obs, _ = self.env.reset()
         self.agent = PPO.load("trained_agents/obs_box_action_box_reward_perround_0.5_ppo_17.zip")
         self.current_action = [0, 0, 0, 0, 0, 0]
@@ -299,7 +299,7 @@ class Game:
         # buttons
         self.clear_action_button = Button(Vector2(1180, 470), Vector2(230, 40), color_orange, camera,
                                           dtl["ClearActions"], 20)
-        self.step_button = Button(Vector2(600, 470), Vector2(175, 40), color_orange, camera, dtl["ExecuteStep"])
+        self.step_button = Button(Vector2(600, 470), Vector2(190, 40), color_orange, camera, dtl["ExecuteStep"])
         self.close_game = Button(Vector2(1670, 15), Vector2(245, 55), color_red, camera, dtl["CloseGame"], 40)
         self.reset_button = Button(Vector2(400, 350), Vector2(170, 40), color_red, camera, dtl["Reset"])
         self.predict_button = Button(Vector2(600, 410), Vector2(190, 40), color_turky, camera,
@@ -591,11 +591,15 @@ class Game:
                 env_index += 1
             self.diagrams[diagram_index].done = done
             if done:
-                self.preview_console_label.variable_text = (f"Vorsicht! `Game over` mit aktuellem Zug: "
+                self.preview_console_label.variable_text = (f"{self.dtl["AttentionGameOver"]}: "
                                                             f"{info['done_reason']}{info['done_reason_detail']}")
             else:
                 self.preview_console_label.variable_text = ""
-            self.diagrams[diagram_index].next_value = temp_env.unwrapped.V[env_index]
+            self.diagrams[diagram_index].next_value = temp_env.unwrapped.V[env_index]   # the unclipped values
+            # --- only for debug: ---
+            # if env_index == 9:
+            #     next_round = temp_env.unwrapped.V[8]
+            #     print(f"Next round {next_round} action points: {self.diagrams[diagram_index].next_value}")
 
     def update_preview_labels(self):
         if self.preview_mode:

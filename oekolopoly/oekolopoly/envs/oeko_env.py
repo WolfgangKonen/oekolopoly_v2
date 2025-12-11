@@ -5,6 +5,8 @@ from gymnasium import spaces
 import numpy as np
 import pygame
 
+from translator import dict_translate, env_translate
+
 
 class OekoEnv(gym.Env):
     """
@@ -62,13 +64,16 @@ class OekoEnv(gym.Env):
 
     OBS_NAMES = V_NAMES[:-2]
 
-    def __init__(self, render_mode=None):
+    def __init__(self, render_mode=None, language="en"):
 
         self.render_mode = render_mode
         self.window = None
         self.clock = None
         self.viewer_w = None
         self.viewer_h = None
+        self.dtl = dtl = dict_translate(language)
+        self.etl = etl = env_translate(language)
+        # print("TEST DTL: " + dtl["APoints"])
 
         self.last_v = None
         self.init_v = np.array([
@@ -261,7 +266,7 @@ class OekoEnv(gym.Env):
 
     def update_values(self, action):
 
-        OOR = " out of allowed range"
+        OOR = self.etl[" out of allowed range"]
         done = False
         done_info = None
         done_reason_detail = None
@@ -273,8 +278,8 @@ class OekoEnv(gym.Env):
             self.V[self.ENVIRONMENT] += box1
             if self.V[self.ENVIRONMENT] not in range(1, 30):
                 done = True
-                l = " too high. " if self.V[self.ENVIRONMENT] > 29 else " too low. "
-                done_info = "Environment" + l
+                l = self.etl[" too high. "] if self.V[self.ENVIRONMENT] > 29 else self.etl[" too low. "]
+                done_info = self.dtl["EnvirDamage"] + l
                 done_reason_detail = f"{self.V[self.ENVIRONMENT]} {OOR} (1, ..., 29)."
 
         if not done:
@@ -282,8 +287,8 @@ class OekoEnv(gym.Env):
             self.V[self.SANITATION] += box2
             if self.V[self.SANITATION] not in range(1, 30):
                 done = True
-                l = " too high. " if self.V[self.SANITATION] > 29 else " too low. "
-                done_info = "Sanitation" + l
+                l = self.etl[" too high. "] if self.V[self.SANITATION] > 29 else self.etl[" too low. "]
+                done_info = self.dtl["Redevelop"] + l
                 done_reason_detail = f"{self.V[self.SANITATION]} {OOR} (1, ..., 29)."
 
         if not done:
@@ -291,8 +296,8 @@ class OekoEnv(gym.Env):
             self.V[self.PRODUCTION] += box3
             if self.V[self.PRODUCTION] not in range(1, 30):
                 done = True
-                l = " too high. " if self.V[self.PRODUCTION] > 29 else " too low. "
-                done_info = "Production" + l
+                l = self.etl[" too high. "] if self.V[self.PRODUCTION] > 29 else self.etl[" too low. "]
+                done_info = self.dtl["Production"] + l
                 done_reason_detail = f"{self.V[self.SANITATION]} {OOR} (1, ..., 29)."
 
         if not done:
@@ -300,8 +305,8 @@ class OekoEnv(gym.Env):
             self.V[self.ENVIRONMENT] += box4
             if self.V[self.ENVIRONMENT] not in range(1, 30):
                 done = True
-                l = " too high. " if self.V[self.ENVIRONMENT] > 29 else " too low. "
-                done_info = "Environment" + l
+                l = self.etl[" too high. "] if self.V[self.ENVIRONMENT] > 29 else self.etl[" too low. "]
+                done_info = self.dtl["EnvirDamage"] + l
                 done_reason_detail = f"{self.V[self.ENVIRONMENT]} {OOR} (1, ..., 29)."
 
         if not done:
@@ -309,8 +314,8 @@ class OekoEnv(gym.Env):
             self.V[self.ENVIRONMENT] += box5
             if self.V[self.ENVIRONMENT] not in range(1, 30):
                 done = True
-                l = " too high. " if self.V[self.ENVIRONMENT] > 29 else " too low. "
-                done_info = "Environment" + l
+                l = self.etl[" too high. "] if self.V[self.ENVIRONMENT] > 29 else self.etl[" too low. "]
+                done_info = self.dtl["EnvirDamage"] + l
                 done_reason_detail = f"{self.V[self.ENVIRONMENT]} {OOR} (1, ..., 29)."
 
         if not done:
@@ -318,8 +323,8 @@ class OekoEnv(gym.Env):
             self.V[self.QUALITY_OF_LIFE] += box6
             if self.V[self.QUALITY_OF_LIFE] not in range(1, 30):
                 done = True
-                l = " too high. " if self.V[self.QUALITY_OF_LIFE] > 29 else " too low. "
-                done_info = "Quality of Life" + l
+                l = self.etl[" too high. "] if self.V[self.QUALITY_OF_LIFE] > 29 else self.etl[" too low. "]
+                done_info = self.dtl["QualityOfLife"] + l
                 done_reason_detail = f"{self.V[self.QUALITY_OF_LIFE]} {OOR} (1, ..., 29)."
 
         if not done:
@@ -327,8 +332,8 @@ class OekoEnv(gym.Env):
             self.V[self.EDUCATION] += box7
             if self.V[self.EDUCATION] not in range(1, 30):
                 done = True
-                l = " too high. " if self.V[self.EDUCATION] > 29 else " too low. "
-                done_info = "Education" + l
+                l = self.etl[" too high. "] if self.V[self.EDUCATION] > 29 else self.etl[" too low. "]
+                done_info = self.dtl["Enlightenment"] + l
                 done_reason_detail = f"{self.V[self.EDUCATION]} {OOR} (1, ..., 29)."
 
         if not done:
@@ -336,8 +341,8 @@ class OekoEnv(gym.Env):
             self.V[self.QUALITY_OF_LIFE] += box8
             if self.V[self.QUALITY_OF_LIFE] not in range(1, 30):
                 done = True
-                l = " too high. " if self.V[self.QUALITY_OF_LIFE] > 29 else " too low. "
-                done_info = "Quality of Life" + l
+                l = self.etl[" too high. "] if self.V[self.QUALITY_OF_LIFE] > 29 else self.etl[" too low. "]
+                done_info = self.dtl["QualityOfLife"] + l
                 done_reason_detail = f"{self.V[self.QUALITY_OF_LIFE]} {OOR} (1, ..., 29)."
 
         if not done:
@@ -349,8 +354,8 @@ class OekoEnv(gym.Env):
             self.V[self.POPULATION_GROWTH] += box9
             if self.V[self.POPULATION_GROWTH] not in range(1, 30):
                 done = True
-                l = " too high. " if self.V[self.POPULATION_GROWTH] > 29 else " too low. "
-                done_info = "Population Growth" + l
+                l = self.etl[" too high. "] if self.V[self.POPULATION_GROWTH] > 29 else self.etl[" too low. "]
+                done_info = self.dtl["ReproRate"] + l
                 done_reason_detail = f"{self.V[self.POPULATION_GROWTH]} {OOR} (1, ..., 29)."
 
         if not done:
@@ -358,8 +363,8 @@ class OekoEnv(gym.Env):
             self.V[self.QUALITY_OF_LIFE] += box10
             if self.V[self.QUALITY_OF_LIFE] not in range(1, 30):
                 done = True
-                l = "high. " if self.V[self.QUALITY_OF_LIFE] > 29 else "low. "
-                done_info = "Quality of Life too " + l
+                l = self.etl[" too high. "] if self.V[self.QUALITY_OF_LIFE] > 29 else self.etl[" too low. "]
+                done_info = self.dtl["QualityOfLife"] + l
                 done_reason_detail = f"{self.V[self.QUALITY_OF_LIFE]} {OOR} (1, ..., 29)."
 
         if not done:
@@ -367,8 +372,8 @@ class OekoEnv(gym.Env):
             self.V[self.POPULATION_GROWTH] += box11
             if self.V[self.POPULATION_GROWTH] not in range(1, 30):
                 done = True
-                l = "high. " if self.V[self.POPULATION_GROWTH] > 29 else "low. "
-                done_info = "Population Growth too " + l
+                l = self.etl[" too high. "] if self.V[self.POPULATION_GROWTH] > 29 else self.etl[" too low. "]
+                done_info = self.dtl["ReproRate"] + l
                 done_reason_detail = f"{self.V[self.POPULATION_GROWTH]} {OOR} (1, ..., 29)."
 
         if not done:
@@ -376,8 +381,8 @@ class OekoEnv(gym.Env):
             self.V[self.POLITICS] += box12
             if self.V[self.POLITICS] not in range(-10, 38):
                 done = True
-                l = "high. " if self.V[self.POLITICS] > 37 else "low. "
-                done_info = "Politics too " + l
+                l = self.etl[" too high. "] if self.V[self.POLITICS] > 37 else self.etl[" too low. "]
+                done_info = self.dtl["Politics"] + l
                 done_reason_detail = f"{self.V[self.POLITICS]} {OOR} (-10, ..., 37)."
 
         if not done:
@@ -386,8 +391,8 @@ class OekoEnv(gym.Env):
             self.V[self.POPULATION] += box13 * boxW
             if self.V[self.POPULATION] not in range(1, 49):
                 done = True
-                l = "high. " if self.V[self.POPULATION] > 48 else "low. "
-                done_info = "Population Growth too " + l
+                l = self.etl[" too high. "] if self.V[self.POPULATION] > 48 else self.etl[" too low. "]
+                done_info = self.dtl["Population"] + l
                 done_reason_detail = f"{self.V[self.POPULATION]} {OOR} (1, ..., 48)."
 
         if not done:
@@ -395,8 +400,8 @@ class OekoEnv(gym.Env):
             self.V[self.QUALITY_OF_LIFE] += box14
             if self.V[self.QUALITY_OF_LIFE] not in range(1, 30):
                 done = True
-                l = "high. " if self.V[self.QUALITY_OF_LIFE] > 29 else "low. "
-                done_info = "Quality of Life too " + l
+                l = self.etl[" too high. "] if self.V[self.QUALITY_OF_LIFE] > 29 else self.etl[" too low. "]
+                done_info = self.dtl["QualityOfLife"] + l
                 done_reason_detail = f"{self.V[self.QUALITY_OF_LIFE]} {OOR} (1, ..., 29)."
 
         return self.V, done, done_info, done_reason_detail
@@ -497,7 +502,8 @@ class OekoEnv(gym.Env):
 
         if self.V[self.ROUND] == 30:
             self.done = True
-            self.done_info = 'Maximum number of rounds reached.'
+            self.done_info = self.etl["MaxNumRoundsReached"]
+            self.done_reason_detail = f" {self.dtl["Round"]} {self.V[self.ROUND]}"
 
         # Points for next round
         if self.done:
@@ -514,15 +520,19 @@ class OekoEnv(gym.Env):
             self.V[self.POINTS] += boxC
             self.V[self.POINTS] += boxD
 
+        OOR = self.etl[" out of allowed range"]
         if self.V[self.POINTS] < 0:
-            self.V[self.POINTS] = 0
             self.done = True
-            self.done_info = 'Minimum amount of action points reached.'
-
+            self.done_info = self.etl["NumAPointsTooLow"]+". "
+            self.done_reason_detail = f"{self.V[self.POINTS]} {OOR} (0, ..., 36)."
+            if clipping: self.V[self.POINTS] = 0            # /2025/12/11/WK/ Bug fix: added 'if clipping' to enforce
+                                                            # that a step_w_o_clip (preview mode!) will not clip the
+                                                            # action points and will display the correct value change
         if self.V[self.POINTS] > 36:
-            self.V[self.POINTS] = 36
             self.done = True
-            self.done_info = 'Maximum number of action points reached.'
+            self.done_info = self.etl["NumAPointsTooHigh"]+". "
+            self.done_reason_detail = f"{self.V[self.POINTS]} {OOR} (0, ..., 36)."
+            if clipping: self.V[self.POINTS] = 36           # /2025/12/11/WK/ Bug fix: added 'if clipping' (see above)
 
         boxD = gb.get_boxD(self.clip(self.QUALITY_OF_LIFE))
         a = float((boxD * 3 + self.clip(self.POLITICS)) * 10)

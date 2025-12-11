@@ -5,12 +5,12 @@
 """
 
 
-def dict_translate(args):
+def dict_translate(language):
     """
-    :param args: contains attribute ``language = "de"|"en"``
+    :param language: ``"de"|"en"``
     :return: translation dictionary for all GUI elements
     """
-    if args.language == "de":
+    if language == "de":
         dtl = {"HelpMode": "Hilfemodus",
                "ExitHelp": "Hilfe verlassen",
                "Exit": "Verlassen",
@@ -82,9 +82,10 @@ def dict_translate(args):
                "PointsGained": "Punkte erzielt",
                "RoundsSurvived": "Runden überlebt",
                "RoundNo": "Runde Nr.",
+               "AttentionGameOver": "Vorsicht! `Game over` mit aktuellem Zug",
                }
         return dtl
-    if args.language == "en":
+    if language == "en":
         dtl = {"HelpMode": "Help Mode",
                "ExitHelp": "    Exit help",
                "Exit": "Exit game",
@@ -156,17 +157,44 @@ def dict_translate(args):
                "PointsGained": "points gained",
                "RoundsSurvived": "rounds survived",
                "RoundNo": "Round #",
+               "AttentionGameOver": "Attention! `Game over` with actual move",
                }
         return dtl
-    raise RuntimeError(f"[dict_translate] args.language = {args.language} is not supported!")
+    raise RuntimeError(f"[dict_translate] language = {language} is not supported!")
 
 
-def dict_help_screens(args):
+def env_translate(language):
     """
-    :param args: contains attribute ``language = "de"|"en"``
-    :return: translation dictionary for all help screens
+    :param language: ``"de"|"en"``
+    :return: translation dictionary for all environment language elements
     """
-    if args.language == "de":
+    if language == "de":
+        etl = {" too high. ": " zu hoch. ",
+               " too low. ": " zu niedrig. ",
+               " out of allowed range": " nicht im Bereich",
+               "NumAPointsTooLow": "Zu wenig Aktionspunkte",
+               "NumAPointsTooHigh": "Zu viele Aktionspunkte",
+               "MaxNumRoundsReached": "Maximalzahl an Runden erreicht.",
+               }
+        return etl
+    if language == "en":
+        etl = {" too high. ": " too high. ",
+               " too low. ": " too low. ",
+               " out of allowed range": " out of allowed range",
+               "NumAPointsTooLow": "Too few action points",
+               "NumAPointsTooHigh": "Too many action points",
+               "MaxNumRoundsReached": "Maximum number of rounds reached.",
+               }
+        return etl
+    raise RuntimeError(f"[env_translate] language = {language} is not supported!")
+
+
+def dict_help_screens(language):
+    """
+    :param language: ``"de"|"en"``
+    :return: translation dictionary for all GUI help screens
+    """
+    if language == "de":
         htl = {
                "hs1.0": "Willkommen bei Ökolopoly!\n"
                         "Deine Aufgabe ist es, ein Land zu führen.\n\n"
@@ -274,7 +302,7 @@ def dict_help_screens(args):
                "hs10.2": "-mal pro Spiel begrenzt!",
         }
         return htl
-    if args.language == "en":
+    if language == "en":
         htl = {
                "hs1.0": "Welcome to Ökolopoly!\n"
                         "Your task is to lead a country.\n\n"
@@ -376,4 +404,4 @@ def dict_help_screens(args):
                "hs10.2": " times per game!",
                }
         return htl
-    raise RuntimeError(f"[dict_help_screens] args.language = {args.language} is not supported!")
+    raise RuntimeError(f"[dict_help_screens] language = {language} is not supported!")

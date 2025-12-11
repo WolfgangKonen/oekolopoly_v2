@@ -38,11 +38,6 @@ v_names = [
 o_env = OekoEnv()
 
 
-class Args:
-    def __init__(self, language):
-        self.language = language
-
-
 def plot_sector_diag(plt_list, language="en"):
     """
     Plot a figure with 2x2 subplots for the up to 4 elements in ``plt_list``
@@ -54,8 +49,7 @@ def plot_sector_diag(plt_list, language="en"):
     assert len(plt_list) <= 4
     assert min(plt_list) > 0
     assert max(plt_list) <= 20
-    args = Args(language)
-    dtl = dict_translate(args)
+    dtl = dict_translate(language)
     offs = 0.3
     PL = sns.color_palette("colorblind")
     fig, axs = plt.subplots(2, 2, figsize=(7, 6)) #, sharex=True)
