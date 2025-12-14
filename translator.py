@@ -65,6 +65,9 @@ def dict_translate(language):
                                    "Ent-\n"
                                    "scheidungs-\n"
                                    "gewalt",
+               "MoreInfoCurrAction": "{:>72}".format("[S,   P,   A,   L,   V,   Sf]\n") +
+                                     "mit S: Sanierung, P: Produktion, A: Aufklärung,\n"
+                                     "L: Lebensqualität, V: Vermehrung, Sf: Spezialfall",
                "ClearActions": "Entferne verteilte Punkte",
                "ExecuteStep": "Zug ausführen",
                "Reset": "Neues Spiel",
@@ -140,6 +143,10 @@ def dict_translate(language):
                                    "decision-\n"
                                    "making\n"
                                    "power",
+               "MoreInfoCurrAction": "{:>72}".format("[R,  P,  E,  Q,  RR,  S]\n") +
+                                     "with R: Redevelop, P: Production, E: Education,\n"
+                                     "Q: Quality of Life, RR: ReproRate, S: Special Case",
+               # "{:>66}".format is for right-aligned printing in a string field of size 66
                "ClearActions": "Remove distributed points",
                "ExecuteStep": "Execute step",
                "Reset": "New game",
@@ -261,12 +268,14 @@ def dict_help_screens(language):
                         "Warum das Spiel zu Ende ist und wie viele Punkte man erzielt hat.",
                "hs7.0": "Mit Button `Spielanleitung` öffnet sich die originale\n"
                         "Spielanleitung des Spiels Ökolopoly.\n\n"
-                        "Mit Button `Spielhistorie` kann man sich die bereits gespielten Spiele anschauen.\n\n\n\n"
+                        "Mit Button `Spielhistorie` kann man sich die bereits gespielten Spiele anschauen.\n\n"
+                        "Button `Hilfe?` führt zu diesem Hilfemodus.\n\n\n\n"
                         "Mit den Tasten W-A-S-D oder den Pfeiltasten auf der Tastatur\n"
                         "kann man sich frei auf dem Spielbrett bewegen und mit dem\n"
                         "Mausrad hinein- und herauszoomen.\n"
                         "Beim maximalen Herauszoomen zentriert sich das Spielbrett automatisch.\n"
-                        "Mit der Tabulatortaste lassen sich alle Spielelemente ein- und ausblenden.\n\n"
+                        "Mit der Tabulatortaste lassen sich alle Spielelemente ein- und ausblenden.\n"
+                        "Mit Taste 1 kann man zwischen verschiedenen Hintergrundbildern wechseln.\n\n"
                         "Achtung:\n"
                         "Die Spielelemente lassen sich nur im maximal herausgezoomten Zustand bedienen.\n\n"
                         "Wichtige Anmerkung:\n"
@@ -284,19 +293,20 @@ def dict_help_screens(language):
                "hs9.1": "Der Vorschaumodus zeigt an, wie sich die Bereiche mit den\n"
                         "aktuell verteilten Aktionspunkten in der nächsten Runde \n"
                         "verändern würden.\n"
-                        "Ein schwarzer Strich zeigt die Veränderung des Balken an.\n"
+                        "Ein schwarzer Strich zeigt den neuen Wert des Balken an.\n"
                         "Außerdem wird mit Hilfe einer Zahl über beziehungsweise\n"
                         "- bei negativen Zahlen - unter dem aktuellen Wert die \n"
                         "Abnahme/Zunahme des Bereiches angezeigt.\n\n"
                         "Hinweis:"
                         "Sind diese grün, überlebt man die Runde. Sind diese jedoch\n"
-                        "orange, so ist `Game over`, falls man den Zug ausführt.\n"
+                        "rot, so ist `Game over`, falls man den Zug ausführt.\n"
                         "Die Konsole gibt Auskunft dazu!",
                "hs9.2": "Das ist die Konsole des Vorschaumodus. Diese gibt Auskunft über den Grund\n"
                         "für `Game over`, falls man den aktuellen Zug ausführen würde.",
                "hs10.0": "Der Button `KI-Zug` verteilt die verfügbaren Aktionspunkte\n"
                          "bestmöglich auf die Bereiche.\n"
-                         "Dahinter steckt ein KI-Agent, der auf diese Aufgabe trainiert wurde.\n\n",
+                         "Dahinter steckt ein KI-Agent, der auf diese Aufgabe trainiert wurde.\n\n"
+                         "Wenn bin/config.txt 'predict_usages' < 6 hat, dann ist nur diese Anzahl an KI-Zügen erlaubt.\n\n",
                "hs10.1": "Achtung:\n"
                          "Die Nutzung der KI ist auf",
                "hs10.2": "-mal pro Spiel begrenzt!",
@@ -366,11 +376,13 @@ def dict_help_screens(language):
                         "Why the game is over and how many points you have scored.",
                "hs7.0": "Button `Game instructions` opens the original game instructions of the\n"
                         "game Ökolopoly (sorry, in German only).\n\n"
-                        "With button `Game history` you can view a text log of the already played episodes.\n\n\n\n"
+                        "With button `Game history` you can view a text log of the already played episodes.\n\n"
+                        "Button `Help?` leads to this Help Mode.\n\n\n\n"
                         "Using the W-A-S-D keys or the arrow keys on the keyboard, you can move\n"
                         "freely around the game board and use the mouse wheel to zoom in and out.\n"
                         "When zoomed out to the maximum, the game board automatically centers itself.\n"
-                        "Use the Tab key to show and hide all game elements.\n\n"
+                        "Use the Tab key to show and hide all game elements.\n"
+                        "Key 1 toggles between different background images.\n\n"
                         "Please note:\n"
                         "The game elements can only be operated when zoomed out to the maximum.\n\n"
                         "Important extra note:\n"
@@ -387,18 +399,19 @@ def dict_help_screens(language):
                "hs9.1": "The preview mode shows how the sectors with the\n"
                         "currently distributed action points would change in the \n"
                         "next round.\n"
-                        "A black line indicates the change in the bar.\n"
+                        "A black line indicates the new value in the bar.\n"
                         "In addition, a number above or - in the case of negative numbers - \n"
                         "below the current value indicates the decrease/increase in the sector.\n\n"
                         "Note:\n"
                         "If these numbers are green, you survive the round. However, if \n"
-                        "they are orange, it's ‘Game over’ if you execute the move.\n"
+                        "they are red, it's ‘Game over’ if you execute the move.\n"
                         "The preview mode console provides information about this!",
                "hs9.2": "This is the preview mode console. It provides information about the reason\n"
-                        "for ‘Game over’ if you were to execute the current move.",
+                        "for ‘Game over’ if you were to execute the planned move.",
                "hs10.0": "The ‘AI move’ button distributes the available action points\n"
                         "as best as possible across the sectors.\n"
-                        "Behind this is an AI agent that has been trained for this task.\n\n",
+                        "Behind this is an AI agent that has been trained for this task.\n\n"
+                        "If bin/config.txt has `predict_usages` < 6, only this number of AI moves is allowed.\n\n",
                "hs10.1": "Attention:\n"
                          "Use of AI is limited to ",
                "hs10.2": " times per game!",

@@ -183,11 +183,16 @@ class Camera(pygame.sprite.Group):
 
         self.offset = Vector2()
 
-        self.background = pygame.image.load('assets/Spielbrett_komplett.JPG').convert_alpha()
-        self.background = pygame.transform.scale(self.background, self.display_surface.get_size())
-        self.background_rect = self.background.get_rect(topleft=(0, 0))
+        # these are the background image behind the play surface (toggle between them with key 1 = pygame.K_1):
+        bg_files = ["gameboard.jpg", "gameboard_sepia.jpg", "gameboard_sepia2.jpg"]
+        self.background = [None for k in range(len(bg_files))]
+        for k, file in enumerate(bg_files):
+            self.background[k] = pygame.image.load('assets/'+file).convert_alpha()
+            self.background[k] = pygame.transform.scale(self.background[k], self.display_surface.get_size())
+        self.background_rect = self.background[0].get_rect(topleft=(0, 0))
 
-        self.empty_background = pygame.image.load('assets/Spielbrett_komplett - Kopie.JPG').convert_alpha()
+        # this is the background image when 'TAB' is hit (empty play surface, no sprites):
+        self.empty_background = pygame.image.load('assets/empty_gameboard.jpg').convert_alpha()
         self.empty_background = pygame.transform.scale(self.empty_background, self.display_surface.get_size())
 
         self.camera_movement_speed = 10
@@ -198,13 +203,14 @@ class Camera(pygame.sprite.Group):
         self.internal_surface = pygame.Surface(self.display_surface.get_size(), pygame.SRCALPHA)
         self.can_use_buttons = True
         self.show_background = True
+        self.bg_selector = 0
 
     def custom_draw(self):
         self.internal_surface.fill(color_brown)
 
         offset = self.background_rect.topleft + self.offset
         if self.show_background:
-            self.internal_surface.blit(self.background, offset)
+            self.internal_surface.blit(self.background[self.bg_selector], offset)
 
             for sprite in self.sprites():
                 offset_pos = sprite.rect.topleft + self.offset
@@ -307,11 +313,11 @@ class Game:
         if self.max_predict_usages > 5:
             self.predict_button.text = dtl["BestMoveAI"]
         self.preview_button = Button(Vector2(600, 350), Vector2(210, 40), color_green, camera, dtl["PreviewMode"])
-        self.help_button = Button(Vector2(270, 455), Vector2(130, 70), color_yellow, camera, dtl["Help"], 40)
         self.game_instructions_button = Button(Vector2(20, 90), Vector2(240, 40), color_yellow, camera,
                                                dtl["GameInstructions"])
         # self.feedback_button = Button(Vector2(20, 145), Vector2(145, 40), color_yellow, camera, "Feedback?")
         self.game_history_button = Button(Vector2(20, 145), Vector2(190, 40), color_yellow, camera, dtl["GameHistory"])
+        self.help_button = Button(Vector2(20, 200), Vector2(160, 40), color_yellow, camera, dtl["Help"])  # , 40)
 
         # diagrams
         sanitation_d = Diagram(Vector2(940, 30), camera, self.env.unwrapped.Vmin[0], self.env.unwrapped.Vmax[0])
@@ -393,14 +399,18 @@ class Game:
         politic_label = Label(Vector2(15, 435), Vector2(84, 40), camera, dtl["Politics"], 23, color_white)
         more_info_politic = MoreInfo(Vector2(15, 477), Vector2(90, 160),
                                      dtl["MoreInfoPolitics"], camera)
+        # curr_action_label: Vector2(810, 470), Vector2(360, 40)
+        more_info_curr_act = MoreInfo(Vector2(810, 520), Vector2(360, 80),
+                                     dtl["MoreInfoCurrAction"], camera)
+
 
         self.region_labels = (
             action_points_label, sanitation_label, production_label, environment_label, education_label,
-            quality_of_life_label, population_growth_label, population_label, politic_label)
+            quality_of_life_label, population_growth_label, population_label, politic_label, self.current_action_label)
         self.more_info_labels = (
             more_info_action_points, more_info_sanitation, more_info_production, more_info_environment,
-            more_info_education,
-            more_info_quality_of_life, more_info_population_growth, more_info_population, more_info_politic)
+            more_info_education, more_info_quality_of_life, more_info_population_growth,
+            more_info_population, more_info_politic, more_info_curr_act)
 
         # special case labels and buttons
         self.special_population_growth_label = Label(Vector2(510, 640), Vector2(165, 35), camera, dtl["SpecialCase"], 30,
@@ -542,11 +552,12 @@ class Game:
             self.game_over_label.visible = False
             self.reset_button.color = color_red
 
+        distr_points = self.current_action.copy()       # /WK/2025-12-12, might later change display values
         if self.special_action:
-            self.current_action_label.variable_text = self.current_action
+            self.current_action_label.variable_text = distr_points
             self.act_special_population_growth_label.variable_text = self.current_action[5]
         else:
-            self.current_action_label.variable_text = self.current_action[0:5]
+            self.current_action_label.variable_text = distr_points # [0:5]   /WK/2025-12-12
 
         for label_index in range(len(self.action_inputs)):
             number_change = self.current_action[label_index]
@@ -573,8 +584,14 @@ class Game:
         obs_for_agent = self.agent_obs + self.env.unwrapped.Vmin
         agent_action, _ = self.agent.predict(obs_for_agent, deterministic=True)
         a_for_env = transf_act_box(self.env, agent_action)
+        # transform ndarray(dtype=np.int64) into a list of int (homogeneous display in 'Distributed Points')
+        # (WK/2025-12-12):
+        a_for_env = [int(a_for_env[i]) for i in range(a_for_env.size)]
         self.current_action = a_for_env
-        self.available_actionpoints = 0
+        # self.available_actionpoints = 0       # /WK/ why this??? The AI might not use all action points (!)
+        for i in range(len(a_for_env)-1):       # /WK/2025-12-12: instead we subtract the used points [0,...,4]
+            self.available_actionpoints -= abs(a_for_env[i])
+
         self.special_action_points = 5 - abs(self.current_action[5])
 
     def preview_action(self):
@@ -583,7 +600,8 @@ class Game:
 
         action[temp_env.unwrapped.PRODUCTION] -= temp_env.unwrapped.Amin[temp_env.unwrapped.PRODUCTION]
         action[5] -= temp_env.unwrapped.Amin[5]
-        _, _, terminated, truncated, info = temp_env.unwrapped.step_w_o_clip(action)
+        obs, rew, terminated, truncated, info = temp_env.unwrapped.step_w_o_clip(action)
+        temp_V = obs + temp_env.unwrapped.Vmin
         done = terminated or truncated
         for diagram_index in range(len(self.diagrams)):
             env_index = diagram_index
@@ -595,7 +613,12 @@ class Game:
                                                             f"{info['done_reason']}{info['done_reason_detail']}")
             else:
                 self.preview_console_label.variable_text = ""
-            self.diagrams[diagram_index].next_value = temp_env.unwrapped.V[env_index]   # the unclipped values
+            # self.diagrams[diagram_index].next_value = temp_env.unwrapped.V[env_index]   # bug before 2025-12-13.
+            #
+            # Bug fix: set the next value occording to temp_V, the resulting V after step_w_o_clip. Only then, an
+            # attempt to set special case 's=+4' in case 'Education=20', which allows only 's=+-3' will have the same
+            # resulting Popul_Growth as 's=+3' as it should:
+            self.diagrams[diagram_index].next_value = temp_V[env_index]  # the unclipped values
             # --- only for debug: ---
             # if env_index == 9:
             #     next_round = temp_env.unwrapped.V[8]
@@ -962,6 +985,14 @@ class ActionInput:
 # TODO Geplant: Pfeile für Wirkungsgefüge (siehe Seite 2 in Spielanleitung)
 class MoreInfo(pygame.sprite.Sprite):
     def __init__(self, pos, size, text, camera):
+        """
+        Window with more info that appears whenever ``self.active==True`` (usually when 'hover'-ing another element)
+
+        :param pos: position (x,y) in (0..1920, 0..1080) of window
+        :param size: (w,h) in pixels of window
+        :param text: (multiline) text to display in window
+        :param camera: needed to initialize superclass
+        """
         super().__init__(camera)
         self.image = pygame.Surface(size)
         self.size = Vector2(size.x / 1920 * pygame.display.get_window_size()[0],
@@ -1109,6 +1140,7 @@ class HelpScreen(pygame.sprite.Sprite):
             if self.help_step == 1:
                 draw_text(Vector2(400 * x, 200 * y), self.image, big_font_size, self.htl["hs1.0"])
             elif self.help_step == 2:
+                #                                                        #      left,    top,   width,  height
                 pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(805 * x, 15 * y, 280 * x, 330 * y))
                 pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(805 * x, 405 * y, 610 * x, 110 * y))
                 draw_text(Vector2(450 * x, 15 * y), self.image, small_font_size, self.htl["hs2.0"])
@@ -1134,7 +1166,7 @@ class HelpScreen(pygame.sprite.Sprite):
                 draw_text(Vector2(595 * x, 570 * y), self.image, small_font_size,
                           self.htl["hs6.0"])
             elif self.help_step == 7:
-                pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(15 * x, 85 * y, 250 * x, 105 * y))
+                pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(15 * x, 85 * y, 250 * x, 162 * y))
                 draw_text(Vector2(275 * x, 80 * y), self.image, small_font_size,
                           self.htl["hs7.0"])
             elif self.help_step == 8:
@@ -1216,6 +1248,9 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_TAB:
                     camera.show_background = not camera.show_background
+                if event.key == pygame.K_1:
+                    camera.bg_selector = (camera.bg_selector + 1) % len(camera.background)
+                    # print(f"bg_selector = {camera.bg_selector}")
 
         # update game
         game.update()

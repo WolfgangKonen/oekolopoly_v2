@@ -90,10 +90,12 @@ class OekoEnv(gym.Env):
         ])
 
         #                      0   1   2   3   4   5   6    7   8   9
-        #                      S   Pr  Ed  Q   PG  En  Pop  Pol R   AP
+        #                      S  Pr  Ed  Q   PG  En  Pop  Pol  R  AP
         self.Vmin = np.array([ 1,  1,  1,  1,  1,  1,  1, -10,  0,  0])
         self.Vmax = np.array([29, 29, 29, 29, 29, 29, 48,  37, 30, 36])
 
+        #                      0   1   2   3   4   5
+        #                      S  Pr  Ed   Q  PG  SC
         self.Amin = np.array([ 0,-28,  0,  0,  0, -5])
         self.Amax = np.array([28, 28, 28, 28, 28,  5])
 
@@ -346,10 +348,11 @@ class OekoEnv(gym.Env):
                 done_reason_detail = f"{self.V[self.QUALITY_OF_LIFE]} {OOR} (1, ..., 29)."
 
         if not done:
-            if self.V[self.EDUCATION] in range(21, 24): extra_points = max(-3, min(3, extra_points))
-            if self.V[self.EDUCATION] in range(24, 28): extra_points = max(-4, min(4, extra_points))
-            if self.V[self.EDUCATION] in range(28, 30): extra_points = max(-5, min(5, extra_points))
-            if self.V[self.EDUCATION] < 21: extra_points = 0
+            if   self.V[self.EDUCATION] in range(21, 24): extra_points = max(-3, min(3, extra_points))
+            elif self.V[self.EDUCATION] in range(24, 28): extra_points = max(-4, min(4, extra_points))
+            elif self.V[self.EDUCATION] in range(28, 30): extra_points = max(-5, min(5, extra_points))
+            else:  # i.e. if self.V[self.EDUCATION] < 21:
+                extra_points = 0
             box9 = gb.get_box9(self.V[self.EDUCATION], extra_points)
             self.V[self.POPULATION_GROWTH] += box9
             if self.V[self.POPULATION_GROWTH] not in range(1, 30):
@@ -419,8 +422,15 @@ class OekoEnv(gym.Env):
         return self.__inner_step(action, clipping)
 
     def __inner_step(self, action, clipping=True):
-        """ realized as inner class because step(self,action) does not allow extra arguments """
+        """
+            Realized as inner class because step(self,action) does not allow extra arguments.
 
+            Note that ``obs = self.V - self.Vmin``
+
+        :param action:   the action to perform
+        :param clipping: whether to clip the values of ``self.V`` or not
+        :return:         ``obs, reward, terminated, truncated, info``
+        """
         assert self.action_space.contains(action), f"Action not in action_space: {action}"
 
         # Transform action space
