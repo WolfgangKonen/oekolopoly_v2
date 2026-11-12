@@ -4,7 +4,18 @@ import numpy as np
 
 
 class OekoBoxActionWrapper(gym.ActionWrapper):
+    """
+    This wrapper transforms the discrete action space into a continuous one of type Box. The elements of
+    this six-dimensional vector range from [0,−1, 0, 0, 0,−1] to [1, 1, 1, 1, 1, 1] and have the meaning
+    [Sanitation, Production, Education, Quality of Life, Population Growth, Special(Edu-to-PopGrowth)].
+    """
     def distribute1(self, action, points):
+        """
+        Distribute the points to the regions ``r`` according to continuous vector ``action``
+        :param action: the continuous, six-dimensional action vector
+        :param points: the number of points to distribute
+        :return: the six-dimensional vector with point-changes for the five regions + special action
+        """
         action = list(action)
         action_sum = sum(action)
 
@@ -43,6 +54,8 @@ class OekoBoxActionWrapper(gym.ActionWrapper):
         regions_act = act[0:5]
         special_act = round(act[5] * 5)
         regions_act = self.get_wrapper_attr('distribute1')(regions_act, self.unwrapped.V[self.unwrapped.POINTS])
+        # 'get_wrapper_attr' finds the right wrapper in the chain of wrappers that contains 'distribute1'.
+        # 'self.unwrapped' returns the base environment of the wrapper (here: OekoEnv).
         if reduce_production:
             regions_act[1] = -regions_act[1]
 
@@ -54,6 +67,44 @@ class OekoBoxActionWrapper(gym.ActionWrapper):
         act = np.append(regions_act, special_act)
         act -= self.unwrapped.Amin
 
+        return act
+
+
+class OekoBoxUnclippedActionWrapper(gym.ActionWrapper):
+    def distribute1(self, action, points):
+        action = list(action)
+
+        r = []
+        for n in action:
+            r.append(round(n * points))
+
+        return r
+
+    def __init__(self, env):
+        super().__init__(env)
+        self.action_min = np.float32(np.array([0, -1,  0,  0,  0, -1]))
+        self.action_max = np.float32(np.array([1,  1,  1,  1,  1,  1]))
+        self.action_space = gym.spaces.Box(low=self.action_min, high=self.action_max)
+
+    def action(self, act):
+        act = np.clip(act, self.action_min, self.action_max, dtype=np.float32)
+        assert self.action_space.contains(act), "Action not in action_space"
+
+        if act[1] < 0:
+            act[1] = -act[1]
+            reduce_production = True
+        else:
+            reduce_production = False
+
+        regions_act = act[0:5]
+        special_act = round(act[5] * 5)
+        regions_act = self.distribute1(regions_act, self.unwrapped.V[self.unwrapped.POINTS])
+        if reduce_production:
+            regions_act[1] = -regions_act[1]
+
+        act = np.append(regions_act, special_act)
+        act -= self.unwrapped.Amin
+        act = np.clip(act, np.zeros(len(act)), self.unwrapped.Amax-self.unwrapped.Amin)
         return act
 
 
@@ -256,39 +307,3 @@ class OekoAuxRewardWrapper(gym.Wrapper):
         return obs, reward, terminated, truncated, d
 
 
-class OekoBoxUnclippedActionWrapper(gym.ActionWrapper):
-    def distribute1(self, action, points):
-        action = list(action)
-
-        r = []
-        for n in action:
-            r.append(round(n * points))
-
-        return r
-
-    def __init__(self, env):
-        super().__init__(env)
-        self.action_min = np.float32(np.array([0, -1,  0,  0,  0, -1]))
-        self.action_max = np.float32(np.array([1,  1,  1,  1,  1,  1]))
-        self.action_space = gym.spaces.Box(low=self.action_min, high=self.action_max)
-
-    def action(self, act):
-        act = np.clip(act, self.action_min, self.action_max, dtype=np.float32)
-        assert self.action_space.contains(act), "Action not in action_space"
-
-        if act[1] < 0:
-            act[1] = -act[1]
-            reduce_production = True
-        else:
-            reduce_production = False
-
-        regions_act = act[0:5]
-        special_act = round(act[5] * 5)
-        regions_act = self.distribute1(regions_act, self.unwrapped.V[self.unwrapped.POINTS])
-        if reduce_production:
-            regions_act[1] = -regions_act[1]
-
-        act = np.append(regions_act, special_act)
-        act -= self.unwrapped.Amin
-        act = np.clip(act, np.zeros(len(act)), self.unwrapped.Amax-self.unwrapped.Amin)
-        return act

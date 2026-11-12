@@ -1,6 +1,6 @@
-This repository contains code for the paper ["Ökolopoly: Case Study on Large Action Spaces in Reinforcement Learning"](https://doi.org/10.1007/978-3-031-53966-4_9) presented in 2023 at the conference "Machine Learning, Optimization, and Data Science" (LOD 2023) and was developed by R. Engelhardt, R. Raycheva, W. Konen.
+This repository contains code for the paper ["Ökolopoly: Case Study on Large Action Spaces in Reinforcement Learning"](https://doi.org/10.1007/978-3-031-53966-4_9) presented in 2023 at the conference "Machine Learning, Optimization, and Data Science" (LOD 2023) written by R. Engelhardt, R. Raycheva, W. Konen and others.
 
-It is an update of the former GitHub repo oekolopoly_v1 and it contains two new developments:
+It is an update of the former GitHub repo oekolopoly_v1 (developed by R. Raycheva, R. Engelhardt and W. Konen) and it contains two new developments:
 - the environment OekoEnv is migrated from gym to **gymnasium**
 - a new GUI 2.0 for human play (developed by A. Albers, W. Konen) is included, now with **support for two languages "de" and "en"**.
 
@@ -78,6 +78,7 @@ Use either one of the following commands:
 See the help within the GUI 2.0 `oekolopoly_gui` and a few remarks in `bin/README.txt` on how to configure and play the GUI 2.0.
 
 Note that the other (older) GUI 1.0 `oeko_gui` is now deprecated and needs the additional package `PyQt5`.
+
 ## ...use the environment in my own scripts?
 Once you import via
 
@@ -86,6 +87,15 @@ Once you import via
 the environment is registered and available just like any other environment known from OpenAI Gym
 
     env = gym.make("Oekolopoly-v2")
+
+
+# Authors 
+The **oekolopoly_v2** environment was developed by
+
+  - Ralitsa Raycheva, TH Köln
+  - Alexander Albers, TH Köln
+  - Raphael Engelhardt, TH Köln
+  - Wolfgang Konen, TH Köln
 
 
 # Publication
@@ -97,13 +107,9 @@ author     = "Engelhardt, Raphael C.
              and Lange, Moritz
              and Wiskott, Laurenz
              and Konen, Wolfgang",
-editor     = "Nicosia, Giuseppe
-             and Ojha, Varun
-             and La Malfa, Emanuele
-             and La Malfa, Gabriele
-             and Pardalos, Panos M.
-             and Umeton, Renato",
-title      = "{\"O}kolopoly: Case Study on Large Action Spaces in Reinforcement Learning",
+editor     = "Nicosia, G.
+             and others",
+title      = "{\"O}kolopoly: Case Study on Large Action Spaces in Reinforcement Learning",
 booktitle  = "Machine Learning, Optimization, and Data Science",
 bookseries = "Lecture Notes in Computer Science",
 volume     = "14506",

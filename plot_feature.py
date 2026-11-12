@@ -3,7 +3,7 @@
     features "balance", "round" and "balance_numerator". This is done for a set of agents ``AGENTS``.
 
     The data for plotting are read from files ``*.monitor.csv`` that were written during training, where ``*`` is either
-    ``train`` or ``evaluate``. These files are found in the agent subdirectories, and the list of agents to consider
+    ``train`` or ``eval``. These files are found in the agent subdirectories, and the list of agents to consider
     is specified in variable ``AGENTS`` in the source code below.
 
     The ``main`` code below plots three PDF diagrams, namely ``plots/train_eval_FEAT.pdf``, for all three available
@@ -56,7 +56,7 @@ def read_monitor(filepath):
     return df
 
 
-def plot_curves(feat='balance'):
+def plot_feature_curves(feat='balance'):
     """ Plot for all agents coded in ``AGENTS`` a specific feature ``feat``.
 
         Smooth all curves by a Hanning window of size ``WINDOW``.
@@ -117,6 +117,6 @@ def plot_curves(feat='balance'):
 
 
 if __name__ == "__main__":
-    plot_curves("balance")
-    plot_curves("round")
-    plot_curves("balance_numerator")
+    plot_feature_curves(feat="balance")
+    plot_feature_curves(feat="round")
+    plot_feature_curves(feat="balance_numerator")

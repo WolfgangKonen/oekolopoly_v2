@@ -184,7 +184,7 @@ class Camera(pygame.sprite.Group):
         self.offset = Vector2()
 
         # these are the background image behind the play surface (toggle between them with key 1 = pygame.K_1):
-        bg_files = ["gameboard.jpg", "gameboard_sepia.jpg", "gameboard_sepia2.jpg"]
+        bg_files = ["gameboard_sepia2.jpg", "gameboard.jpg", "gameboard_sepia.jpg"]
         self.background = [None for k in range(len(bg_files))]
         for k, file in enumerate(bg_files):
             self.background[k] = pygame.image.load('assets/'+file).convert_alpha()
@@ -422,7 +422,7 @@ class Game:
         self.special_population_growth_increase_button = Button(Vector2(630, 690), Vector2(35, 35), color_green, camera,
                                                                 "+", 35)
         # help screen
-        self.help_screen = HelpScreen(camera, dtl, htl)
+        self.help_screen = HelpScreen(camera, dtl, htl, args)
         self.help_screen.active = get_number_value_by_name("bin/played_games.txt", "games_played") == 0
         self.help_screen.active = True
 
@@ -615,7 +615,7 @@ class Game:
                 self.preview_console_label.variable_text = ""
             # self.diagrams[diagram_index].next_value = temp_env.unwrapped.V[env_index]   # bug before 2025-12-13.
             #
-            # Bug fix: set the next value occording to temp_V, the resulting V after step_w_o_clip. Only then, an
+            # Bug fix: set the next value according to temp_V, the resulting V after step_w_o_clip. Only then, an
             # attempt to set special case 's=+4' in case 'Education=20', which allows only 's=+-3' will have the same
             # resulting Popul_Growth as 's=+3' as it should:
             self.diagrams[diagram_index].next_value = temp_V[env_index]  # the unclipped values
@@ -1022,7 +1022,7 @@ class MoreInfo(pygame.sprite.Sprite):
 
 
 class HelpScreen(pygame.sprite.Sprite):
-    def __init__(self, camera, dtl: dict, htl: dict):
+    def __init__(self, camera, dtl: dict, htl: dict, args):
         super().__init__(camera)
         self.dtl = dtl
         self.htl = htl
@@ -1045,7 +1045,11 @@ class HelpScreen(pygame.sprite.Sprite):
         self.special_negative_label = Label(Vector2(510, 690), Vector2(35, 35), camera, "-", 35, color_red)
         self.special_number_label = Label(Vector2(570, 690), Vector2(35, 35), camera, "", 25, color_yellow, "0")
         self.special_positive_label = Label(Vector2(630, 690), Vector2(35, 35), camera, "+", 35, color_green)
-        self.special_case_picture = pygame.image.load('assets/education_population_growth.jpg').convert_alpha()
+        #self.special_case_picture = pygame.image.load('assets/education_population_growth.jpg').convert_alpha()
+        if args.language == "de":
+            self.special_case_picture = pygame.image.load('assets/sect_diag_9_de.jpg').convert_alpha()
+        else:       # i.e. args.language == "en"
+            self.special_case_picture = pygame.image.load('assets/sect_diag_9_en.jpg').convert_alpha()
         self.special_case_picture = pygame.transform.scale(self.special_case_picture,
                                                            (400 * self.scale_x, 400 * self.scale_y))
 

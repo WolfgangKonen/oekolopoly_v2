@@ -18,10 +18,10 @@ from oekolopoly.wrappers import (OekoSimpleObservationWrapper, OekoBoxObservatio
 
 def parse_args():
     """
-    Parse arguments
+    Parse arguments for run_agent_episode.py
     :return: parsed arguments
     """
-    parser = argparse.ArgumentParser(description='Training parameters for Oekolopoly')
+    parser = argparse.ArgumentParser(description='Run-agent parameters for Oekolopoly')
     parser.add_argument('--seed', type=int,
                         help='Seed for reproducible results')
     parser.add_argument('--observation', type=str, default="none",
@@ -122,7 +122,7 @@ def load_model(env, savedir, args):
 
 def transf_act_box(env, act):
     """
-    transform the box action points in the same way as ``OekoBoxActionWrapper.action(self,act)`` does
+    Transform the box action points in the same way as :meth:`.OekoBoxActionWrapper.action(self,act)` does
 
     :param env: environment of type ``OekoBoxActionWrapper``
     :param act: the box action points
@@ -153,9 +153,37 @@ def transf_act_box(env, act):
     return act
 
 
+def transf_act_unclippedbox(env, act):
+    """
+    Transform the box action points in the same way as :meth:`.OekoBoxUnclippedActionWrapper.action(self,act)` does
+
+    :param env: environment of type ``OekoBoxUnclippedActionWrapper``
+    :param act: the box action points
+    :return: the points properly transformed for the Oekolopoly wheels
+    """
+    act = np.clip(act, env.get_wrapper_attr('action_min'), env.get_wrapper_attr('action_max'), dtype=np.float32)
+    assert env.action_space.contains(act), "Action not in action_space"
+
+    if act[1] < 0:
+        act[1] = -act[1]
+        reduce_production = True
+    else:
+        reduce_production = False
+
+    regions_act = act[0:5]
+    special_act = round(act[5] * 5)
+    regions_act = env.get_wrapper_attr('distribute1')(regions_act, env.unwrapped.V[env.unwrapped.POINTS])
+    if reduce_production:
+        regions_act[1] = -regions_act[1]
+
+    act = np.append(regions_act, special_act)
+
+    return act
+
+
 def transf_act_simple(env, act):
     """
-    transform the simple action points in the same way as ``OekoSimpleActionWrapper.action(self,act)`` does
+    Transform the simple action points in the same way as ``OekoSimpleActionWrapper.action(self,act)`` does
 
     :param env: environment of type ``OekoSimpleActionWrapper``
     :param act: the simple action points
@@ -197,37 +225,62 @@ def transf_act_simple(env, act):
     return act
 
 
+class AgentEpisodeRunner:
+    """
+        Load a trained agent according to the command line arguments provided and run one episode with this agent (i.e.
+        call ``env.step`` repeatedly until the episode is terminated).
+        Print the sector variables and the actions taken in each round.
+
+        Upon termination, print out the cumulated return (sum of all rewards received in each step) and the
+        dict ``info`` that was returned by the **terminating step** (see class :class:`.OekoEnv` for detailed docu of
+        the key-value pairs in ``info``.
+
+        Example usage (via console)::
+
+            python run_agent_episode.py --observation "box" --action "box" --reward "perround" --shaping 0.5 --algo "ppo" --seed 17
+
+    """
+    def __init__(self):
+        args = parse_args()  # the arguments are needed to load the right agent
+
+        agent_str = ("obs_" + args.observation + "_action_" + args.action + "_reward_" + args.reward + "_" +
+                     str(args.shaping) + "_" + args.algo + "_" + str(args.seed))
+        savedir = f"./trained_agents/{agent_str}"
+
+        # Prepare environment
+        env = gym.make("Oekolopoly-v2")
+        env = wrap_env(env, args, savedir + "/train", monitor=False)
+
+        # Load model
+        model = load_model(env, savedir, args)
+
+        # Run episode
+        s, _ = env.reset()
+        m_return = 0
+        done = False
+        while not done:
+            action, _ = model.predict(s, deterministic=True)
+
+            # this is just to get more detailed output on the console; it has no influence on the episode:
+            if args.action == "box":
+                points = transf_act_box(env, action)  # the points as they are distributed to the wheels
+                print(s, points)
+            elif args.action == "unclippedbox":
+                points = transf_act_unclippedbox(env, action)
+                print(s, points)
+            elif args.action == "simple":
+                points = transf_act_simple(env, action)  # the points as they are distributed to the wheels
+                print(s, points, action)
+            else:
+                print(s, action)
+
+            s, r, terminated, truncated, info = env.step(action)
+            m_return += r
+            done = terminated or truncated
+
+        print(s)
+        print(f"Episode finished with return={m_return},\n info={info}")
+
+
 if __name__ == "__main__":
-    args = parse_args()
-
-    agent_str = ("obs_" + args.observation + "_action_" + args.action + "_reward_" + args.reward + "_" +
-                 str(args.shaping) + "_" + args.algo + "_" + str(args.seed))
-    savedir = f"./trained_agents/{agent_str}"
-
-    # Prepare environment
-    env = gym.make("Oekolopoly-v2")
-    env = wrap_env(env, args, savedir+"/train", monitor=False)
-
-    # Load model
-    model = load_model(env, savedir, args)
-
-    # Run episode
-    s, _ = env.reset()
-    m_return = 0
-    done = False
-    while not done:
-        action, _ = model.predict(s, deterministic=True)
-        if args.action == "box":
-            points = transf_act_box(env, action)     # the points as they are distributed to the wheels
-            print(s, points)
-        elif args.action == "simple":
-            points = transf_act_simple(env, action)  # the points as they are distributed to the wheels
-            print(s, points, action)
-        else:
-            print(s, action)
-        s, r, terminated, truncated, info = env.step(action)
-        m_return += r
-        done = terminated or truncated
-
-    print(s)
-    print(f"Episode finished with return={m_return},\n info={info}")
+    AgentEpisodeRunner()

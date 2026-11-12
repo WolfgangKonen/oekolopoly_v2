@@ -14,19 +14,20 @@ class OekoEnv(gym.Env):
 
         The environment is based on package `gymnasium==1.2.2` as `gym`.
 
-        Method `step` returns the five elements `obs, reward, terminated, truncated, info` where
-        always `truncated=False` and thus `terminated` is equivalent to `done`.
-        `info` is a dict with the following key-value pairs:
+        Method ``step`` returns the five elements ``obs, reward, terminated, truncated, info`` where
+        always ``truncated=False`` (no episode is truncated) and thus ``terminated`` is equivalent to ``done``.
 
-        - 'balance (always)': the game balance according to the Ökolopoly balance formula, irrespective of round
-        - 'balance_numerator (always)': the numerator of this formula
-        - 'balance': `info['balance (always)']` if round \in [10,30], 0 else
-        - 'balance_numerator': `info['balance_numerator (always)']` if round \in [10,30], 0 else
-        - 'round': the number of rounds played
-        - 'done_reason': string with the reason for termination (`None` if not yet terminated)
-        - 'done_reason_detail': string with further info
-        - 'valid_move': `False` if the action points were distributed in an unallowed way, `True` else
-        - 'invalid_move_info': string describing the reason for invalid move
+        Dictionary **info** has the following key-value pairs:
+
+        - **balance (always)**: the game balance according to the Ökolopoly balance formula, irrespective of round
+        - **balance_numerator (always)**: the numerator of this formula
+        - **balance**: `info['balance (always)']` if round \in [10,30], 0 else
+        - **balance_numerator**: `info['balance_numerator (always)']` if round \in [10,30], 0 else
+        - **round**: the number of rounds played
+        - **done_reason**: string with the reason for termination (`None` if not yet terminated)
+        - **done_reason_detail**: string with further info
+        - **valid_move**: ``False`` if the action points were distributed in a way that is not allowed: (a) action points outside allowed range ``[0,self.V[self.POINTS]]`` or (b) the actions attributed to ``i`` are outside allowed range ``[self.Vmin[i],self.Vmax[i]]``. Otherwise, ``valid_move=True``.
+        - **invalid_move_info**: string describing the reason for invalid move
 
     """
     SANITATION        = 0
@@ -65,6 +66,12 @@ class OekoEnv(gym.Env):
     OBS_NAMES = V_NAMES[:-2]
 
     def __init__(self, render_mode=None, language="en"):
+        """
+        Constructor OekoEnv
+
+        :param render_mode:
+        :param language:
+        """
 
         self.render_mode = render_mode
         self.window = None
@@ -513,7 +520,7 @@ class OekoEnv(gym.Env):
         if self.V[self.ROUND] == 30:
             self.done = True
             self.done_info = self.etl["MaxNumRoundsReached"]
-            self.done_reason_detail = f" {self.dtl["Round"]} {self.V[self.ROUND]}"
+            self.done_reason_detail = f" {self.dtl['Round']} {self.V[self.ROUND]}"
 
         # Points for next round
         if self.done:

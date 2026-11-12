@@ -86,6 +86,8 @@ def dict_translate(language):
                "RoundsSurvived": "Runden überlebt",
                "RoundNo": "Runde Nr.",
                "AttentionGameOver": "Vorsicht! `Game over` mit aktuellem Zug",
+               "V (factor for A)": "V (Faktor für A)",
+               "W (factor for box 13)": "W (Faktor für Box 13)",
                }
         return dtl
     if language == "en":
@@ -165,6 +167,8 @@ def dict_translate(language):
                "RoundsSurvived": "rounds survived",
                "RoundNo": "Round #",
                "AttentionGameOver": "Attention! `Game over` with actual move",
+               "V (factor for A)": "V (factor for A)",
+               "W (factor for box 13)": "W (factor for box 13)",
                }
         return dtl
     raise RuntimeError(f"[dict_translate] language = {language} is not supported!")
@@ -256,14 +260,14 @@ def dict_help_screens(language):
                         "Runde ab und die verteilten Aktionspunkte werden angewendet.\n"
                         "Einige der Bereiche haben Auswirkungen auf andere und diese\n"
                         "Auswirkungen werden mit Abschluss der Runde zusätzlich eintreten!",
-               "hs5.0": "Der Spezialfall tritt ein, wenn `Aufklärung` einen Wert von 20 oder höher erreicht hat.\n"
+               "hs5.0": "Der Spezialfall tritt ein, wenn `Aufklärung` einen Wert von 20 oder mehr erreicht hat.\n"
                         "Nun kann man die Vermehrungsrate an einem weiteren Ort anpassen. Und vor allem:\n"
                         "Man kann nun auch negative Änderungen für die Vermehrungsrate eintragen!\n"
                         "Der weitere Vorteil:\n"
                         "Es werden keine Aktionspunkte benötigt! \n"
-                        "Der Nachteil:\n"
-                        "Der Spezialfall erlaubt nur Änderungen von -5 bis +5. Wenn `Aufklärung` zwischen\n"
-                        "20 und 22 liegt, haben sogar nur Werte von -3 bis +3 einen Effekt. Siehe Grafik.",
+                        "Die Einschränkung:\n"
+                        "Der Spezialfall erlaubt Änderungen von -3 bis +3 nur, wenn `Aufklärung` > 19, \n"
+                        "von -4 bis + 4 wenn > 23 und von -5 bis +5 wenn > 27. Siehe Grafik.",
                "hs6.0": "Das ist die Konsole. Hier wird nach dem Ende eines Spiels Feedback gegeben:\n"
                         "Warum das Spiel zu Ende ist und wie viele Punkte man erzielt hat.",
                "hs7.0": "Mit Button `Spielanleitung` öffnet sich die originale\n"
@@ -302,11 +306,12 @@ def dict_help_screens(language):
                         "rot, so ist `Game over`, falls man den Zug ausführt.\n"
                         "Die Konsole gibt Auskunft dazu!",
                "hs9.2": "Das ist die Konsole des Vorschaumodus. Diese gibt Auskunft über den Grund\n"
-                        "für `Game over`, falls man den aktuellen Zug ausführen würde.",
+                        "für `Game over`, falls der aktuell geplante Zug zu `Game over` führen würde.",
                "hs10.0": "Der Button `KI-Zug` verteilt die verfügbaren Aktionspunkte\n"
                          "bestmöglich auf die Bereiche.\n"
-                         "Dahinter steckt ein KI-Agent, der auf diese Aufgabe trainiert wurde.\n\n"
-                         "Wenn bin/config.txt 'predict_usages' < 6 hat, dann ist nur diese Anzahl an KI-Zügen erlaubt.\n\n",
+                         "Dahinter steckt ein KI-Agent (Deep-RL-Agent), der auf diese Aufgabe trainiert wurde.\n\n"
+                         "Wenn bin/config.txt eine Zeile 'predict_usages: N' mit N <= 5 enthält, dann sind nur N\n "
+                         "KI-Züge erlaubt. Wenn N > 5, dann sind beliebig viele KI-Züge gestattet.\n\n",
                "hs10.1": "Achtung:\n"
                          "Die Nutzung der KI ist auf",
                "hs10.2": "-mal pro Spiel begrenzt!",
@@ -364,14 +369,14 @@ def dict_help_screens(language):
                         "round and the distributed action points are applied.\n"
                         "Some of the sectors have effects on others, and these\n"
                         "effects will also occur at the end of the round!",
-               "hs5.0": "The special case occurs when `Eductation` has reached a value of 20 or higher.\n"
+               "hs5.0": "The special case occurs when `Education` has reached a value of 20 or higher.\n"
                         "Now you can adjust `Reproduction rate` in another location. And most importantly:\n"
                         "You can now also enter negative changes for the reproduction rate!\n"
                         "The additional advantage:\n"
                         "No action points are needed! \n"
-                        "“The disadvantage:\n"
-                        "The special case only allows changes from -5 to +5. If `Education` is between\n"
-                        "20 und 22, only values from -3 to +3 have an effect. See diagram.",
+                        "The restriction:\n"
+                        "The special case allows changes from -3 to +3 only if `Education` > 19, \n"
+                        "from -4 to +4 if it is > 23 and from -5 to +5 if it is > 27. See diagram.",
                "hs6.0": "This is the console. Feedback is provided here after the end of a game:\n"
                         "Why the game is over and how many points you have scored.",
                "hs7.0": "Button `Game instructions` opens the original game instructions of the\n"
@@ -407,11 +412,12 @@ def dict_help_screens(language):
                         "they are red, it's ‘Game over’ if you execute the move.\n"
                         "The preview mode console provides information about this!",
                "hs9.2": "This is the preview mode console. It provides information about the reason\n"
-                        "for ‘Game over’ if you were to execute the planned move.",
+                        "for ‘Game over’, if the actually planned move would lead to `Game over`.",
                "hs10.0": "The ‘AI move’ button distributes the available action points\n"
                         "as best as possible across the sectors.\n"
-                        "Behind this is an AI agent that has been trained for this task.\n\n"
-                        "If bin/config.txt has `predict_usages` < 6, only this number of AI moves is allowed.\n\n",
+                        "Behind this is an AI agent (Deep RL agent) that has been trained for this task.\n\n"
+                        "If bin/config.txt contains a line `predict_usages: N` with N <= 5, then only N \n"
+                        "AI moves are allowed. If N > 5, then any number of AI moves is allowed.\n\n",
                "hs10.1": "Attention:\n"
                          "Use of AI is limited to ",
                "hs10.2": " times per game!",
