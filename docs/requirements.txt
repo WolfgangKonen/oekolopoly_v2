@@ -1,4 +1,4 @@
-furo==2021.11.16
+furo
 sphinx==5.0
 gym==0.25.0
 gymnasium==1.2.2
