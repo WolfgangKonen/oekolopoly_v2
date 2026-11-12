@@ -4,7 +4,7 @@ Details
 
 This chapter describes details of the ``oekolopoly_v2`` class system.
 
-Some more details...
+Some more more details...
 
 Runnables
 -----------
