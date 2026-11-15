@@ -53,6 +53,12 @@ in the directory where the folder `Lib/site-packages` of your Python environment
 
 [You might wonder why `gym` is in the requirements if the new `gymnasium` is used. Right, `gym` is no longer needed for the `oekolopoly` environment. But due to a tiny bug in SB3, the saving of SB3 agents will not work if `gym` is not there. Please ignore also the related warning `Gym has been unmaintained ...` that appears when starting any of the programs below. It is irrelevant.]
 
+## ...read the docu?
+
+Follow this link:
+
+[https://wolfgangkonen-oekolopoly-v2.readthedocs.io/en/latest/](https://wolfgangkonen-oekolopoly-v2.readthedocs.io/en/latest/)
+
 ## ...train an agent?
 To train a PPO agent without observation wrapper, using Simple action wrapper and PerRound reward wrapper with a constant per-round reward of $R_c=0.5$, and seed 17 one would issue the command:
 
