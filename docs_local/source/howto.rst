@@ -45,7 +45,7 @@ Once the environment is there, it can be used to start one of the runnables from
 
 or other commands ``python ...``, see the following how-to sections.
 
-Or you use a suitable IDE (like PyCharm), where you create appropriate run configurations.
+Alternatively, use a suitable IDE (like PyCharm), where you create appropriate run configurations.
 
 
 ...train an agent?

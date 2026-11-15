@@ -88,6 +88,7 @@ def dict_translate(language):
                "AttentionGameOver": "Vorsicht! `Game over` mit aktuellem Zug",
                "V (factor for A)": "V (Faktor für A)",
                "W (factor for box 13)": "W (Faktor für Box 13)",
+               "Auxiliary reward": "Zusatzbelohnung",
                }
         return dtl
     if language == "en":
@@ -169,6 +170,7 @@ def dict_translate(language):
                "AttentionGameOver": "Attention! `Game over` with actual move",
                "V (factor for A)": "V (factor for A)",
                "W (factor for box 13)": "W (factor for box 13)",
+               "Auxiliary reward": "Auxiliary reward",
                }
         return dtl
     raise RuntimeError(f"[dict_translate] language = {language} is not supported!")

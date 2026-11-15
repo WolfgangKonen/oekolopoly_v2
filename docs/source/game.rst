@@ -9,6 +9,8 @@ The game Ökolopoly was invented by Frederic Vester in 1980. It combines network
 and systemic ideas. The goal of the game is to train humans in network thinking, including nonlinear
 effects and positive / negative feedback loops.
 
+.. _sector-label:
+
 Sectors
 ------------
 The game consists of nine sectors:
@@ -37,7 +39,8 @@ The game consists of nine sectors:
 
 Five of these sectors are steerable in the sense that action points can be distributed to
 them. Once the distribution is complete, the step is executed and in response all nine sectors
-will change according to the dynamics of the system (positive and negative feedback loops).
+will change according to the dynamics of the system (positive and negative feedback loops, see the
+:ref:`diagrams in appendix <app-diagrams-label>`).
 We enter the next round (year) and have new action points to distribute.
 
 Goal
@@ -45,6 +48,8 @@ Goal
 The goal of the game is to survive a sufficient amount of rounds (between 10 and 30) and to
 reach a balance as high as possible. A 'Game Over' (death) situation occurs whenever any one
 of the sectors (steerable or not) leaves its allowed min-max-range.
+
+.. _balance-label:
 
 The **balance** :math:`B` is given by the formula
 

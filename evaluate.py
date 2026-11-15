@@ -38,7 +38,7 @@ class EvaluateTheTrainer:
         the resulting data frame is finally written to ``results/results_<WINDOW>_<monitor>.csv``. It has the
         following columns:
 
-        - **DRL**: Deep reinforcement learning agent (ppo, sac, td3)
+        - **DRL**: type of deep reinforcement learning agent (ppo, sac, td3)
         - **obs_wrapper**: observation wrapper (none, box, simple)
         - **action_wrapper**: action wrapper (none, box, simple)
         - **reward_wrapper**: reward wrapper (none, aux, perround)

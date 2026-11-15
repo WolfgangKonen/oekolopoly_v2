@@ -233,7 +233,7 @@ class AgentEpisodeRunner:
 
         Upon termination, print out the cumulated return (sum of all rewards received in each step) and the
         dict ``info`` that was returned by the **terminating step** (see class :class:`.OekoEnv` for detailed docu of
-        the key-value pairs in ``info``.
+        the key-value pairs in ``info``).
 
         Example usage (via console)::
 

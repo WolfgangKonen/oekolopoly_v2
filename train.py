@@ -110,9 +110,9 @@ class Trainer:
         Each file ``*.monitor.csv`` contains as many rows as there were training episodes played. Each row consists of the
         following columns
 
-            - **r**: the cumulated reward of the episode
+            - **r**: the cumulated return (sum of all rewards) of the episode
             - **l**: the length of the episode (= number of rounds alive)
-            - **t**: the time needed for training this episode
+            - **t**: the time in sec needed for training this episode
             - plus all the key-value pairs of dict **info**, see :class:`.OekoEnv`
 
         The trained agent is stored in::

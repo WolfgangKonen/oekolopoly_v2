@@ -60,7 +60,6 @@ def inner_plot(i, pnum, ax, language, boxfont=18, axfont=10, tickfont=10):
     offs = 0.3
     pl = sns.color_palette("colorblind")
     vmin = o_env.Vmin[x_code[pnum]]
-
     vmax = o_env.Vmax[x_code[pnum]]
     suffix = " + 10" if pnum == 16 else ""  # for x-axis = POLITICS
     xv = [k for k in range(vmin, vmax + 1)]

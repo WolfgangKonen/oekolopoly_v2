@@ -45,6 +45,7 @@ This documentation contains:
     - how to install oekolopoly_v2, how to train DRL agents, evaluate and play with them the game Ökolopoly
     - more details on the game mechanics
     - more details on the available wrappers
+    - an appendix with all the sector diagrams
 
 
 Publications

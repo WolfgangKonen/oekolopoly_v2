@@ -19,5 +19,7 @@ oekolopoly_v2 documentation
    game
    howto
    detail
+   wrappers
+   appendix
 
 

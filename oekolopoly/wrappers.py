@@ -8,6 +8,14 @@ class OekoBoxActionWrapper(gym.ActionWrapper):
     This wrapper transforms the discrete action space into a continuous one of type Box. The elements of
     this six-dimensional vector range from [0,−1, 0, 0, 0,−1] to [1, 1, 1, 1, 1, 1] and have the meaning
     [Sanitation, Production, Education, Quality of Life, Population Growth, Special(Edu-to-PopGrowth)].
+
+    This wrapper performs certain validity checks when translating a box vector from the agent back to an
+    action point vector for the game:
+
+        - If the sum of box vector elements is > 1, normalize it to 1
+        - Translate the box vector to action point vector by multiplying with the number of available action points.
+        - If the sum of the action point vector elements is greater than the available points, subtract 1 from the highest element
+        - If applying an action point vector element to a sector would lead to a value outside [sector_min, sector_max], clip it to that range.
     """
     def distribute1(self, action, points):
         """
@@ -36,6 +44,9 @@ class OekoBoxActionWrapper(gym.ActionWrapper):
         return r
 
     def __init__(self, env):
+        """
+        :param env:     the (wrapped) environment, it has :class:`.OekoEnv` as inner class
+        """
         super().__init__(env)
         self.action_min = np.float32(np.array([0, -1,  0,  0,  0, -1]))
         self.action_max = np.float32(np.array([1,  1,  1,  1,  1,  1]))
@@ -71,6 +82,15 @@ class OekoBoxActionWrapper(gym.ActionWrapper):
 
 
 class OekoBoxUnclippedActionWrapper(gym.ActionWrapper):
+    """
+    This wrapper transforms the discrete action space into a continuous one of type Box. The elements of
+    this six-dimensional vector range from [0,−1, 0, 0, 0,−1] to [1, 1, 1, 1, 1, 1] and have the meaning
+    [Sanitation, Production, Education, Quality of Life, Population Growth, Special(Edu-to-PopGrowth)].
+
+    The difference to class :class:`.OekoBoxActionWrapper`: No validity checks are performed (no clipping, no filtering)
+    when translating a box vector from the agent back to an action point vector for the game.
+
+    """
     def distribute1(self, action, points):
         action = list(action)
 
@@ -81,6 +101,9 @@ class OekoBoxUnclippedActionWrapper(gym.ActionWrapper):
         return r
 
     def __init__(self, env):
+        """
+        :param env:     the (wrapped) environment, it has :class:`.OekoEnv` as inner class
+        """
         super().__init__(env)
         self.action_min = np.float32(np.array([0, -1,  0,  0,  0, -1]))
         self.action_max = np.float32(np.array([1,  1,  1,  1,  1,  1]))
@@ -98,7 +121,10 @@ class OekoBoxUnclippedActionWrapper(gym.ActionWrapper):
 
         regions_act = act[0:5]
         special_act = round(act[5] * 5)
-        regions_act = self.distribute1(regions_act, self.unwrapped.V[self.unwrapped.POINTS])
+        # regions_act = self.distribute1(regions_act, self.unwrapped.V[self.unwrapped.POINTS])
+        regions_act = self.get_wrapper_attr('distribute1')(regions_act, self.unwrapped.V[self.unwrapped.POINTS])
+        # 'get_wrapper_attr' finds the right wrapper in the chain of wrappers that contains 'distribute1'.
+        # 'self.unwrapped' returns the base environment of the wrapper (here: OekoEnv).
         if reduce_production:
             regions_act[1] = -regions_act[1]
 
@@ -109,6 +135,25 @@ class OekoBoxUnclippedActionWrapper(gym.ActionWrapper):
 
 
 class OekoSimpleActionWrapper(gym.ActionWrapper):
+    """
+    The action space of this wrapper is implemented as two-dimensional ``MultiDiscrete`` object of which the first element
+    contains the index to one of the 77 legal sector moves (see below) while the second one contains the possibility of
+    modifying Population Growth by up to :math:`\pm 5` (the *special case*).
+
+    The total number of possible actions is therefore reduced to :math:`77 \cdot 11 = 847`, which is much simpler than
+    the original action space which contains :math:`9.1 \cdot 10^8` possible actions.
+
+    The 77 legal sector moves are coded as 6-digit string: The first 5 digits carry the numbers 0, 1, 2, or 3 with the
+    extra condition that their sum may not exceed 3. For example, a string 21000 means that 2 thirds of the action
+    points are distributed to the first sector and 1 third to the second one, and the remaining three other sectors get
+    no points. (If action points are not divisible by 3, an appropriate heuristic distributes the remaining points.)
+
+    If ``Production`` has a digit :math:`> 0`, the 6th digit has the choice to be 0 or 1: increase (0) or reduce (1)
+    production.
+
+    The count of all allowed 6-digit strings under these conditions can be shown to be 77.
+
+    """
     ACTIONS = [
         '000000',
         '000010',
@@ -169,6 +214,9 @@ class OekoSimpleActionWrapper(gym.ActionWrapper):
     ]
 
     def __init__(self, env):
+        """
+        :param env:     the (wrapped) environment, it has :class:`.OekoEnv` as inner class
+        """
         super().__init__(env)
         self.action_space = gym.spaces.MultiDiscrete([77, 11])
 
@@ -196,7 +244,7 @@ class OekoSimpleActionWrapper(gym.ActionWrapper):
                     if remaining == 0: break
         assert remaining == 0
 
-        if int(act_string[5]) == 1:
+        if int(act_string[5]) == 1:         # if last digit is 1, the points in sector Production *reduce* production.
             regions[1] = -regions[1]
 
         for i in range(5):
@@ -215,26 +263,16 @@ class OekoSimpleActionWrapper(gym.ActionWrapper):
         return act
 
 
-class OekoSimpleObservationWrapper(gym.ObservationWrapper):
-
-    def __init__(self, env):
-        super().__init__(env)
-        self.obs_count = 10  # how many of the original observations to use, starting from the first one
-        self.obs_split = 3  # 3=low/mid/high
-
-        self.original_observation_space = self.observation_space
-        self.observation_space = gym.spaces.MultiDiscrete([3] * self.obs_count)
-
-    def observation(self, obs):
-        new_obs = [0] * self.obs_count
-        for i in range(self.obs_count):
-            new_obs[i] = math.floor(obs[i] / self.original_observation_space.nvec[i] * self.obs_split)
-
-        return new_obs
-
-
 class OekoBoxObservationWrapper(gym.ObservationWrapper):
+    """
+        This wrapper transforms the discrete observation space into a continuous one of type Box. The elements of
+        this 10-dimensional vector range each from 0 to 1 and have the meaning min and max of the respective
+        element from the original observation vector (9 sectors + 1 elem ``round``).
+    """
     def __init__(self, env):
+        """
+        :param env:     the (wrapped) environment, it has :class:`.OekoEnv` as inner class
+        """
         super().__init__(env)
 
         self.low = np.array([
@@ -270,40 +308,146 @@ class OekoBoxObservationWrapper(gym.ObservationWrapper):
         return new_obs
 
 
-class OekoPerRoundRewardWrapper(gym.Wrapper):
-    def __init__(self, env, per_round_reward=1):
+class OekoSimpleObservationWrapper(gym.ObservationWrapper):
+    """
+        This wrapper transforms the original discrete observation space, which has :math:`1.48\cdot 10^{14}` possible
+        states, into a simpler discrete observation space that has only 3 values (low, medium, high) for each
+        observation variable and thus only :math:`3^{10} = 59\ 049` possible states.
+
+    """
+
+    def __init__(self, env):
+        """
+        :param env:     the (wrapped) environment, it has :class:`.OekoEnv` as inner class
+        """
+        super().__init__(env)
+        self.obs_count = 10  # how many of the original observations to use, starting from the first one
+        self.obs_split = 3  # 3=low/mid/high
+
+        self.original_observation_space = self.observation_space
+        self.observation_space = gym.spaces.MultiDiscrete([3] * self.obs_count)
+
+    def observation(self, obs):
+        new_obs = [0] * self.obs_count
+        for i in range(self.obs_count):
+            new_obs[i] = math.floor(obs[i] / self.original_observation_space.nvec[i] * self.obs_split)
+
+        return new_obs
+
+
+class OekoPerRoundRewardWrapper(gym.RewardWrapper):
+    """
+        This wrapper shapes the reward: When the episode is done and round :math:`r` fulfills :math:`10\\leq r\\leq 30`,
+        then the normal reward (game balance :math:`B`) is returned.
+
+        In all other steps, ``per_round_reward`` is returned. This gives an incentive to stay alive for more rounds.
+    """
+    def __init__(self, env, per_round_reward: float = 1.0):
+        """
+
+        :param env:     the (wrapped) environment, it has :class:`.OekoEnv` as inner class
+        :param per_round_reward: the reward for each non-terminating round
+        """
         super().__init__(env)
         self.per_round_reward = per_round_reward
 
-    def mod_reward(self):
+    def reward(self, reward):
         if self.unwrapped.done and self.unwrapped.V[self.unwrapped.ROUND] in range(10, 31):
-            reward = self.unwrapped.balance
+            return self.unwrapped.balance
         else:
-            reward = self.per_round_reward
-        return reward
-
-    def step(self, action):
-        obs, _, terminated, truncated, d = self.env.step(action)
-        reward = self.mod_reward()
-        return obs, reward, terminated, truncated, d
+            return self.per_round_reward
 
 
-class OekoAuxRewardWrapper(gym.Wrapper):
-    def __init__(self, env, scaling=1):
+class OekoAuxRewardWrapper(gym.RewardWrapper):
+    """
+        This wrapper shapes the reward: When the episode is done and round :math:`r` fulfills :math:`10\\leq r\\leq 30`,
+        then the normal reward (game balance :math:`B`) is returned.
+
+        In all other steps, a heuristic reward (auxiliary reward) is returned. This reward gives a positive incentive
+        if the critical sectors Production and Population stay in or near to the middle of their allowed ranges. The
+        positive reward tends to 0 if both sectors approach the min or the max of their allowed ranges.
+        See diagram "Auxiliary reward".
+    """
+    def __init__(self, env, scaling: float = 1.0):
+        """
+
+        :param env:     the (wrapped) environment, it has :class:`.OekoEnv` as inner class
+        :param scaling: optional scaling factor :math:`S` for the auxiliary reward
+        """
         super().__init__(env)
         self.scaling = scaling
 
-    def mod_reward(self):
+    def reward(self, reward):
         if self.done and self.unwrapped.V[self.ROUND] in range(10, 31):
             return self.unwrapped.balance
         else:
+            # production \in {1,...,29}; population \in {1,...,48}.
             production_reward = 14 - abs(15 - self.unwrapped.V[self.PRODUCTION])
-            population_reward = 23 - abs(24 - self.unwrapped.V[self.POPULATION])
+            # population_reward = 23 - abs(24 - self.unwrapped.V[self.POPULATION])      # before 2026-11-14
+            population_reward = 23.5 - abs(24.5 - self.unwrapped.V[self.POPULATION])    #  after 2026-11-14
+            # we apply a small shift in population_reward to make it symmetric (exactly 0 at min & max, not -1)
             return self.scaling * (production_reward + population_reward)
 
-    def step(self, action):
-        obs, _, terminated, truncated, d = self.env.step(action)
-        reward = self.mod_reward()
-        return obs, reward, terminated, truncated, d
 
+# --- old, not using RewardWrapper (which results in somewhat longer code) ---
+# class OekoPerRoundRewardWrapper(gym.Wrapper):
+#     """
+#         This wrapper shapes the reward: When the episode is done and round :math:`r` fulfills :math:`10\\leq r\\leq 30`,
+#         then the normal reward (game balance :math:`B`) is returned.
+#
+#         In all other steps, ``per_round_reward`` is returned. This gives an incentive to stay alive for more rounds.
+#     """
+#     def __init__(self, env, per_round_reward: float = 1.0):
+#         """
+#
+#         :param env:     the (wrapped) environment, it has :class:`.OekoEnv` as inner class
+#         :param per_round_reward: the reward for each non-terminating round
+#         """
+#         super().__init__(env)
+#         self.per_round_reward = per_round_reward
+#
+#     def mod_reward(self):
+#         if self.unwrapped.done and self.unwrapped.V[self.unwrapped.ROUND] in range(10, 31):
+#             reward = self.unwrapped.balance
+#         else:
+#             reward = self.per_round_reward
+#         return reward
+#
+#     def step(self, action):
+#         obs, _, terminated, truncated, d = self.env.step(action)
+#         reward = self.mod_reward()
+#         return obs, reward, terminated, truncated, d
+#
+#
+# class OekoAuxRewardWrapper(gym.Wrapper):
+#     """
+#         This wrapper shapes the reward: When the episode is done and round :math:`r` fulfills :math:`10\\leq r\\leq 30`,
+#         then the normal reward (game balance :math:`B`) is returned.
+#
+#         In all other steps, a heuristic reward (auxiliary reward) is returned. This reward gives a positive incentive
+#         if the critical sectors Production and Population stay in or near to the middle of their allowed ranges. The
+#         positive reward tends to 0 if both sectors approach the min or the max of their allowed ranges. See diagram.
+#     """
+#     def __init__(self, env, scaling: float = 1.0):
+#         """
+#
+#         :param env:     the (wrapped) environment, it has :class:`.OekoEnv` as inner class
+#         :param scaling: optional scaling factor for the auxiliary reward
+#         """
+#         super().__init__(env)
+#         self.scaling = scaling
+#
+#     def mod_reward(self):
+#         if self.done and self.unwrapped.V[self.ROUND] in range(10, 31):
+#             return self.unwrapped.balance
+#         else:
+#             # production \in {1,...,29}; population \in {1,...,48}.
+#             production_reward = 14 - abs(15 - self.unwrapped.V[self.PRODUCTION])
+#             population_reward = 23 - abs(24 - self.unwrapped.V[self.POPULATION])
+#             return self.scaling * (production_reward + population_reward)
+#
+#     def step(self, action):
+#         obs, _, terminated, truncated, d = self.env.step(action)
+#         reward = self.mod_reward()
+#         return obs, reward, terminated, truncated, d
 
