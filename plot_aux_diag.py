@@ -1,5 +1,5 @@
 """
-    Plot diagram of auxiliary reward
+    Plot diagram of auxiliary reward (see class :class:`OekoAuxRewardWrapper`)
 
     Language support for both "en" and "de".
 """
@@ -96,10 +96,13 @@ def inner_plot(ax, language, boxfont=18, axfont=10, tickfont=10):
 
 def plot_aux_diag_png(language="en"):
     """
-    Plot figure ``pnum`` and save it to PNG.
+    Plot a diagram of the auxiliary reward (see class :class:`.OekoAuxRewardWrapper`) and save it to PNG.
 
-    :param  pnum: a number in ``range(1,21)``
-    :param  language: either ``"de"`` or ``"en"``, controls the language of the axis labels
+    The save location is ``plots/png/<language>/aux_diag.png``.
+
+    Language support for both "en" and "de".
+
+    :param  language: either ``"de"`` or ``"en"``, controls the language of the axis labels and the save dir
     """
     fig, ax = plt.subplots(layout='constrained', figsize=(5, 5))
     # layout='constrained' is important to avoid that x- or y-axis labels are shifted due to the larger tickmark
@@ -113,38 +116,6 @@ def plot_aux_diag_png(language="en"):
     print(f"Plot saved to {plot_png}")
 
 
-def plot_4_sector_diag_pdf(plt_list, language="en"):
-    """
-    Plot a figure with 2x2 subplots for the up to 4 elements in ``plt_list`` and save it to PDF.
-
-    :param  plt_list: a list with up to 4 numbers from ``range(1,21)``: make the diagrams for the boxes
-            associated with these numbers
-    :param  language: either ``"de"`` or ``"en"``, controls the language of the axis labels
-    """
-    assert len(plt_list) <= 4
-    assert min(plt_list) > 0
-    assert max(plt_list) <= 20
-    fig, axs = plt.subplots(2, 2, figsize=(7, 6))  # , sharex=True)
-
-    for i, pnum in enumerate(plt_list):
-        ax = axs[i // 2][i % 2]
-        inner_plot(i, pnum, ax, language)
-
-    # Plot cosmetics
-    plt.subplots_adjust(wspace=0.25,    # the amount of width reserved for blank space between subplots,
-                                        # expressed as a fraction of the average axis width
-                        hspace=0.2)     # the amount of height reserved for white space between subplots,
-    #                                   # expressed as a fraction of the average axis height
-
-    plot_pdf = f"./plots/pdf/{language}/sect_diag_{plt_list[0]}-{plt_list[-1]}.pdf"
-    plt.savefig(plot_pdf)   # , bbox_inches="tight")
-    plt.close()
-    print(f"Plot saved to {plot_pdf}")
-
-
 if __name__ == "__main__":
     for lang in ["de", "en"]:
         plot_aux_diag_png(lang)
-    # for offset in [1, 5, 9, 13, 17]:
-    #     plot_4_sector_diag_pdf([offset + k for k in range(4)], lang)
-    # plot_4_sector_diag_pdf([ 5,  6,  7,  8], lang)

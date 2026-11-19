@@ -79,6 +79,7 @@ def dict_translate(language):
                "ActionPointsLeft": "Aktionspunkte übrig: ",
                "DistributedPoints": "Verteilte Punkte: ",
                "Round": "Runde: ",
+               "Balanc": "Bilanz",
                "Balance": "Bilanz: ",
                "GameOver": "Game over",
                "FinalResult": "Endergebnis",
@@ -89,6 +90,8 @@ def dict_translate(language):
                "V (factor for A)": "V (Faktor für A)",
                "W (factor for box 13)": "W (Faktor für Box 13)",
                "Auxiliary reward": "Zusatzbelohnung",
+               "Diagrams": "Diagramme",
+               "for": "für",
                }
         return dtl
     if language == "en":
@@ -161,6 +164,7 @@ def dict_translate(language):
                "ActionPointsLeft": "Action points left: ",
                "DistributedPoints": "Distributed points: ",
                "Round": "Round: ",
+               "Balanc": "Balance",
                "Balance": "Balance: ",
                "GameOver": "Game over",
                "FinalResult": "Final result",
@@ -171,6 +175,8 @@ def dict_translate(language):
                "V (factor for A)": "V (factor for A)",
                "W (factor for box 13)": "W (factor for box 13)",
                "Auxiliary reward": "Auxiliary reward",
+               "Diagrams": "Diagrams",
+               "for": "for",
                }
         return dtl
     raise RuntimeError(f"[dict_translate] language = {language} is not supported!")
@@ -275,7 +281,7 @@ def dict_help_screens(language):
                "hs7.0": "Mit Button `Spielanleitung` öffnet sich die originale\n"
                         "Spielanleitung des Spiels Ökolopoly.\n\n"
                         "Mit Button `Spielhistorie` kann man sich die bereits gespielten Spiele anschauen.\n\n"
-                        "Button `Hilfe?` führt zu diesem Hilfemodus.\n\n\n\n"
+                        "Button `Hilfe?` führt zu diesem Hilfemodus. Button `Diagramme` zeigt die Diagramme (siehe unten). \n\n\n\n"
                         "Mit den Tasten W-A-S-D oder den Pfeiltasten auf der Tastatur\n"
                         "kann man sich frei auf dem Spielbrett bewegen und mit dem\n"
                         "Mausrad hinein- und herauszoomen.\n"
@@ -285,8 +291,9 @@ def dict_help_screens(language):
                         "Achtung:\n"
                         "Die Spielelemente lassen sich nur im maximal herausgezoomten Zustand bedienen.\n\n"
                         "Wichtige Anmerkung:\n"
-                        "Um das Spiel Ökolopoly zu meistern, lohnt es sich, alle Diagramme auf den letzten Seiten\n"
-                        "der Spielanleitung zu studieren.",
+                        "Um das Spiel Ökolopoly zu meistern, lohnt es sich, alle Diagramme zu studieren, die \n"
+                        "zeigen wie ein Sektor andere Sektoren beeinflusst, . Button `Diagramme` erlaubt, durch \n"
+                        "diese Diagramme zu blättern.",
                "hs8.0": "Die Feature-Balken geben Auskunft über die\n"
                         "minimalen und maximalen Werte, die jeder Bereich\n"
                         "annehmen kann.\n\n"
@@ -384,7 +391,7 @@ def dict_help_screens(language):
                "hs7.0": "Button `Game instructions` opens the original game instructions of the\n"
                         "game Ökolopoly (sorry, in German only).\n\n"
                         "With button `Game history` you can view a text log of the already played episodes.\n\n"
-                        "Button `Help?` leads to this Help Mode.\n\n\n\n"
+                        "Button `Help?` leads to this Help Mode. Button `Diagrams` to the diagrams (see below).\n\n\n\n"
                         "Using the W-A-S-D keys or the arrow keys on the keyboard, you can move\n"
                         "freely around the game board and use the mouse wheel to zoom in and out.\n"
                         "When zoomed out to the maximum, the game board automatically centers itself.\n"
@@ -393,9 +400,8 @@ def dict_help_screens(language):
                         "Please note:\n"
                         "The game elements can only be operated when zoomed out to the maximum.\n\n"
                         "Important extra note:\n"
-                        "To master the game Ökolopoly, it is worth studying all the diagrams on the last\n"
-                        "pages of the game instructions. (The names at the axes are the sector names in German. The \n"
-                        "German-English translation of the sectors is visible by using the Tab key repeatedly.)",
+                        "To master the game Ökolopoly, it is worth studying all the diagrams, which show how one \n"
+                        "sector influences another sector. Use button `Diagrams` to browse through these diagrams.",
                "hs8.0": "The feature bars provide information about the minimum \n"
                         "and maximum values that each sector can assume.\n\n"
                         "Depending on the current value, the color of the bar\n"

@@ -50,7 +50,8 @@ Alternatively, use a suitable IDE (like PyCharm), where you create appropriate r
 
 ...train an agent?
 ------------------
-To train a PPO agent without observation wrapper, using Simple action wrapper and per-round reward wrapper with a constant per-round reward of :math:`R_c=0.5`, and seed 17 one would issue the command::
+To train a PPO agent without observation wrapper, using simple action wrapper and per-round reward wrapper
+with a constant per-round reward of :math:`R_c=0.5`, and seed 17, issue the following command::
 
 	python train.py --observation "none" --action "simple" --reward "perround" --shaping 0.5 --algo "ppo" --seed 17
 
@@ -78,5 +79,5 @@ Use either one of the following commands::
     python oekolopoly_gui.py --language "de"
     python oekolopoly_gui.py --language "en"
 
-See the help within the GUI 2.0 of ``oekolopoly_gui.py`` and a few remarks in
-``bin/README.txt`` on how to configure GUI 2.0 via ``bin/config.txt``.
+See the help within the GUI 2.0 of ``oekolopoly_gui.py`` and see :ref:`here for more details <oekolopoly-gui-label>` on how to
+play and how to configure the GUI 2.0.

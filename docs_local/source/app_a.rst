@@ -1,11 +1,13 @@
 --------------
-Appendix
+Appendix A
 --------------
 
 .. _app-diagrams-label:
 
 Diagrams
 -----------
+
+The sector diagrams in English:
 
    1. :ref:`Redevelop --> Environ. Damage <sect-diag-1-label>`.
    2. :ref:`Redevelop --> Redevelop <sect-diag-2-label>`.

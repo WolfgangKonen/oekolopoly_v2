@@ -36,6 +36,9 @@ def parse_args():
                         help='Number of training timesteps for each trial')
     parser.add_argument('--algo', type=str, default="ppo", choices=['ppo', 'sac', 'td3'],
                         help='DRL algorithm')
+    parser.add_argument('--render_mode', type=str, default=None, choices=['human', None],
+                        help='render mode for environment OekoEnv')
+
 
     args = parser.parse_args()
 
@@ -227,8 +230,8 @@ def transf_act_simple(env, act):
 
 class AgentEpisodeRunner:
     """
-        Load a trained agent according to the command line arguments provided and run one episode with this agent (i.e.
-        call ``env.step`` repeatedly until the episode is terminated).
+        Load a trained agent according to the command line arguments provided (see class :class:`.Trainer`) and run one
+        episode with this agent (i.e. call ``env.step`` repeatedly until the episode is terminated).
         Print the sector variables and the actions taken in each round.
 
         Upon termination, print out the cumulated return (sum of all rewards received in each step) and the
@@ -239,6 +242,9 @@ class AgentEpisodeRunner:
 
             python run_agent_episode.py --observation "box" --action "box" --reward "perround" --shaping 0.5 --algo "ppo" --seed 17
 
+        This loads the agent from ``agents/obs_box_action_box_reward_perround_0.5_ppo_17/`` and plays with it
+        one episode.
+
     """
     def __init__(self):
         args = parse_args()  # the arguments are needed to load the right agent
@@ -248,7 +254,7 @@ class AgentEpisodeRunner:
         savedir = f"./trained_agents/{agent_str}"
 
         # Prepare environment
-        env = gym.make("Oekolopoly-v2")
+        env = gym.make("Oekolopoly-v2", render_mode=args.render_mode)
         env = wrap_env(env, args, savedir + "/train", monitor=False)
 
         # Load model

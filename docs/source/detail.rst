@@ -20,6 +20,15 @@ run_agent_episode.py
 ====================
 .. autoclass:: run_agent_episode.AgentEpisodeRunner
 
+
+.. _oekolopoly-gui-label:
+
+oekolopoly_gui.py
+====================
+.. autoclass:: oekolopoly_gui.Game
+
+
+
 OekoEnv
 -----------------
 .. autoclass:: oekolopoly.oekolopoly.envs.oeko_env.OekoEnv

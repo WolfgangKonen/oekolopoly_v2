@@ -5,8 +5,8 @@ import numpy as np
 
 class OekoBoxActionWrapper(gym.ActionWrapper):
     """
-    This wrapper transforms the discrete action space into a continuous one of type Box. The elements of
-    this six-dimensional vector range from [0,−1, 0, 0, 0,−1] to [1, 1, 1, 1, 1, 1] and have the meaning
+    This wrapper (``--action "box"``) transforms the discrete action space into a continuous one of type Box. The elements
+    of this six-dimensional vector range from [0,−1, 0, 0, 0,−1] to [1, 1, 1, 1, 1, 1] and have the meaning
     [Sanitation, Production, Education, Quality of Life, Population Growth, Special(Edu-to-PopGrowth)].
 
     This wrapper performs certain validity checks when translating a box vector from the agent back to an
@@ -83,8 +83,8 @@ class OekoBoxActionWrapper(gym.ActionWrapper):
 
 class OekoBoxUnclippedActionWrapper(gym.ActionWrapper):
     """
-    This wrapper transforms the discrete action space into a continuous one of type Box. The elements of
-    this six-dimensional vector range from [0,−1, 0, 0, 0,−1] to [1, 1, 1, 1, 1, 1] and have the meaning
+    This wrapper (``--action "unclippedbox"``) transforms the discrete action space into a continuous one of type Box.
+    The elements of this six-dimensional vector range from [0,−1, 0, 0, 0,−1] to [1, 1, 1, 1, 1, 1] and have the meaning
     [Sanitation, Production, Education, Quality of Life, Population Growth, Special(Edu-to-PopGrowth)].
 
     The difference to class :class:`.OekoBoxActionWrapper`: No validity checks are performed (no clipping, no filtering)
@@ -136,9 +136,9 @@ class OekoBoxUnclippedActionWrapper(gym.ActionWrapper):
 
 class OekoSimpleActionWrapper(gym.ActionWrapper):
     """
-    The action space of this wrapper is implemented as two-dimensional ``MultiDiscrete`` object of which the first element
-    contains the index to one of the 77 legal sector moves (see below) while the second one contains the possibility of
-    modifying Population Growth by up to :math:`\pm 5` (the *special case*).
+    The action space of this wrapper (``--action "simple"``) is implemented as two-dimensional ``MultiDiscrete`` object
+    of which the first element contains the index to one of the 77 legal sector moves (see below) while the second one
+    contains the possibility of modifying Population Growth by up to :math:`\pm 5` (the *special case*).
 
     The total number of possible actions is therefore reduced to :math:`77 \cdot 11 = 847`, which is much simpler than
     the original action space which contains :math:`9.1 \cdot 10^8` possible actions.
@@ -265,9 +265,9 @@ class OekoSimpleActionWrapper(gym.ActionWrapper):
 
 class OekoBoxObservationWrapper(gym.ObservationWrapper):
     """
-        This wrapper transforms the discrete observation space into a continuous one of type Box. The elements of
-        this 10-dimensional vector range each from 0 to 1 and have the meaning min and max of the respective
-        element from the original observation vector (9 sectors + 1 elem ``round``).
+        This wrapper (``--observation "box"``) transforms the discrete observation space into a continuous one of type
+        Box. The elements of this 10-dimensional vector range each from 0 to 1 and have the meaning min and max of the
+        respective element from the original observation vector (9 sectors + 1 elem ``round``).
     """
     def __init__(self, env):
         """
@@ -310,9 +310,9 @@ class OekoBoxObservationWrapper(gym.ObservationWrapper):
 
 class OekoSimpleObservationWrapper(gym.ObservationWrapper):
     """
-        This wrapper transforms the original discrete observation space, which has :math:`1.48\cdot 10^{14}` possible
-        states, into a simpler discrete observation space that has only 3 values (low, medium, high) for each
-        observation variable and thus only :math:`3^{10} = 59\ 049` possible states.
+        This wrapper (``--observation "simple"``) transforms the original discrete observation space, which has
+        :math:`1.48\cdot 10^{14}` possible states, into a simpler discrete observation space that has only 3 values
+        (*low, medium, high*) for each observation variable and thus only :math:`3^{10} = 59\ 049` possible states.
 
     """
 
@@ -335,38 +335,15 @@ class OekoSimpleObservationWrapper(gym.ObservationWrapper):
         return new_obs
 
 
-class OekoPerRoundRewardWrapper(gym.RewardWrapper):
-    """
-        This wrapper shapes the reward: When the episode is done and round :math:`r` fulfills :math:`10\\leq r\\leq 30`,
-        then the normal reward (game balance :math:`B`) is returned.
-
-        In all other steps, ``per_round_reward`` is returned. This gives an incentive to stay alive for more rounds.
-    """
-    def __init__(self, env, per_round_reward: float = 1.0):
-        """
-
-        :param env:     the (wrapped) environment, it has :class:`.OekoEnv` as inner class
-        :param per_round_reward: the reward for each non-terminating round
-        """
-        super().__init__(env)
-        self.per_round_reward = per_round_reward
-
-    def reward(self, reward):
-        if self.unwrapped.done and self.unwrapped.V[self.unwrapped.ROUND] in range(10, 31):
-            return self.unwrapped.balance
-        else:
-            return self.per_round_reward
-
-
 class OekoAuxRewardWrapper(gym.RewardWrapper):
     """
-        This wrapper shapes the reward: When the episode is done and round :math:`r` fulfills :math:`10\\leq r\\leq 30`,
-        then the normal reward (game balance :math:`B`) is returned.
+        This wrapper (``--reward "aux"``) shapes the reward: When the episode is done and round :math:`r` fulfills
+        :math:`10\\leq r\\leq 30`, then the normal reward (game balance :math:`B`) is returned.
 
         In all other steps, a heuristic reward (auxiliary reward) is returned. This reward gives a positive incentive
-        if the critical sectors Production and Population stay in or near to the middle of their allowed ranges. The
-        positive reward tends to 0 if both sectors approach the min or the max of their allowed ranges.
-        See diagram "Auxiliary reward".
+        if the critical sectors *Production* and *Population* stay in or near to the middle of their allowed ranges.
+        The positive reward tends to 0 if both sectors approach the min or the max of their allowed ranges.
+        See :ref:`diagram "Auxiliary reward" <diag-aux-reward-label>`.
     """
     def __init__(self, env, scaling: float = 1.0):
         """
@@ -387,6 +364,29 @@ class OekoAuxRewardWrapper(gym.RewardWrapper):
             population_reward = 23.5 - abs(24.5 - self.unwrapped.V[self.POPULATION])    #  after 2026-11-14
             # we apply a small shift in population_reward to make it symmetric (exactly 0 at min & max, not -1)
             return self.scaling * (production_reward + population_reward)
+
+
+class OekoPerRoundRewardWrapper(gym.RewardWrapper):
+    """
+        This wrapper (``--reward "perround"``) shapes the reward: When the episode is done and round :math:`r` fulfills
+        :math:`10\\leq r\\leq 30`, then the normal reward (game balance :math:`B`) is returned.
+
+        In all other steps, ``per_round_reward`` is returned. This gives an incentive to stay alive for more rounds.
+    """
+    def __init__(self, env, per_round_reward: float = 1.0):
+        """
+
+        :param env:     the (wrapped) environment, it has :class:`.OekoEnv` as inner class
+        :param per_round_reward: the reward for each non-terminating round
+        """
+        super().__init__(env)
+        self.per_round_reward = per_round_reward
+
+    def reward(self, reward):
+        if self.unwrapped.done and self.unwrapped.V[self.unwrapped.ROUND] in range(10, 31):
+            return self.unwrapped.balance
+        else:
+            return self.per_round_reward
 
 
 # --- old, not using RewardWrapper (which results in somewhat longer code) ---

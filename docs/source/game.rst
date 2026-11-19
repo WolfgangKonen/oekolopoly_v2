@@ -61,7 +61,7 @@ The **balance** :math:`B` is given by the formula
            \end{cases} \]
 
 with :math:`P =` Politics, :math:`Q_L =` Quality of Life, :math:`r =` number of survived rounds
-and :math:`D(x)` is a nonlinear but monotonously rising function.
+and :math:`D(x)` is a nonlinear but monotonously rising function (see :ref:`sector diagram 18 <sect-diag-18-label>`).
 
 In a nutshell, the goal can be summarized as follows: Survive for at least 10 rounds and then
 reach high values for Politics and Quality of Life as quickly as possible. Die at or before round 30.

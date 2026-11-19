@@ -69,8 +69,9 @@ class OekoEnv(gym.Env):
         """
         Constructor OekoEnv
 
-        :param render_mode:
-        :param language:
+        :param render_mode: ``"human"`` or ``None``. If ``"human"``, then visualize (to the human observer)  in a
+            simplified bar-chart GUI the actions  of the agent and the observations of the environment after each step.
+        :param language:    ``"en"`` or ``"de"``
         """
 
         self.render_mode = render_mode
@@ -155,6 +156,7 @@ class OekoEnv(gym.Env):
             pygame.display.init()
             self.window = pygame.display.set_mode(
                 (self.viewer_w, self.viewer_h))
+            self.font = pygame.font.SysFont(None, 24)
 
         if self.clock is None and self.render_mode == "human":
             self.clock = pygame.time.Clock()
@@ -166,7 +168,7 @@ class OekoEnv(gym.Env):
         t_step = 0.1  # speed of animation
         t_end  = 3.0
 
-        print("Action:", self.curr_action)
+        # print("Action:", self.curr_action)
         if self.done: print(f"Done: {self.done_info}{self.done_reason_detail}")
 
         while t < t_end:
@@ -177,11 +179,21 @@ class OekoEnv(gym.Env):
             if self.render_mode == "human":
                 # The following line copies our drawings from `canvas` to the visible window
                 self.window.blit(canvas, canvas.get_rect())
+                act_str =  ["R",  "Pr",  "E", "QL", "RR", "extra"]
+                for i in range(len(act_str)):
+                    self.render_text(act_str[i], 55+i*50, 50, (0,0,255))
+                obs_str =  ["R",  "Pr",  "E", "QL", "RR", "EnvD", "Pop", "P"]
+                for i in range(len(obs_str)):
+                    self.render_text(obs_str[i], 55+i*50, 180, (255,0,0))
                 pygame.event.pump()
                 pygame.display.update()
                 self.clock.tick(25)
 
             t += t_step
+
+    def render_text(self, txt, x, y, col=(0,0,255)):
+        img_a = self.font.render(txt, True, col)
+        self.window.blit(img_a, (x, y))
 
     def render_rounds(self, canvas, x_offset, y_offset, t):
         v0 = self.prev_result[self.ROUND]
@@ -206,6 +218,8 @@ class OekoEnv(gym.Env):
             (int(255*0.6), int(255*0.6), int(255*0.6)),  # dark gray
             pygame.Rect(x, y, w, h)
         )
+
+
 
     def render_action(self, canvas, x_offset, y_offset, t):
         w = 40
@@ -266,7 +280,6 @@ class OekoEnv(gym.Env):
             r = (v - self.Vmin[i]) / (self.Vmax[i] - self.Vmin[i])
             r = abs((r - 0.5) * 2)
             g = 1 - r
-
             pygame.draw.rect(
                 canvas,
                 (int(255*r), int(255*g), 0),

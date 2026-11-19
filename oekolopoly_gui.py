@@ -7,6 +7,7 @@
 # import random
 # import uuid
 import argparse
+import webbrowser
 
 import gymnasium as gym
 import copy
@@ -14,7 +15,7 @@ from pygame.math import Vector2
 import numpy as np
 from stable_baselines3 import PPO
 # import smtplib
-# import datetime
+import datetime
 import os
 # from email.mime.text import MIMEText
 from translator import dict_translate, dict_help_screens
@@ -262,15 +263,39 @@ class Camera(pygame.sprite.Group):
 
 
 class Game:
+    """
+        Play the game interactively in the GUI. The GUI supports human game play with several assistive features (AI
+        move, preview mode, preview console, see :ref:`here <support-features-label>`).
+
+        The GUI (see :ref:`here for a picture <oeko-gui-pic-label>`) has an integrated help system which gives a brief
+        introduction to the game and to the GUI features. Languages ``"en"`` and ``"de"`` are supported.
+
+        The GUI can be configured via ``bin/config.txt`` to show or hide certain assistive features:
+
+            - **use_preview: 1**  show button *Preview mode* (0: hide)
+            - **use_predict: 1**  show button *AI move* (0: hide)
+            - **use_diagrams: 1** show the bar plots for each sector (0: hide)
+            - **group: 3**  - unused -
+            - **predict_usages: 5** allow up to 5 *AI moves* in each episode played (>5: allow arbitrary many AI moves).
+
+        Example usage (via console)::
+
+            python oekolopoly_gui.py --language "en"
+
+
+    """
     def __init__(self, camera, args):
-        htl = dict_help_screens(args.language)
-        self.dtl = dtl = dict_translate(args.language)
+        htl = dict_help_screens(args.lang)
+        self.dtl = dtl = dict_translate(args.lang)
         self.camera = camera
-        self.env = gym.make('Oekolopoly-v2', language=args.language)
+        self.env = gym.make('Oekolopoly-v2', language=args.lang)
         self.agent_obs, _ = self.env.reset()
         self.agent = PPO.load("trained_agents/obs_box_action_box_reward_perround_0.5_ppo_17.zip")
         self.current_action = [0, 0, 0, 0, 0, 0]
-        self.all_actions = []
+        self.hist = History("bin/current_game_history.txt")
+        # self.all_actions = []
+        # self.all_v = []
+        # self.all_balance = []
         self.action_font = pygame.font.SysFont('Times New Roman', 30)
         self.game_loop = True
         self.done = False
@@ -309,15 +334,16 @@ class Game:
         self.close_game = Button(Vector2(1670, 15), Vector2(245, 55), color_red, camera, dtl["CloseGame"], 40)
         self.reset_button = Button(Vector2(400, 350), Vector2(170, 40), color_red, camera, dtl["Reset"])
         self.predict_button = Button(Vector2(600, 410), Vector2(190, 40), color_turky, camera,
-                                     f"{dtl["BestMoveAI"]} ({self.predict_usages})")
+                                     f'{dtl["BestMoveAI"]} ({self.predict_usages})')
         if self.max_predict_usages > 5:
             self.predict_button.text = dtl["BestMoveAI"]
         self.preview_button = Button(Vector2(600, 350), Vector2(210, 40), color_green, camera, dtl["PreviewMode"])
-        self.game_instructions_button = Button(Vector2(20, 90), Vector2(240, 40), color_yellow, camera,
+        self.game_instructions_button = Button(Vector2(20, 90), Vector2(260, 40), color_yellow, camera,
                                                dtl["GameInstructions"])
         # self.feedback_button = Button(Vector2(20, 145), Vector2(145, 40), color_yellow, camera, "Feedback?")
-        self.game_history_button = Button(Vector2(20, 145), Vector2(190, 40), color_yellow, camera, dtl["GameHistory"])
-        self.help_button = Button(Vector2(20, 200), Vector2(160, 40), color_yellow, camera, dtl["Help"])  # , 40)
+        self.game_history_button = Button(Vector2(20, 145), Vector2(260, 40), color_yellow, camera, dtl["GameHistory"])
+        self.help_button = Button(Vector2(20, 200), Vector2(90, 40), color_yellow, camera, dtl["Help"])  # , 40)
+        self.diag_button = Button(Vector2(120, 200), Vector2(160, 40), color_yellow, camera, dtl["Diagrams"])
 
         # diagrams
         sanitation_d = Diagram(Vector2(940, 30), camera, self.env.unwrapped.Vmin[0], self.env.unwrapped.Vmax[0])
@@ -479,6 +505,9 @@ class Game:
             os.startfile("Spielanleitung.pdf")
         if self.game_history_button.button_pressed():
             os.startfile("current_game_history.txt", cwd="bin")
+        if self.diag_button.button_pressed():
+            webbrowser.open_new(
+                'https://wolfgangkonen-oekolopoly-v2.readthedocs.io/en/latest/appendix.html#app-diagrams-label')
 
     def change_current_action(self, action_index, change):
         if change > 0 and self.current_action[action_index] + 1 + self.env.unwrapped.V[action_index] <= self.env.unwrapped.Vmax[action_index]:
@@ -609,7 +638,7 @@ class Game:
                 env_index += 1
             self.diagrams[diagram_index].done = done
             if done:
-                self.preview_console_label.variable_text = (f"{self.dtl["AttentionGameOver"]}: "
+                self.preview_console_label.variable_text = (f"{self.dtl['AttentionGameOver']}: "
                                                             f"{info['done_reason']}{info['done_reason_detail']}")
             else:
                 self.preview_console_label.variable_text = ""
@@ -688,65 +717,36 @@ class Game:
                 #    self.all_actions.append(["hu"])
                 # if self.preview_mode:
                 #    self.all_actions.append(["pm"])
-                self.all_actions.append(self.current_action)
+                self.hist.append_to_history(self.current_action, info['balance'], self.env.unwrapped.V.copy())
+                # self.all_actions.append(self.current_action)
+                # self.all_v.append(self.env.unwrapped.V.copy())
+                # self.all_balance.append(info['balance'])
                 self.reset_current_action()
                 self.predict_used = False
                 self.available_actionpoints = self.env.unwrapped.V[self.env.unwrapped.POINTS]
                 self.special_action = self.env.unwrapped.V[self.env.unwrapped.EDUCATION] >= 20
                 if done:
                     self.done = True
+                    # assert len(self.all_v) == len(self.all_actions) == len(self.all_balance)
+                    # if len(self.all_v) != len(self.all_actions):
+                    #     print(f"len(all_v)={len(self.all_v)} is not equal len(all_actions)={len(self.all_actions)}")
+                    #     dummy = 0
+                    # if len(self.all_v) != len(self.all_balance):
+                    #     print(f"len(all_v)={len(self.all_v)} is not equal len(all_actions)={len(self.all_balance)}")
+                    #     dummy = 0
+
                     # games_played = get_number_value_by_name("bin/played_games.txt", "games_played")
                     # games_played += 1
                     # with open("bin/played_games.txt", "w") as file:
                     #    file.write(f"games_played: {games_played}")
                     self.console_label.text = (f"{info['done_reason']}{info['done_reason_detail']}    "
-                                               f"{self.dtl['FinalResult']}: {round(reward)} {self.dtl['Points']}")
+                                               f"{self.dtl['FinalResult']}: {reward:5.1f} {self.dtl['Points']}")
 
-                    # print(self.all_actions)
-                    sani = ""
-                    prod = ""
-                    educ = ""
-                    lifeq = ""
-                    pgrow = ""
-                    pgrowspec = ""
-                    acts = [sani, prod, educ, lifeq, pgrow, pgrowspec]
-                    roun = ""
-                    round_counter = 0
-                    for act in self.all_actions:
-                        for i in range(len(acts)):
-                            # Format specifier "{:>4}" for string fields of size 4 with right-aligned printing is
-                            # a simpler alternative than the former, now out-commented code below:
-                            acts[i] += "{:>4}".format(act[i])
-                            # acts[i] += f"{act[i]}   "
-                            # if act[i] < 0 or act[i] > 9:  # if act[i] is a one-digit negative number, then its string rep
-                            #     acts[i] = acts[i][:-1]    # has one char more ('-') --> [:-1] removes one trailing blank
-                            # if act[i] < -9:
-                            #     acts[i] = acts[i][:-1]    # one more character --> remove another trailing blank
-                        offs = 0
-                        roun += "{:>4}".format(round_counter + offs)
-                        # if round_counter < 9:
-                        #     roun += f"{round_counter + offs}   "
-                        # else:
-                        #     roun += f"{round_counter + offs}  "
-                        round_counter += 1
-                    # now roun and acts[i] are strings containing all the round numbers played and all the i'th actions
-                    # in each round, resp.
-                    current_game_text = (f"{self.env.unwrapped.V[8]} {self.dtl['RoundsSurvived']}., "
-                          f"{round(reward)} {self.dtl['PointsGained']}\n"
-                          "{:>20}".format(f"{self.dtl['RoundNo']}")   +   f":{roun}\n"
-                          "{:>20}".format(f"{self.dtl['Redevelop']}") +   f":{acts[0]}  {self.dtl['Redevelop']}\n"
-                          "{:>20}".format(f"{self.dtl['Production']}")+   f":{acts[1]}  {self.dtl['Production']}\n"
-                          "{:>20}".format(f"{self.dtl['Enlightenment']}")+f":{acts[2]}  {self.dtl['Enlightenment']}\n"
-                          "{:>20}".format(f"{self.dtl['QualityOfLife']}")+f":{acts[3]}  {self.dtl['QualityOfLife']}\n"
-                          "{:>20}".format(f"{self.dtl['ReproRate']}") +   f":{acts[4]}  {self.dtl['ReproRate']}\n"
-                          "{:>20}".format(f"{self.dtl['SpecialCase']}")  +f":{acts[5]}  {self.dtl['SpecialCase']}\n\n\n")
-                          # "{:>20}".format is for right-aligned printing in a string field of size 20
-                    # print(current_game_text)
-                    with open("bin/current_game_history.txt", "a") as history:
-                        history.write(current_game_text)
+                    # print(self.hist.get_all_actions())
+                    self.hist.save_current_game_history(self.dtl, reward, info)
 
                     # date_now = datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
-                    # text = f"Runde: {self.env.unwrapped.V[8]}, Punkte: {round(reward)}, Spiele beendet: {games_played}, Zustaende: {self.env.unwrapped.V}, Abbruchgrund: {info['done_reason']}{info['done_reason_detail']}, Datum: {date_now}, Zuege: {self.all_actions}\n"
+                    # text = f"Runde: {self.env.unwrapped.V[8]}, Punkte: {round(reward)}, Spiele beendet: {games_played}, Zustaende: {self.env.unwrapped.V}, Abbruchgrund: {info['done_reason']}{info['done_reason_detail']}, Datum: {date_now}, Zuege: {self.hist.get_all_actions}\n"
                     # with open("bin/game_history.txt", "a") as history:
                     #     history.write(text)
             else:
@@ -758,15 +758,18 @@ class Game:
         self.special_action_points = 5
 
     def reset_game(self):
-        # if not self.done and self.all_actions != []:
+        # if not self.done and self.hist.get_all_actions != []:
         # date_now = datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
-        # text = f"Vorzeitiger Abbruch des Spiels, Runde: {self.env.unwrapped.V[8]}, Zustaende {self.env.unwrapped.V}, Datum: {date_now}, Zuege: {self.all_actions}\n"
+        # text = f"Vorzeitiger Abbruch des Spiels, Runde: {self.env.unwrapped.V[8]}, Zustaende {self.env.unwrapped.V}, Datum: {date_now}, Zuege: {self.hist.get_all_actions}\n"
         # with open("bin/game_history.txt", "a") as history:
         #     history.write(text)
 
         self.env = gym.make('Oekolopoly-v2')
         self.agent_obs, _ = self.env.reset()
-        self.all_actions = []
+        self.hist.clear_history()
+        # self.all_actions = []
+        # self.all_v = []
+        # self.all_balance = []
         self.current_action = [0, 0, 0, 0, 0, 0]
         self.console_label.text = ""
         self.available_actionpoints = self.env.unwrapped.V[self.env.unwrapped.POINTS]
@@ -778,6 +781,92 @@ class Game:
         self.predict_used = False
         self.toggle_game_features()
 
+
+class History:
+    """
+        This class is responsible for storing all the information of an episode and for
+        writing (appending) to  file ``self.current_game_history_file`` (normally ``bin/current_game_history.txt``)
+    """
+    def __init__(self, fname: str):
+        self.current_game_history_file = fname
+        # self.all_* are lists with as many elements as rounds are played
+        self.all_actions = []
+        self.all_balance = []
+        self.all_v = []             # same elements and dims as self.V, self.init_v in oeko_env.py
+
+    def clear_history(self):
+        self.all_actions = []
+        self.all_balance = []
+        self.all_v = []
+
+    def append_to_history(self, current_action, current_bal, current_v):
+        self.all_actions.append(current_action)
+        self.all_balance.append(current_bal)
+        self.all_v.append(current_v)
+
+    def save_current_game_history(self, dtl: dict, reward: float, info: dict):
+        """
+        After ``done`` condition occured: Save current episode to file ``self.current_game_history_file``
+
+        :param dtl:     dictionary with translations
+        :param reward:  final reward
+        :param info:    final info dictionary of the step leading to ``done``
+        """
+        acts = [""] * 6  # [sani, prod, educ, lifeq, pgrow, pgrowspec]
+        vs =  [""] * 10
+        bs = ""
+        roun = ""
+        round_counter = 1
+        for act in self.all_actions:
+            for i in range(len(acts)):
+                # Format specifier "{:>4}" for string fields of size 4 with right-aligned printing
+                acts[i] += "{:>4}".format(act[i])
+            offs = 0
+            roun += "{:>4}".format(round_counter + offs)
+            round_counter += 1
+        for v in self.all_v:
+            for i in range(len(vs)):
+                vs[i] += "{:>4}".format(v[i])
+        for b in self.all_balance:
+            bs += "{:>4}".format(round(b))
+        # now roun, acts[i], vs[i] and bs are strings containing all the round numbers played, all the i'th actions,
+        # all the i'th V's and all balances in each round, resp.
+        current_game_text = (
+                            f"{self.all_v[-1][8]} {dtl['RoundsSurvived']}, "
+                            f" {dtl['Balanc']} = {reward:5.1f} \n" + "Actions:\n"
+                            "{:>20}".format(f"{dtl['RoundNo']}") + f":{roun}\n"
+                            "{:>20}".format(f"{dtl['Redevelop']}") + f":{acts[0]}  {dtl['Redevelop']}\n"
+                            "{:>20}".format(f"{dtl['Production']}") + f":{acts[1]}  {dtl['Production']}\n"
+                            "{:>20}".format(f"{dtl['Enlightenment']}") + f":{acts[2]}  {dtl['Enlightenment']}\n"
+                            "{:>20}".format(f"{dtl['QualityOfLife']}") + f":{acts[3]}  {dtl['QualityOfLife']}\n"
+                            "{:>20}".format(f"{dtl['ReproRate']}") + f":{acts[4]}  {dtl['ReproRate']}\n"
+                            "{:>20}".format(f"{dtl['SpecialCase']}") + f":{acts[5]}  {dtl['SpecialCase']}\n")
+        # "{:>20}".format is for right-aligned printing in a string field of size 20
+        # print(current_game_text)
+
+        # names of V in the form that is needed for dtl[v_names[i]]:
+        v_names = ["Redevelop","Production","Enlightenment","QualityOfLife","ReproRate",
+                   "EnvirDamage","Population","Politics","RoundNo","APoints"]
+        current_v_text = "{:>20}".format(f"{dtl['RoundNo']}") + f":{roun}\n"
+        for i in range(len(v_names)):
+            current_v_text += \
+                "{:>20}".format(f"{dtl[v_names[i]]}") + f":{vs[i]}  {dtl[v_names[i]]}\n"
+        current_v_text += "{:>20}".format(f"{dtl['Balanc']}") + f":{bs}  {dtl['Balanc']}\n"
+        date_now = datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
+        with open(self.current_game_history_file, "a") as history:
+            history.write("\n*** Game terminated at "+date_now+" ***\n")
+            history.write(current_game_text)
+            history.write("Sectors:\n")
+            history.write(current_v_text)
+            history.write("Done reason:\n" + info['done_reason'] + info['done_reason_detail'])
+            history.write("\n\n")
+
+    def get_all_actions(self):
+        return self.all_actions
+
+    def erase_history_file(self):
+        with open(self.current_game_history_file, "w") as file:
+            file.write("")
 
 class Button(pygame.sprite.Sprite):
     def __init__(self, pos, size, color, camera, text, font_size=30):
@@ -1038,7 +1127,7 @@ class HelpScreen(pygame.sprite.Sprite):
         self.help_mode = Label(Vector2(860, 900), Vector2(260, 80), camera, dtl["HelpMode"], 50, color_yellow)
         self.step_back_button = Button(Vector2(760, 1000), Vector2(150, 40), color_green, camera, text=dtl["Back"])
         self.page_label = Label(Vector2(910, 1000), Vector2(160, 40), camera, dtl["Page"], 30, color_turky)
-        self.step_forward_button = Button(Vector2(1070, 1000), Vector2(160, 40), color_green, camera, dtl["Forward"])
+        self.step_forward_button = Button(Vector2(1070, 1000), Vector2(200, 40), color_green, camera, dtl["Forward"])
 
         # special case labels and buttons as preview if not unlocked yet
         self.special_label = Label(Vector2(510, 640), Vector2(165, 35), camera, dtl["SpecialCase"], 30, color_yellow)
@@ -1046,7 +1135,7 @@ class HelpScreen(pygame.sprite.Sprite):
         self.special_number_label = Label(Vector2(570, 690), Vector2(35, 35), camera, "", 25, color_yellow, "0")
         self.special_positive_label = Label(Vector2(630, 690), Vector2(35, 35), camera, "+", 35, color_green)
         #self.special_case_picture = pygame.image.load('assets/education_population_growth.jpg').convert_alpha()
-        if args.language == "de":
+        if args.lang == "de":
             self.special_case_picture = pygame.image.load('assets/sect_diag_9_de.jpg').convert_alpha()
         else:       # i.e. args.language == "en"
             self.special_case_picture = pygame.image.load('assets/sect_diag_9_en.jpg').convert_alpha()
@@ -1170,8 +1259,8 @@ class HelpScreen(pygame.sprite.Sprite):
                 draw_text(Vector2(595 * x, 570 * y), self.image, small_font_size,
                           self.htl["hs6.0"])
             elif self.help_step == 7:
-                pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(15 * x, 85 * y, 250 * x, 162 * y))
-                draw_text(Vector2(275 * x, 80 * y), self.image, small_font_size,
+                pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(15 * x, 85 * y, 270 * x, 162 * y))
+                draw_text(Vector2(295 * x, 80 * y), self.image, small_font_size,
                           self.htl["hs7.0"])
             elif self.help_step == 8:
                 pygame.draw.rect(self.image, (0, 0, 0, 0), pygame.Rect(805 * x, 15 * y, 280 * x, 330 * y))
@@ -1303,8 +1392,7 @@ def main():
     #     sender.close()
 
     # delete current game history
-    with open("bin/current_game_history.txt", "w") as file:
-        file.write("")
+    # game.hist.erase_history_file()
 
 
 if __name__ == '__main__':

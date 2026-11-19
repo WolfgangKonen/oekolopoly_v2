@@ -94,9 +94,9 @@ class Trainer:
 
         The type of agent is configured via these command-line arguments:
 
-            - **observation**: observation wrapper (none, box, simple)
-            - **action**: action wrapper (none, box, simple)
-            - **reward**: reward wrapper (none, aux, perround)
+            - **observation**: :ref:`observation wrapper <obs-wrapper-label>` (none, box, simple)
+            - **action**: :ref:`action wrapper <act-wrapper-label>` (none, box, unclippedbox, simple)
+            - **reward**: :ref:`reward wrapper <rew-wrapper-label>` (none, aux, perround)
             - **shaping**: parameter for reward-shaping wrappers
             - **algo**: type of DRL agent (ppo, sac, td3)
             - **timesteps**: number of training steps (def. 8e5)
@@ -105,10 +105,10 @@ class Trainer:
         The environment :class:`.OekoEnv` is wrapped by the three specified wrappers. Two environments are created:
 
             - ``env`` with monitor log in ``train.monitor.csv``; the steps are taken as prescribed by the training algorithm (not always the best step due to the need for exploration);
-            - ``eval_env`` with monitor log in ``eval.monitor.csv``; at the end of each training episode an eval episode is played using with ``model.predict`` the so-far best model (no exploration).
+            - ``eval_env`` with monitor log in ``eval.monitor.csv``; at the end of each training episode an evaluation episode is played, using ``model.predict`` of the so-far best model (no exploration).
 
-        Each file ``*.monitor.csv`` contains as many rows as there were training episodes played. Each row consists of the
-        following columns
+        Each file ``*.monitor.csv`` contains as many rows as there were training episodes played. Each row contains the
+        following columns:
 
             - **r**: the cumulated return (sum of all rewards) of the episode
             - **l**: the length of the episode (= number of rounds alive)
@@ -124,6 +124,8 @@ class Trainer:
         Example usage::
 
             python train.py --observation "none" --action "simple" --reward "perround" --shaping 0.5 --algo "ppo" --seed 17
+
+        The trained agent is saved to dir ``agents/obs_none_action_simple_reward_perround_0.5_ppo_17/``.
     """
     def __init__(self):
         args = parse_args()

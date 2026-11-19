@@ -1,0 +1,134 @@
+*** Game terminated at 17/11/2026-16:51:22 ***
+5 rounds survived,  Balance =   0.0 
+Actions:
+             Round #:   1   2   3   4   5
+           Redevelop:   0   0   0   0   0  Redevelop
+          Production:   0   0  -3   8   2  Production
+           Education:   4   4   3   0   0  Education
+     Quality of Life:   4   4   0   0   4  Quality of Life
+   Reproduction Rate:   0   0   0   0   0  Reproduction Rate
+         SpecialCase:   0   0   0   0   0  SpecialCase
+Sectors:
+             Round #:   1   2   3   4   5
+           Redevelop:   1   1   1   1   1  Redevelop
+          Production:  13  14  12  21  25  Production
+           Education:   8  12  16  17  17  Education
+     Quality of Life:  11  13  10   4   1  Quality of Life
+   Reproduction Rate:  22  24  27  29  29  Reproduction Rate
+     Environ. Damage:  14  15  15  19  29  Environ. Damage
+          Population:  25  29  35  41  41  Population
+            Politics:   1   2   3   2   2  Politics
+             Round #:   1   2   3   4   5  Round #
+       Action points:   9  12  18  24   0  Action points
+             Balance:   0   0   0   0   0  Balance
+Done reason:
+Quality of Life too low. -17  out of allowed range (1, ..., 29).
+
+
+*** Game terminated at 17/11/2026-18:22:11 ***
+13 rounds survived,  Balance =  21.2 
+Actions:
+             Round #:   1   2   3   4   5   6   7   8   9  10  11  12  13
+           Redevelop:   0   0   0   0   0   0   1   0   4   0   2   8   6  Redevelop
+          Production:  -1   0   3   0   0  -4  -6   5  -7   0  -4   8   2  Production
+           Education:   5   5   3   2   0   0   0   0   0   0   0   0   0  Education
+     Quality of Life:   0   0   1   2   9  11   7   5   3   0   0   0   0  Quality of Life
+   Reproduction Rate:   0   0   0   0   0   0   0   0   0   0   0   0   0  Reproduction Rate
+         SpecialCase:   0   0   0   0  -3  -1   0   0   0   0   0   0   0  SpecialCase
+Sectors:
+             Round #:   1   2   3   4   5   6   7   8   9  10  11  12  13
+           Redevelop:   1   1   1   1   1   1   2   2   6   6   8  16  21  Redevelop
+          Production:  12  13  17  18  19  16  11  17  11  12   9  18  21  Production
+           Education:   9  14  18  21  23  25  26  27  28  29  29  29  29  Education
+     Quality of Life:   6   5   4   3  10  17  21  23  25  25  25  25  25  Quality of Life
+   Reproduction Rate:  19  19  19  16  15  15  15  15  15  15  15  15  15  Reproduction Rate
+     Environ. Damage:  13  14  17  19  21  21  19  20  18  17  15  15  15  Environ. Damage
+          Population:  23  25  27  29  29  29  29  29  29  29  29  29  29  Population
+            Politics:  -1  -2  -3  -5  -4  -3  -1   2   6  10  14  18  22  Politics
+             Round #:   1   2   3   4   5   6   7   8   9  10  11  12  13  Round #
+       Action points:  10  12  14  17  19  14  11  15  13  26  32  31  36  Action points
+             Balance:   0   0   0   0   0   0   0   0   0  17  19  20  21  Balance
+Done reason:
+Too many action points. 40  out of allowed range (0, ..., 36).
+
+
+*** Game terminated at 17/11/2026-18:44:25 ***
+16 rounds survived,  Balance =  26.8 
+Actions:
+             Round #:   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16
+           Redevelop:   0   0   0   0   0   3   0   0   1   2   3   2   0  11   0   0  Redevelop
+          Production:  -1  -1  -1   0  -2  -3  -3   4  -8   4   5   4  -7   7  -8  -6  Production
+           Education:   5   6   3   0   0   0   0   0   0   0   0   0   0   0   0   0  Education
+     Quality of Life:   0   0   0   6   8   3   5   4   0   0   2   0   0   0   0   1  Quality of Life
+   Reproduction Rate:   0   0   0   0   0   0   0   0   0   0   2   5   5   6   7   0  Reproduction Rate
+         SpecialCase:   0   0   0  -3  -5  -3   0   0   0   0  -2  -5  -5  -5  -5  -5  SpecialCase
+Sectors:
+             Round #:   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16
+           Redevelop:   1   1   1   1   1   4   4   4   5   7  10  12  12  22  21  21  Redevelop
+          Production:  12  12  12  13  12  10   8  13   5  10  16  21  15  24  17  12  Production
+           Education:   9  16  20  21  23  25  26  27  28  29  29  29  29  29  29  29  Education
+     Quality of Life:   6   5   4  10  16  17  20  23  23  23  26  26  26  26  26  29  Quality of Life
+   Reproduction Rate:  19  19  20  19  17  15  15  15  15  15  15  15  15  16  18  18  Reproduction Rate
+     Environ. Damage:  13  13  13  14  14  13  12  12  11  11  12  15  15  17  15  11  Environ. Damage
+          Population:  23  25  27  29  31  31  31  31  31  31  31  31  31  33  35  35  Population
+            Politics:  -1  -2  -3  -2  -1   0   2   5   8  11  16  21  26  31  36  36  Politics
+             Round #:   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  Round #
+       Action points:  10  10  13  17  18  19  17  22  13  20  23  29  33  30  34   0  Action points
+             Balance:   0   0   0   0   0   0   0   0   0  18  20  22  24  25  27  27  Balance
+Done reason:
+Quality of Life too high. 31  out of allowed range (1, ..., 29).
+
+
+*** Game terminated at 18/11/2026-08:27:23 ***
+15 rounds survived,  Balance =  23.9 
+Actions:
+             Round #:   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+           Redevelop:   0   0   0   0   0   3   0   7   0   4   8   2   3   6   6  Redevelop
+          Production:   0   0  -4  -3   3   0   0   2  -8   9   3  -6   4 -14 -13  Production
+           Education:   8   8   0   0   0   0   0   0   0   0   0   0   0   0   0  Education
+     Quality of Life:   0   0   2   4   8   7   0   4   1   0   0   2   0   0   0  Quality of Life
+   Reproduction Rate:   0   0   0   0   0   3   0   0   5   3   5   5   5   0   0  Reproduction Rate
+         SpecialCase:   0   0  -4  -4  -4  -4   0   0  -5  -2  -5  -5  -5   0   0  SpecialCase
+Sectors:
+             Round #:   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+           Redevelop:   1   1   1   1   1   4   4  11  11  15  22  22  23  23  23  Redevelop
+          Production:  13  14  11   9  13  14  15  18  11  21  26  21  27  14   1  Production
+           Education:  12  21  23  25  26  27  28  29  29  29  29  29  29  29  29  Education
+     Quality of Life:   8   6   6   9  15  19  19  23  25  26  25  28  25  26  29  Quality of Life
+   Reproduction Rate:  22  22  20  18  15  14  14  14  14  15  15  15  15  15  15  Reproduction Rate
+     Environ. Damage:  14  15  15  15  16  16  17  17  15  17  20  18  23  15   5  Environ. Damage
+          Population:  25  29  31  33  33  31  29  27  25  25  25  25  25  25  25  Population
+            Politics:  -1  -2  -3  -2  -1   1   3   6   9  13  16  21  24  28  28  Politics
+             Round #:   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  Round #
+       Action points:   8  10  13  16  16  16  28  29  27  26  28  29  36  30   0  Action points
+             Balance:   0   0   0   0   0   0   0   0   0  19  20  24  22  24  24  Balance
+Done reason:
+Quality of Life too high. 32  out of allowed range (1, ..., 29).
+
+
+*** Game terminated at 18/11/2026-10:08:47 ***
+14 rounds survived,  Balance =  30.6 
+Actions:
+             Round #:   1   2   3   4   5   6   7   8   9  10  11  12  13  14
+           Redevelop:   0   0   0   0   3   7   0   0  11   7   6   2   6   5  Redevelop
+          Production:   0   0   4   0  -3   0   2 -12   2   5   9  -9  -9   5  Production
+           Education:   8   8   0   0   0   0   0   0   0   0   0   0   0   0  Education
+     Quality of Life:   0   0   5   7   5   9   9   4   4   1   4   5   3   2  Quality of Life
+   Reproduction Rate:   0   0   0   0   0   0   1   0   2   4   8   2   5   0  Reproduction Rate
+         SpecialCase:   0   0   0  -5  -5  -2  -2  -1   0  -5  -5  -5  -5   0  SpecialCase
+Sectors:
+             Round #:   1   2   3   4   5   6   7   8   9  10  11  12  13  14
+           Redevelop:   1   1   1   1   4  11  11  11  21  23  23  23  23  23  Redevelop
+          Production:  13  14  19  20  18  19  22  11  14  20  29  21  13  19  Production
+           Education:  12  21  23  25  26  27  28  29  29  29  29  29  29  29  Education
+     Quality of Life:   8   6   9  13  13  16  20  21  24  24  22  22  22  29  Quality of Life
+   Reproduction Rate:  22  22  24  21  18  16  15  14  16  15  18  15  15  15  Reproduction Rate
+     Environ. Damage:  14  15  18  20  20  20  21  18  14  11  20  18  11   8  Environ. Damage
+          Population:  25  29  33  37  40  43  43  40  43  43  46  46  46  46  Population
+            Politics:  -1  -2  -1   0   1   3   6   9  14  19  24  29  34  37  Politics
+             Round #:   1   2   3   4   5   6   7   8   9  10  11  12  13  14  Round #
+       Action points:   8  10  14  22  26  26  33  32  31  34  32  35  31   0  Action points
+             Balance:   0   0   0   0   0   0   0   0   0  24  24  25  27  31  Balance
+Done reason:
+Politics too high. 39  out of allowed range (-10, ..., 37).
+

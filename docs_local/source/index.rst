@@ -20,6 +20,8 @@ oekolopoly_v2 documentation
    howto
    detail
    wrappers
-   appendix
+   plotters
+   app_a
+   app_b
 
 

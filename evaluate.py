@@ -40,7 +40,7 @@ class EvaluateTheTrainer:
 
         - **DRL**: type of deep reinforcement learning agent (ppo, sac, td3)
         - **obs_wrapper**: observation wrapper (none, box, simple)
-        - **action_wrapper**: action wrapper (none, box, simple)
+        - **action_wrapper**: action wrapper (none, box, unclippedbox, simple)
         - **reward_wrapper**: reward wrapper (none, aux, perround)
         - **shape**: parameter for reward shaping
         - **seed**: RNG seed

@@ -1,8 +1,13 @@
+.. _wrapper-label:
+
 --------------
 Wrappers
 --------------
 
+
 This chapter describes the wrappers in ``oekolopoly_v2``.
+
+.. _act-wrapper-label:
 
 Action Wrappers
 ----------------
@@ -24,6 +29,8 @@ wrap an environment and let :meth:`step` operate with a modified action. Classes
 .. autoclass:: oekolopoly.wrappers.OekoSimpleActionWrapper
    :members: __init__
 
+.. _obs-wrapper-label:
+
 Observation Wrappers
 --------------------
 In the absence of any observation wrapper (``--observation "none"``), the environment :class:`.OekoEnv` handles the
@@ -42,6 +49,8 @@ or search in `gym/core.py <https://github.com/openai/gym/blob/master/gym/core.py
 .. autoclass:: oekolopoly.wrappers.OekoSimpleObservationWrapper
    :members: __init__
 
+.. _rew-wrapper-label:
+
 Reward Wrappers
 ----------------
 
@@ -54,15 +63,17 @@ or search in `gym/core.py <https://github.com/openai/gym/blob/master/gym/core.py
 ``RewardWrapper``) wrap an environment and let :meth:`step` return a modified reward. Classes derived from
 ``RewardWrapper`` are forced to implement the method :meth:`reward`.
 
-.. autoclass:: oekolopoly.wrappers.OekoPerRoundRewardWrapper
+.. autoclass:: oekolopoly.wrappers.OekoAuxRewardWrapper
    :members: __init__
+
+.. _diag-aux-reward-label:
 
 .. image:: ../../assets/aux_diag_en.png
    :height: 350px
    :width: 350px
    :align: center
 
-.. autoclass:: oekolopoly.wrappers.OekoAuxRewardWrapper
+.. autoclass:: oekolopoly.wrappers.OekoPerRoundRewardWrapper
    :members: __init__
 
 

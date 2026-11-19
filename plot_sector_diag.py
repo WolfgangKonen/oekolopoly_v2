@@ -1,11 +1,3 @@
-"""
-    Plot sector diagrams as they appear in the appendix of 'Spielanleitung.pdf'
-
-    Customizable plot appearance and language support for both "en" and "de".
-
-    Support for single-pnum-plots as PNG (directory plots/png/<language>/)
-    and 4-pnum-plots as PDF (directory plots/pdf/<language>/).
-"""
 import seaborn as sns
 import matplotlib.pyplot as plt
 from oekolopoly.oekolopoly.envs.oeko_env import OekoEnv
@@ -94,6 +86,10 @@ def inner_plot(i, pnum, ax, language, boxfont=18, axfont=10, tickfont=10):
         ax.set_ylabel(dtl["V (factor for A)"], fontsize=axfont)
     elif pnum == 20:
         ax.set_ylabel(dtl["W (factor for box 13)"], fontsize=axfont)
+    elif pnum == 13:        # box 13 (Reproduction Rate --> Population)
+        ax.set_ylabel(r"$\Delta$  " + dtl[v_names[y_code[pnum]]] + f" ({dtl['for']} W=1)", fontsize=axfont)
+    elif pnum == 15:        # box A (Population --> Action Points)
+        ax.set_ylabel(r"$\Delta$  " + dtl[v_names[y_code[pnum]]] + f" ({dtl['for']} V=1)", fontsize=axfont)
     else:
         ax.set_ylabel(r"$\Delta$  " + dtl[v_names[y_code[pnum]]], fontsize=axfont)
     font = {'family': 'sans-serif',  # [ 'serif' | 'sans-serif' | 'cursive' | 'fantasy' | 'monospace' ]
@@ -120,60 +116,80 @@ def inner_plot(i, pnum, ax, language, boxfont=18, axfont=10, tickfont=10):
         ax.set_ylim(-6, 12)
 
 
-def plot_sector_diag_png(pnum, language="en"):
+class SectorPlotter:
     """
-    Plot figure ``pnum`` and save it to PNG.
+        Plot sector diagrams similar to those that appear in the appendix of 'Spielanleitung.pdf'
 
-    :param  pnum: a number in ``range(1,21)``
-    :param  language: either ``"de"`` or ``"en"``, controls the language of the axis labels
+        Customizable plot appearance and language support for both ``"en"`` and ``"de"``.
+
+        Support for single-pnum-plots as PNG (directory ``plots/png/<lang>/``)
+        and 4-pnum-plots as PDF (directory ``plots/pdf/<lang>/``).
     """
-    assert 0 < pnum <= 20
-    fig, ax = plt.subplots(layout='constrained', figsize=(5, 5))
-    # layout='constrained' is important to avoid that x- or y-axis labels are shifted due to the larger tickmark
-    # labels out of the plot (!)
 
-    i = (pnum-1) % 4
-    inner_plot(i, pnum, ax, language, boxfont=24, axfont=14, tickfont=12)
+    def __init__(self, lang="en"):
+        """
+        :param  lang: either ``"de"`` or ``"en"``, controls the language of the axis labels and the save dir
+        """
+        self.lang = lang
 
-    plot_png = f"./plots/png/{language}/sect_diag_{pnum}.png"
-    plt.savefig(plot_png)   # , bbox_inches="tight")
-    plt.close()
-    print(f"Plot saved to {plot_png}")
+    def plot_1_sector_diag_png(self, pnum):
+        """
+        Plot figure ``pnum`` and save it to PNG.
+
+        The save location is ``plots/png/<lang>/sector_diag_<pnum>.png``.
+
+        :param  pnum: a number in ``range(1,21)``
+        """
+        assert 0 < pnum <= 20
+        fig, ax = plt.subplots(layout='constrained', figsize=(5, 5))
+        # layout='constrained' is important to avoid that x- or y-axis labels are shifted due to the larger tickmark
+        # labels out of the plot (!)
+
+        i = (pnum-1) % 4
+        inner_plot(i, pnum, ax, self.lang, boxfont=24, axfont=14, tickfont=12)
+
+        plot_png = f"./plots/png/{self.lang}/sect_diag_{pnum}.png"
+        plt.savefig(plot_png)   # , bbox_inches="tight")
+        plt.close()
+        print(f"Plot saved to {plot_png}")
 
 
-def plot_4_sector_diag_pdf(plt_list, language="en"):
-    """
-    Plot a figure with 2x2 subplots for the up to 4 elements in ``plt_list`` and save it to PDF.
+    def plot_4_sector_diag_pdf(self, p_lst):
+        """
+        Plot a figure with 2x2 subplots for the up to 4 elements in ``p_lst`` and save it to PDF.
 
-    :param  plt_list: a list with up to 4 numbers from ``range(1,21)``: make the diagrams for the boxes
-            associated with these numbers
-    :param  language: either ``"de"`` or ``"en"``, controls the language of the axis labels
-    """
-    assert len(plt_list) <= 4
-    assert min(plt_list) > 0
-    assert max(plt_list) <= 20
-    fig, axs = plt.subplots(2, 2, figsize=(7, 6))  # , sharex=True)
+        The save location is ``plots/pdf/<lang>/sector_diag_<p_lst[0]>-<p_lst[-1]>.pdf``.
 
-    for i, pnum in enumerate(plt_list):
-        ax = axs[i // 2][i % 2]
-        inner_plot(i, pnum, ax, language)
+        :param  p_lst: a list with up to 4 numbers from ``range(1,21)``: make the diagrams for the boxes
+                associated with these numbers
+        """
+        assert len(p_lst) <= 4
+        assert min(p_lst) > 0
+        assert max(p_lst) <= 20
+        fig, axs = plt.subplots(2, 2, figsize=(7, 6))  # , sharex=True)
 
-    # Plot cosmetics
-    plt.subplots_adjust(wspace=0.25,    # the amount of width reserved for blank space between subplots,
-                                        # expressed as a fraction of the average axis width
-                        hspace=0.2)     # the amount of height reserved for white space between subplots,
-    #                                   # expressed as a fraction of the average axis height
+        for i, pnum in enumerate(p_lst):
+            ax = axs[i // 2][i % 2]
+            inner_plot(i, pnum, ax, self.lang)
 
-    plot_pdf = f"./plots/pdf/{language}/sect_diag_{plt_list[0]}-{plt_list[-1]}.pdf"
-    plt.savefig(plot_pdf)   # , bbox_inches="tight")
-    plt.close()
-    print(f"Plot saved to {plot_pdf}")
+        # Plot cosmetics
+        plt.subplots_adjust(wspace=0.25,    # the amount of width reserved for blank space between subplots,
+                                            # expressed as a fraction of the average axis width
+                            hspace=0.2)     # the amount of height reserved for white space between subplots,
+        #                                   # expressed as a fraction of the average axis height
+
+        plot_pdf = f"./plots/pdf/{self.lang}/sect_diag_{p_lst[0]}-{p_lst[-1]}.pdf"
+        plt.savefig(plot_pdf)   # , bbox_inches="tight")
+        plt.close()
+        print(f"Plot saved to {plot_pdf}")
 
 
 if __name__ == "__main__":
     lang = "de"
-    for j in range(1, 20 + 1):
-        plot_sector_diag_png(j, lang)
-    for offset in [1, 5, 9, 13, 17]:
-        plot_4_sector_diag_pdf([offset + k for k in range(4)], lang)
-    # plot_4_sector_diag_pdf([ 5,  6,  7,  8], lang)
+    for lang in ["de", "en"]:
+        sp = SectorPlotter(lang)
+        for j in range(1, 20 + 1):
+            sp.plot_1_sector_diag_png(j)
+        for offset in [1, 5, 9, 13, 17]:
+            sp.plot_4_sector_diag_pdf([offset + k for k in range(4)])
+    # sp.plot_4_sector_diag_pdf([ 5,  6,  7,  8])

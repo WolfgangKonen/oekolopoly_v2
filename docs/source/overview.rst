@@ -10,11 +10,15 @@ oekolopoly_v2
 
 **oekolopoly_v2** is available from `<https://github.com/WolfgangKonen/oekolopoly_v2>`_.
 
-This package allows to train deep reinforcement learning agents (DRL) from `Stable Baselines 3 (SB3) <https://stable-baselines3.readthedocs.io/en/master/>`_ on the game
+.. _drl-label:
+
+This package allows to train **deep reinforcement learning (DRL)** agents from `Stable Baselines 3 (SB3) <https://stable-baselines3.readthedocs.io/en/master/>`_ on the game
 *Ökolopoly*. *Ökolopoly* is a game with a very large action space and which is not easy to master for humans due to its
 mutual nonlinear interdependencies.
 
 The trained agents can be evaluated or used to play an episode on the console.
+
+.. _support-features-label:
 
 The trained agents are also useful to support humans in the task of learning to master the game:
 
@@ -25,6 +29,8 @@ The trained agents are also useful to support humans in the task of learning to 
       this move?
     - Third, if the what-if-move would lead to a 'Game Over' situation, then the **Preview mode console** warns
       and gives the reason, which sector would trigger the 'Game Over' condition.
+
+.. _oeko-gui-pic-label:
 
 These supportive features are part of ``oekolopoly_gui.py``, a GUI that allows to play the game
 Ökolopoly interactively:
@@ -45,12 +51,13 @@ This documentation contains:
     - how to install oekolopoly_v2, how to train DRL agents, evaluate and play with them the game Ökolopoly
     - more details on the game mechanics
     - more details on the available wrappers
-    - an appendix with all the sector diagrams
+    - available plot utilities
+    - two appendices with all the sector diagrams (*de* and *en*)
 
 
 Publications
 -------------
-You can read more about DRL and Ökolopoly in the following scientific publications:
+You can read more about :ref:`DRL <drl-label>` and Ökolopoly in the following scientific publications:
 
 - [Engelh23]_
 
@@ -66,8 +73,8 @@ The **oekolopoly_v2** environment was developed by
 
 The **oekolopoly_v2** realization relies on these other Python packages and software tools:
 
-- ``stable-baselines3`` and ``sb3-contrib`` for the Deep RL agents
-- ``gymnasium`` for interfacing the game with the Deep RL agents
+- ``stable-baselines3`` and ``sb3-contrib`` for the :ref:`DRL <drl-label>` agents
+- ``gymnasium`` for interfacing the game with the :ref:`DRL <drl-label>` agents
 - ``pygame`` for the game GUI
 - ``Sphinx`` for building the package documentation from inline docstrings and .rst files
 - ``readthedocs.io`` for deploying and hosting the documentation pages
