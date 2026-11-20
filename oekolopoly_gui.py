@@ -285,17 +285,14 @@ class Game:
 
     """
     def __init__(self, camera, args):
-        htl = dict_help_screens(args.lang)
-        self.dtl = dtl = dict_translate(args.lang)
+        htl = dict_help_screens(args.language)
+        self.dtl = dtl = dict_translate(args.language)
         self.camera = camera
-        self.env = gym.make('Oekolopoly-v2', language=args.lang)
+        self.env = gym.make('Oekolopoly-v2', language=args.language)
         self.agent_obs, _ = self.env.reset()
         self.agent = PPO.load("trained_agents/obs_box_action_box_reward_perround_0.5_ppo_17.zip")
         self.current_action = [0, 0, 0, 0, 0, 0]
         self.hist = History("bin/current_game_history.txt")
-        # self.all_actions = []
-        # self.all_v = []
-        # self.all_balance = []
         self.action_font = pygame.font.SysFont('Times New Roman', 30)
         self.game_loop = True
         self.done = False
@@ -506,8 +503,8 @@ class Game:
         if self.game_history_button.button_pressed():
             os.startfile("current_game_history.txt", cwd="bin")
         if self.diag_button.button_pressed():
-            webbrowser.open_new(
-                'https://wolfgangkonen-oekolopoly-v2.readthedocs.io/en/latest/appendix.html#app-diagrams-label')
+            webbrowser.open_new(self.dtl["URLDiags"])
+
 
     def change_current_action(self, action_index, change):
         if change > 0 and self.current_action[action_index] + 1 + self.env.unwrapped.V[action_index] <= self.env.unwrapped.Vmax[action_index]:
@@ -718,22 +715,12 @@ class Game:
                 # if self.preview_mode:
                 #    self.all_actions.append(["pm"])
                 self.hist.append_to_history(self.current_action, info['balance'], self.env.unwrapped.V.copy())
-                # self.all_actions.append(self.current_action)
-                # self.all_v.append(self.env.unwrapped.V.copy())
-                # self.all_balance.append(info['balance'])
                 self.reset_current_action()
                 self.predict_used = False
                 self.available_actionpoints = self.env.unwrapped.V[self.env.unwrapped.POINTS]
                 self.special_action = self.env.unwrapped.V[self.env.unwrapped.EDUCATION] >= 20
                 if done:
                     self.done = True
-                    # assert len(self.all_v) == len(self.all_actions) == len(self.all_balance)
-                    # if len(self.all_v) != len(self.all_actions):
-                    #     print(f"len(all_v)={len(self.all_v)} is not equal len(all_actions)={len(self.all_actions)}")
-                    #     dummy = 0
-                    # if len(self.all_v) != len(self.all_balance):
-                    #     print(f"len(all_v)={len(self.all_v)} is not equal len(all_actions)={len(self.all_balance)}")
-                    #     dummy = 0
 
                     # games_played = get_number_value_by_name("bin/played_games.txt", "games_played")
                     # games_played += 1
@@ -767,9 +754,6 @@ class Game:
         self.env = gym.make('Oekolopoly-v2')
         self.agent_obs, _ = self.env.reset()
         self.hist.clear_history()
-        # self.all_actions = []
-        # self.all_v = []
-        # self.all_balance = []
         self.current_action = [0, 0, 0, 0, 0, 0]
         self.console_label.text = ""
         self.available_actionpoints = self.env.unwrapped.V[self.env.unwrapped.POINTS]
@@ -789,10 +773,10 @@ class History:
     """
     def __init__(self, fname: str):
         self.current_game_history_file = fname
-        # self.all_* are lists with as many elements as rounds are played
+        # variables self.all_* are lists with as many elements as rounds are played
         self.all_actions = []
         self.all_balance = []
-        self.all_v = []             # same elements and dims as self.V, self.init_v in oeko_env.py
+        self.all_v = []             # same elements and dims as self.V or self.init_v in oeko_env.py
 
     def clear_history(self):
         self.all_actions = []
@@ -1135,7 +1119,7 @@ class HelpScreen(pygame.sprite.Sprite):
         self.special_number_label = Label(Vector2(570, 690), Vector2(35, 35), camera, "", 25, color_yellow, "0")
         self.special_positive_label = Label(Vector2(630, 690), Vector2(35, 35), camera, "+", 35, color_green)
         #self.special_case_picture = pygame.image.load('assets/education_population_growth.jpg').convert_alpha()
-        if args.lang == "de":
+        if args.language == "de":
             self.special_case_picture = pygame.image.load('assets/sect_diag_9_de.jpg').convert_alpha()
         else:       # i.e. args.language == "en"
             self.special_case_picture = pygame.image.load('assets/sect_diag_9_en.jpg').convert_alpha()

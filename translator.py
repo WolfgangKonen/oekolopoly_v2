@@ -91,6 +91,7 @@ def dict_translate(language):
                "W (factor for box 13)": "W (Faktor für Box 13)",
                "Auxiliary reward": "Zusatzbelohnung",
                "Diagrams": "Diagramme",
+               "URLDiags": 'https://wolfgangkonen-oekolopoly-v2.readthedocs.io/en/latest/app_b.html#de-app-diagrams-label',
                "for": "für",
                }
         return dtl
@@ -176,6 +177,7 @@ def dict_translate(language):
                "W (factor for box 13)": "W (factor for box 13)",
                "Auxiliary reward": "Auxiliary reward",
                "Diagrams": "Diagrams",
+               "URLDiags": 'https://wolfgangkonen-oekolopoly-v2.readthedocs.io/en/latest/app_a.html#app-diagrams-label',
                "for": "for",
                }
         return dtl

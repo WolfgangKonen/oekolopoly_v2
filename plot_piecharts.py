@@ -41,8 +41,8 @@ def plot_piechart(data, ax, agent_str, window, perc):
 
 def plot_all_piecharts(agents, window, perc):
     """
-    Plot a pie chart for each agent in ``agents`` of the **done reasons** near the end of training (last ``window``
-    rows of ``eval.monitor.csv``) and save it to PNG.
+    Plot a pie chart of the **done reasons** near the end of training (last ``window``
+    rows of ``eval.monitor.csv``) for a specific agent and save it to PNG. Do so for each ``agent_str`` in ``agents``
 
     The save location is ``plots/pie/<agent_str>.png``.
 
@@ -67,9 +67,9 @@ def plot_all_piecharts(agents, window, perc):
 
 
 if __name__ == "__main__":
-    # agents = agent_lists.PPO_WK
     window, perc = 1000, 0.05
     agents = [f.name for f in os.scandir("agents") if f.is_dir()]
+    # agents = agent_lists.PPO_WK
     # agents = ["obs_box_action_box_reward_perround_0.5_ppo_17",
     #           "obs_none_action_simple_reward_perround_1.0_ppo_17",
     #           "obs_simple_action_box_reward_perround_0.75_ppo_17"]

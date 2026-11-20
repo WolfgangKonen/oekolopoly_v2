@@ -19,11 +19,11 @@ class OekoEnv(gym.Env):
 
         Dictionary **info** has the following key-value pairs:
 
-        - **balance (always)**: the game balance according to the Ökolopoly balance formula, irrespective of round
-        - **balance_numerator (always)**: the numerator of this formula
-        - **balance**: `info['balance (always)']` if round \in [10,30], 0 else
-        - **balance_numerator**: `info['balance_numerator (always)']` if round \in [10,30], 0 else
-        - **round**: the number of rounds played
+        - **balance (always)**: the game balance formula :math:`B` that is valid for round :math:`r \in [10,30]` is also applied to all other rounds outside this range
+        - **balance_numerator (always)**: the numerator of this formula, valid for round :math:`r \in [10,30]`, is also applied to all other rounds outside this range
+        - **balance**: `info['balance (always)']` if round :math:`r \in [10,30]`, 0 else
+        - **balance_numerator**: `info['balance_numerator (always)']` if round :math:`r \in [10,30]`, 0 else
+        - **round**: the number of rounds :math:`r` played
         - **done_reason**: string with the reason for termination (`None` if not yet terminated)
         - **done_reason_detail**: string with further info
         - **valid_move**: ``False`` if the action points were distributed in a way that is not allowed: (a) action points outside allowed range ``[0,self.V[self.POINTS]]`` or (b) the actions attributed to ``i`` are outside allowed range ``[self.Vmin[i],self.Vmax[i]]``. Otherwise, ``valid_move=True``.
@@ -71,10 +71,12 @@ class OekoEnv(gym.Env):
 
         :param render_mode: ``"human"`` or ``None``. If ``"human"``, then visualize (to the human observer)  in a
             simplified bar-chart GUI the actions  of the agent and the observations of the environment after each step.
+            If ``None``, just play an episode on the console.
         :param language:    ``"en"`` or ``"de"``
         """
-
+        assert language in ["de", "en"]
         self.render_mode = render_mode
+        self.language = language
         self.window = None
         self.clock = None
         self.viewer_w = None
@@ -151,7 +153,7 @@ class OekoEnv(gym.Env):
     def render(self):
         if self.window is None and self.render_mode == "human":
             self.viewer_w = 500
-            self.viewer_h = 500
+            self.viewer_h = 556
             pygame.init()
             pygame.display.init()
             self.window = pygame.display.set_mode(
@@ -172,24 +174,47 @@ class OekoEnv(gym.Env):
         if self.done: print(f"Done: {self.done_info}{self.done_reason_detail}")
 
         while t < t_end:
-            self.render_rounds(canvas,  5, 485, min(t, 1.0))  # progress bar, shows number of round
+            # with argument t, we let the bars slowly grow from previous to current action/observ (0 <= t < 1),
+            # then we pause for 2 'sec' (1 <= t < 3) to display the current action/observ:
             self.render_action(canvas, 50,  70, min(t, 1.0))  # 2nd bar chart, A (positionHorizontal, positionVertical, time)
-            self.render_vector(canvas, 50, 200, min(t, 1.0))  # 1st bar chart, V
+            self.render_observ(canvas, 50, 256, min(t, 1.0))  # 1st bar chart, V
+            self.render_rounds(canvas,  5, 541, min(t, 1.0))  # progress bar, shows number of round
 
             if self.render_mode == "human":
                 # The following line copies our drawings from `canvas` to the visible window
                 self.window.blit(canvas, canvas.get_rect())
-                act_str =  ["R",  "Pr",  "E", "QL", "RR", "extra"]
+                act_str, obs_str = self.act_obs_str()
                 for i in range(len(act_str)):
-                    self.render_text(act_str[i], 55+i*50, 50, (0,0,255))
-                obs_str =  ["R",  "Pr",  "E", "QL", "RR", "EnvD", "Pop", "P"]
+                    self.render_text(act_str[i], 55+i*50, 70-20, (0,0,255))
                 for i in range(len(obs_str)):
-                    self.render_text(obs_str[i], 55+i*50, 180, (255,0,0))
+                    self.render_text(obs_str[i], 55+i*50, 256-20, (255,0,0))
+                rounds_str = ["0", "5", "10", "15", "20", "25", "30", ]
+                for i in range(len(rounds_str)):
+                    self.render_text(rounds_str[i], 5+i*79, 541-20, (20,20,20))
                 pygame.event.pump()
                 pygame.display.update()
-                self.clock.tick(25)
+                self.clock.tick(25)     # wait 25 msec --> a step has 30*25 = 750 msec duration in GUI
 
             t += t_step
+
+    def act_obs_str(self):
+        if self.language == "en":
+            act_str = ["R", "Pr", "E", "QL", "RR", "extra"]
+            # Redevelop, Production, Education, Quality of Life, Reproduction Rate, extra pts special case
+        elif self.language == "de":
+            act_str = ["S", "Pr", "A", "LQ", "V", "extra"]
+            # Sanierung, Produktion, Aufklärung, Lebensqualität, Vermehrungsrate, Extrapunkte Spezialfall
+        else:
+            raise RuntimeError(f"language = {self.language} is not allowed")
+        if self.language == "en":
+            obs_str = ["R", "Pr", "E", "QL", "RR", "EnvD", "Pop", "P"]
+            # R, Pr, E, QL, RR as in act_str, Environ.Damage, Population, Politics
+        elif self.language == "de":
+            obs_str = ["S", "Pr", "A", "LQ", "V", "U", "B", "P"]
+            # S, Pr, A, LQ, V as in act_str, Umweltbelastung, Bevölkerung, Politik
+        else:
+            raise RuntimeError(f"language = {self.language} is not allowed")
+        return act_str, obs_str
 
     def render_text(self, txt, x, y, col=(0,0,255)):
         img_a = self.font.render(txt, True, col)
@@ -198,19 +223,21 @@ class OekoEnv(gym.Env):
     def render_rounds(self, canvas, x_offset, y_offset, t):
         v0 = self.prev_result[self.ROUND]
         v1 = self.curr_result[self.ROUND]
-        v  = v0 + (v1 - v0) * t  # t = 1 show final result, t = 0 show first result, t = 0.5 sth inbetween
+        v  = v0 + (v1 - v0) * t         # v slowly glides from v0 to v1 (while t \in [0,1])
 
         x = x_offset
         y = y_offset
-        w = 490
+        w = 480
         h = 10
 
+        # draw the light gray background rect for the rounds area:
         pygame.draw.rect(
             canvas,
-            (int(255*0.94), int(255*0.94), int(255*0.94)),  # gray
+            (int(255*0.94), int(255*0.94), int(255*0.94)),  # light gray
             pygame.Rect(x, y, w, h)
         )
 
+        # draw the dark gray bar 'rounds': How much of Vmax[self.ROUND] = 30 is the current round?
         w = int(v / self.Vmax[self.ROUND] * w)
 
         pygame.draw.rect(
@@ -219,66 +246,79 @@ class OekoEnv(gym.Env):
             pygame.Rect(x, y, w, h)
         )
 
-
-
     def render_action(self, canvas, x_offset, y_offset, t):
-        w = 40
+        w = 40         # width of each blue action bar
         x_stride = 50  # distance between start of one to middle of another, distance = 50 - 40
         h_step = 8     # scale
 
+        # draw the light gray background rect for the action area
         bg_x = x_offset - 20
         bg_y = y_offset
         bg_w = x_stride * len(self.ACT_NAMES) + 20 * 2
         bg_h = 10 * h_step
-
+        bg_h_neg = 7 * h_step
         pygame.draw.rect(
             canvas,
             (int(255*0.94), int(255*0.94), int(255*0.94)),
-            pygame.Rect(bg_x, bg_y, bg_w, bg_h)
+            pygame.Rect(bg_x, bg_y, bg_w, bg_h + bg_h_neg)
+        )
+        pygame.draw.rect(               # dark gray zero line
+            canvas,
+            (20,20,20),
+            pygame.Rect(bg_x, bg_y + bg_h_neg, bg_w, 1)
         )
 
+        # draw the blue action bars
         for i in range(len(self.ACT_NAMES)):
             x = i * x_stride + x_offset
-            y = y_offset
-
+            y = y_offset + bg_h_neg
+            if i == 5:
+                dummy = 0
             v0 = self.prev_action[i]
             v1 = self.curr_action[i]
-            v  = v0 + (v1 - v0) * t
+            v  = v0 + (v1 - v0) * t     # v slowly glides from v0 to v1 (while t \in [0,1])
             h  = int(v * h_step)
-
+            if h < 0:               # negative action: start the bar at y-h (the negative upper point) and
+                y = y + h           # let it have the height abs(h)
             pygame.draw.rect(
                 canvas,
                 (int(255*0.2), int(255*0.2), int(255*1.)),
-                pygame.Rect(x, y, w, h)
+                pygame.Rect(x, y, w, abs(h))
             )
 
-    def render_vector(self, canvas, x_offset, y_offset, t):
-        w = 40
+    def render_observ(self, canvas, x_offset, y_offset, t):
+        w = 40          # width of each observation bar
         x_stride = 50
         h_step = 8
 
+        # draw the light gray background rect for the observation area
         bg_x = x_offset - 20
         bg_y = y_offset
         bg_w = x_stride * len(self.OBS_NAMES) + 20 * 2
         bg_h = 29 * h_step
-
         pygame.draw.rect(
             canvas,
             (int(255*0.94), int(255*0.94), int(255*0.94)),
             pygame.Rect(bg_x, bg_y, bg_w, bg_h)
         )
 
+        # draw the colored observation bars:
+        # each bar has height 0 if v = Vmin[i] and height 29*h_step if v=Vmax[i]
         for i in range(len(self.OBS_NAMES)):
             x = i * x_stride + x_offset
             y = y_offset
 
             v0 = self.prev_result[i]
             v1 = self.curr_result[i]
-            v  = v0 + (v1 - v0) * t
-            h  = int(v * h_step)
+            v  = v0 + (v1 - v0) * t          # v slowly glides from v0 to v1 (while t \in [0,1])
+            # v_n \in [0,1] is the normalized v, since for each i holds: v \in [Vmin[i], Vmax[i]]
+            v_n = (v - self.Vmin[i]) / (self.Vmax[i] - self.Vmin[i])
+            h  = int(v_n * 29 * h_step)
 
-            r = (v - self.Vmin[i]) / (self.Vmax[i] - self.Vmin[i])
-            r = abs((r - 0.5) * 2)
+            # red-channel r:   1 if v_n=0 or 1, 0 if v_n=0.5 ("v"-form)
+            # green-channel g: 1 if v_n=0.5, 0 if v_n=0 or 1 (flipped "v"-form = hat-form)
+            # --> the color is green in the middle, red at the extremes, and green-red-brownish in between
+            r = abs((v_n - 0.5) * 2)
             g = 1 - r
             pygame.draw.rect(
                 canvas,

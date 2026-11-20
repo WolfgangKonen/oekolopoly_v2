@@ -38,6 +38,8 @@ def parse_args():
                         help='DRL algorithm')
     parser.add_argument('--render_mode', type=str, default=None, choices=['human', None],
                         help='render mode for environment OekoEnv')
+    parser.add_argument('--language', type=str, default="en", choices=["en", "de"],
+                        help='language for environment OekoEnv')
 
 
     args = parser.parse_args()
@@ -238,9 +240,14 @@ class AgentEpisodeRunner:
         dict ``info`` that was returned by the **terminating step** (see class :class:`.OekoEnv` for detailed docu of
         the key-value pairs in ``info``).
 
+        This class is configured with these command-line arguments:
+
+            - **render_mode** : "human": visualize (to the human observer) the episode in a simplified bar-chart GUI. If **render_mode** is not present, no GUI.
+            - as well as all command-line arguments for the class :class:`.Trainer` (with the exception of *timesteps*).
+
         Example usage (via console)::
 
-            python run_agent_episode.py --observation "box" --action "box" --reward "perround" --shaping 0.5 --algo "ppo" --seed 17
+            python run_agent_episode.py --render_mode "human" --observation "box" --action "box" --reward "perround" --shaping 0.5 --algo "ppo" --seed 17
 
         This loads the agent from ``agents/obs_box_action_box_reward_perround_0.5_ppo_17/`` and plays with it
         one episode.
@@ -254,7 +261,7 @@ class AgentEpisodeRunner:
         savedir = f"./trained_agents/{agent_str}"
 
         # Prepare environment
-        env = gym.make("Oekolopoly-v2", render_mode=args.render_mode)
+        env = gym.make("Oekolopoly-v2", language=args.language, render_mode=args.render_mode)
         env = wrap_env(env, args, savedir + "/train", monitor=False)
 
         # Load model
@@ -264,6 +271,8 @@ class AgentEpisodeRunner:
         s, _ = env.reset()
         m_return = 0
         done = False
+        print("[ R Pr  E QL RR ED Po  P  r AP] [ R Pr  E QL RR ex]")
+        print("[-------- observations -------] [---- actions ----]")
         while not done:
             action, _ = model.predict(s, deterministic=True)
 
