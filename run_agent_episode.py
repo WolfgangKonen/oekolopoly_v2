@@ -233,7 +233,8 @@ def transf_act_simple(env, act):
 class AgentEpisodeRunner:
     """
         Load a trained agent according to the command line arguments provided (see class :class:`.Trainer`) and run one
-        episode with this agent (i.e. call ``env.step`` repeatedly until the episode is terminated).
+        episode with this agent (i.e. call ``env.step`` repeatedly with the action prescribed by the agent's
+        ``model.predict``  until the episode terminates).
         Print the sector variables and the actions taken in each round.
 
         Upon termination, print out the cumulated return (sum of all rewards received in each step) and the
@@ -243,6 +244,7 @@ class AgentEpisodeRunner:
         This class is configured with these command-line arguments:
 
             - **render_mode** : "human": visualize (to the human observer) the episode in a simplified bar-chart GUI. If **render_mode** is not present, no GUI.
+            - **language** : "en" or "de", language of the text in visualization GUI and console.
             - as well as all command-line arguments for the class :class:`.Trainer` (with the exception of *timesteps*).
 
         Example usage (via console)::
@@ -271,8 +273,12 @@ class AgentEpisodeRunner:
         s, _ = env.reset()
         m_return = 0
         done = False
-        print("[ R Pr  E QL RR ED Po  P  r AP] [ R Pr  E QL RR ex]")
-        print("[-------- observations -------] [---- actions ----]")
+        if args.language == "de":
+            print("[ S Pr  A LQ  V  U Po  P  r AP] [ S Pr  A LQ  V ex]")
+            print("[------- Observationen -------] [--- Aktionen ----]")
+        else:  # i.e. if args.language == "en"
+            print("[ R Pr  E QL RR ED Po  P  r AP] [ R Pr  E QL RR ex]")
+            print("[-------- observations -------] [---- actions ----]")
         while not done:
             action, _ = model.predict(s, deterministic=True)
 

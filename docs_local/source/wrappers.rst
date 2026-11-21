@@ -5,7 +5,8 @@ Wrappers
 --------------
 
 
-This chapter describes the wrappers in ``oekolopoly_v2``.
+This chapter describes the wrappers in ``oekolopoly_v2``. Wrappers are classes that are wrapped around environments
+in order to present certain features of the environment differently to the :ref:`DRL <drl-label>` agents.
 
 .. _act-wrapper-label:
 

@@ -14,7 +14,15 @@ def parse_done_reasons(string):
     tmp = string.split(".")[0]
     return tmp
 
+
 def plot_piechart(data, ax, agent_str, window, perc):
+    """
+    Plot a pie chart of the **done reasons** near the end of training (last ``window``
+    rows of ``eval.monitor.csv``) for a specific agent ``agent_str`` and save it to PNG.
+
+    The save location is ``plots/pie/<agent_str>.png``.
+    """
+
     # Prepare dataset for done reasons
     sel = data.iloc[-window:]
     if "done_reason" not in sel.columns:
@@ -41,8 +49,8 @@ def plot_piechart(data, ax, agent_str, window, perc):
 
 def plot_all_piecharts(agents, window, perc):
     """
-    Plot a pie chart of the **done reasons** near the end of training (last ``window``
-    rows of ``eval.monitor.csv``) for a specific agent and save it to PNG. Do so for each ``agent_str`` in ``agents``
+    Plot all pie charts of the **done reasons** near the end of training (last ``window``
+    rows of ``eval.monitor.csv``) for the agents specified in ``agents`` and save them to PNG.
 
     The save location is ``plots/pie/<agent_str>.png``.
 

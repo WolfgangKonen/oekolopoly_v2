@@ -1,8 +1,14 @@
+.. image:: ../../plots/png/en/sect_diag_9.png
+   :height: 210px
+   :width: 210px
+   :align: right
+
 --------
 Overview
 --------
 
 What is **oekolopoly_v2** and what is contained in this documentation?
+
 
 
 oekolopoly_v2
@@ -14,7 +20,8 @@ oekolopoly_v2
 
 This package allows to train **deep reinforcement learning (DRL)** agents from `Stable Baselines 3 (SB3) <https://stable-baselines3.readthedocs.io/en/master/>`_ on the game
 *Ökolopoly*. *Ökolopoly* is a game with a very large action space and which is not easy to master for humans due to its
-mutual nonlinear interdependencies.
+mutual nonlinear interdependencies. The game is also not easy to master for DRL agents, but with suitable
+:ref:`wrappers <wrapper-label>` we could train various DRL agents successfully.
 
 The trained agents can be evaluated or used to play an episode on the console.
 
@@ -22,7 +29,7 @@ The trained agents can be evaluated or used to play an episode on the console.
 
 The trained agents are also useful to support humans in the task of learning to master the game:
 
-    - First, there is the so called **AI Move** in ``oekolopoly_gui.py`` which provides hints for the human by letting the AI
+    - First, there is the so called **AI move** in ``oekolopoly_gui.py`` which provides hints for the human by letting the AI
       (a trained agent) suggest the next move.
     - Second, humans can get support from the so-called **Preview mode**: This mode provides what-if scenarios:
       What if I distribute the action points as indicated, what would be the cumulated sector changes if I execute
@@ -33,7 +40,7 @@ The trained agents are also useful to support humans in the task of learning to 
 .. _oeko-gui-pic-label:
 
 These supportive features are part of ``oekolopoly_gui.py``, a GUI that allows to play the game
-Ökolopoly interactively:
+Ökolopoly interactively as a human:
 
 .. image:: ../../assets/oekolopoly_sepia2_en.jpg
    :height: 360px
@@ -47,12 +54,13 @@ Documentation
 
 This documentation contains:
 
-    - a brief introduction to the game Ökolopoly
-    - how to install oekolopoly_v2, how to train DRL agents, evaluate and play with them the game Ökolopoly
-    - more details on the game mechanics
-    - more details on the available wrappers
-    - available plot utilities
-    - two appendices with all the sector diagrams (*de* and *en*)
+    - a brief introduction to the game Ökolopoly,
+    - how to install oekolopoly_v2,
+    - how to train DRL agents, evaluate and play with them the game Ökolopoly,
+    - more details on the game mechanics,
+    - more details on the available wrappers,
+    - available plot utilities,
+    - two appendices with all the sector diagrams (*de* and *en*).
 
 
 Publications
